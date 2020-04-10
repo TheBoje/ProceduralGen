@@ -13,6 +13,11 @@ public class testScript : MonoBehaviour
         roomOrigin.GetComponent<Room>().AddRoom(0, 0, roomAdded);
     }
 
+    public void OnTriggerStay(Collider other)
+    {
+        Debug.Log("Je suis " + transform.name + "et je touche " + other.name);
+    }
+
     // Update is called once per frame
     void Update()
     {

@@ -49,7 +49,7 @@ public class Room : MonoBehaviour
         }
         else
         {
-            Instantiate(room, m_anchorsPoints[indOrigin].position + roomScript.AnchorsPoints[indAdding].position, Quaternion.identity);
+            Instantiate(room, m_anchorsPoints[indOrigin].position - roomScript.AnchorsPoints[indAdding].position, Quaternion.identity);
         }
     }
 
