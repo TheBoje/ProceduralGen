@@ -313,6 +313,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2666100705399358242, guid: b26d631773ac7784fb19c33b2f0289fd,
+        type: 3}
+      propertyPath: lerpCoef
+      value: 0.417
+      objectReference: {fileID: 0}
     - target: {fileID: 2666100705399358253, guid: b26d631773ac7784fb19c33b2f0289fd,
         type: 3}
       propertyPath: m_LocalPosition.x

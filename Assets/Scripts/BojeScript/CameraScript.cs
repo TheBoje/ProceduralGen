@@ -9,10 +9,11 @@ public class CameraScript : MonoBehaviour
     public float mouseSensitivity = 1f;
 
     [SerializeField] [Range(0f, 1f)]
-    private float lerpCoef = 0.3f;
+    private float lerpCoef = 0.15f;
     public float maxYAngle = 80f;
     public float speed = 12f;
     private Vector2 currentRotation;
+    public float mouseWhell;
 
     public Transform transform;
     private void FixedUpdate()
@@ -32,6 +33,13 @@ public class CameraScript : MonoBehaviour
             currentRotation.y = Mathf.Clamp(currentRotation.y, -maxYAngle, maxYAngle);
             Camera.main.transform.rotation = Quaternion.Euler(currentRotation.y, currentRotation.x, 0);
         }
+
+        mouseWhell = Input.GetAxis("Mouse ScrollWheel");
+        if (mouseWhell != 0)
+        {
+            Vector3 newPos = transform.position + Vector3.up * mouseWhell * 10f;
+            transform.position = Vector3.Lerp(transform.position, newPos, lerpCoef);
+        } 
 
     }
        
