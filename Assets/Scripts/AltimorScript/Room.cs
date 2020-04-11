@@ -60,11 +60,7 @@ public class Room : MonoBehaviour
             Vector3 anchorPos = addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].position;
             Vector3 addedRoomPos = addedRoom.transform.position;
 
-
-            Vector3 vectDeplacement = new Vector3(addedRoomPos.x - anchorPos.x,
-                                                  addedRoomPos.y - anchorPos.y,
-                                                  addedRoomPos.z - anchorPos.z);
-
+            Vector3 vectDeplacement = addedRoomPos - anchorPos;
 
             addedRoom.transform.position = addedRoom.transform.position + vectDeplacement;
         }
