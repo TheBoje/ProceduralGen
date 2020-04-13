@@ -15,6 +15,7 @@ public class Room : MonoBehaviour
         //m_anchorsPoints = new List<Transform>();
 
         m_nbAnchorsPoints = m_anchorsPoints.Count;
+        //Debug.Log("NOM : " + gameObject.name + " | nbAnchors : " + m_nbAnchorsPoints);
     }
 
     // Place tous les points d'ancrage dans la liste
@@ -47,9 +48,9 @@ public class Room : MonoBehaviour
     public GameObject AddRoom(int indOrigin, int indAdding, GameObject room)
     {
         Room roomScript = room.GetComponent<Room>();
-        if( (indOrigin < 0 || indOrigin > m_nbAnchorsPoints - 1) || (indAdding < 0 || indAdding > roomScript.NbAnchorsPoints) )
+        if( (indOrigin < 0 || indOrigin > m_nbAnchorsPoints - 1) || (indAdding < 0 || indAdding > roomScript.NbAnchorsPoints - 1) )
         {
-            Debug.Log("Room.AddRoom() - Invalid index");
+            Debug.Log("Room.AddRoom() - Invalid index (indOrigin, m_nbAnchorsPoints, indAdding, roomScript.NbAnchorsPoints) : " + indOrigin + ", " + m_nbAnchorsPoints + ", " + indAdding + ", " + roomScript.NbAnchorsPoints);
             return null;
         }
         else

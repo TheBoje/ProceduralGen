@@ -4,19 +4,14 @@ using UnityEngine;
 
 public class testScript : MonoBehaviour
 {
-    public GameObject roomOrigin;
-    public GameObject roomAdded;
+    public GameObject house;
 
     // Start is called before the first frame update
     void Start()
     {
-        roomOrigin.GetComponent<Room>().AddRoom(0, 0, roomAdded);
+        house.GetComponent<House>().CreateHouse();
     }
 
-    public void OnTriggerStay(Collider other)
-    {
-        Debug.Log("Je suis " + transform.name + "et je touche " + other.name);
-    }
 
     // Update is called once per frame
     void Update()

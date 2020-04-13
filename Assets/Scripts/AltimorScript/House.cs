@@ -13,6 +13,9 @@ public class House : MonoBehaviour
     private int m_nbFloors;
     private List<GameObject> m_rooms;
 
+    [SerializeField] private List<GameObject> m_ableRooms;
+    private int m_nbAbleRooms;
+
     private int m_maxFloors;
     private int m_maxRooms;
 
@@ -24,8 +27,10 @@ public class House : MonoBehaviour
         m_nbRooms = 0;
         m_nbFloors = 1; //  WIP -> rajouter BOTTOM et TOP pour les ancrages
 
-        m_maxFloors = Random.Range(1, MAX_FLOORS);
-        m_maxRooms = Random.Range(1, MAX_ROOMS);
+        m_nbAbleRooms = m_ableRooms.Count;
+
+        m_maxFloors = 1; //Random.Range(1, MAX_FLOORS);
+        m_maxRooms = 2; //Random.Range(1, MAX_ROOMS);
     }
 
     // Ajoute une pièce à la maison à l'étage passé en paramètre TODO -> Gérer les étages
@@ -34,6 +39,7 @@ public class House : MonoBehaviour
         if(m_nbRooms == 0)
         {
             GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity);
+            addedRoom.GetComponent<Room>().SetParent(gameObject);
             m_nbRooms++;
             m_rooms.Add(addedRoom);
         }
@@ -47,19 +53,32 @@ public class House : MonoBehaviour
         }
         else
         {
-            int indRoom = Random.Range(1, m_nbRooms);
+            int indRoom = Random.Range(0, m_nbRooms - 1);
 
             // On récupère les scripts des objets
             Room originRoom = m_rooms[indRoom].GetComponent<Room>();
             Room addingRoom = room.GetComponent<Room>();
 
             // On récupère l'identifiant d'une ancre aléatoirement
-            int indAnchorOrigin = Random.Range(1, originRoom.NbAnchorsPoints);
-            int indAnchorAdding = Random.Range(1, addingRoom.NbAnchorsPoints);
+            int indAnchorOrigin = Random.Range(0, originRoom.NbAnchorsPoints - 1);
+            int indAnchorAdding = Random.Range(0, addingRoom.NbAnchorsPoints - 1);
 
             GameObject addedRoom = originRoom.AddRoom(indAnchorOrigin, indAnchorAdding, room);
+            addedRoom.GetComponent<Room>().SetParent(gameObject);
             m_nbRooms++;
             m_rooms.Add(addedRoom);
+        }
+    }
+
+    // Créer la maison avec un nombre nbRooms de pièces
+    public void CreateHouse()
+    {
+
+        Debug.Log(m_maxRooms);
+        for(int i = 0; i < m_maxRooms ; i++)
+        {
+            Debug.Log("passe");
+            AddRoom(m_nbFloors, m_ableRooms[Random.Range(0, m_nbAbleRooms - 1)]);
         }
     }
 

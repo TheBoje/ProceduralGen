@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 706925107253027732, guid: b4143c09a939bc0449217547e7cb5a78,
         type: 3}
       propertyPath: m_anchorSide
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 706925107253027733, guid: b4143c09a939bc0449217547e7cb5a78,
         type: 3}
