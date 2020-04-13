@@ -5,7 +5,7 @@ using UnityEngine;
 public class AnchorPoint : MonoBehaviour
 {
 
-    public enum side { NORTH, EAST, SOUTH, WEST}
+    public enum side { NORTH, EAST, SOUTH, WEST, BOTTOM, TOP}
 
     [SerializeField] side m_anchorSide; // à automatiser par la suite en fonction de la position
 
@@ -15,7 +15,7 @@ public class AnchorPoint : MonoBehaviour
         
     }
 
-    // Tourne le parent ou non (Room) en fonction de la face qui lui est présenté WIP
+    // Tourne le parent ou non (Room) en fonction de la face qui lui est présenté WIP : ajouter le haut et le bas
     public void RotateRoom(side otherAnchors)
     {
 

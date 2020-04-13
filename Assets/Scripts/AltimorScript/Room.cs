@@ -44,12 +44,13 @@ public class Room : MonoBehaviour
     }
 
     // Ajoute une pièce sur le n-ième point d'ancrage (passé en paramètre)
-    public void AddRoom(int indOrigin, int indAdding, GameObject room)
+    public GameObject AddRoom(int indOrigin, int indAdding, GameObject room)
     {
         Room roomScript = room.GetComponent<Room>();
         if( (indOrigin < 0 || indOrigin > m_nbAnchorsPoints - 1) || (indAdding < 0 || indAdding > roomScript.NbAnchorsPoints) )
         {
             Debug.Log("Room.AddRoom() - Invalid index");
+            return null;
         }
         else
         {
@@ -63,8 +64,39 @@ public class Room : MonoBehaviour
             Vector3 vectDeplacement = addedRoomPos - anchorPos;
 
             addedRoom.transform.position = addedRoom.transform.position + vectDeplacement;
+
+            // On enlève les ancres de la liste
+            RemInList(indOrigin);
+            addedRoom.GetComponent<Room>().RemInList(indAdding);
+
+            return addedRoom;
+            //Destroy(m_anchorsPoints[indOrigin]);
+            //Destroy(addedRoom.GetComponent<Room>().AnchorsPoints[indAdding]);
         }
     }
+
+    // Enlève l'objet de la liste dont l'indice est passé en paramètre
+    public void RemInList(int index)
+    {
+        if(m_nbAnchorsPoints == 0)
+        {
+            Debug.Log("Room.RemInList - Empty List");
+        }
+        else if(m_nbAnchorsPoints < 0)
+        {
+            Debug.Log("Room.RemInList - Problem : m_nbAnchorsPoints < 0");
+        }
+        else if(index > m_nbAnchorsPoints - 1 || index < 0)
+        {
+            Debug.Log("Room.RemInList - Index out of range : " + index);
+        }
+        else
+        {
+            m_anchorsPoints.RemoveAt(index);
+            m_nbAnchorsPoints--;
+        }
+    }
+
 
     // GETTER
     public List<Transform> AnchorsPoints
@@ -76,4 +108,5 @@ public class Room : MonoBehaviour
     {
         get { return m_nbAnchorsPoints; }
     }
+
 }
