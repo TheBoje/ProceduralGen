@@ -29,8 +29,8 @@ public class House : MonoBehaviour
 
         m_nbAbleRooms = m_ableRooms.Count;
 
-        m_maxFloors = 1; //Random.Range(1, MAX_FLOORS);
-        m_maxRooms = 2; //Random.Range(1, MAX_ROOMS);
+        m_maxFloors = Random.Range(1, MAX_FLOORS);
+        m_maxRooms = Random.Range(1, MAX_ROOMS);
 
         Debug.Log(m_maxRooms);
     }
