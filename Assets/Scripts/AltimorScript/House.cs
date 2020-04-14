@@ -98,8 +98,9 @@ public class House : MonoBehaviour
         Debug.Log(m_maxRooms);
         for(int i = 0; i < m_maxRooms ; i++)
         {
-            Debug.Log("passe");
-            AddRoom(m_nbFloors, m_ableRooms[Random.Range(0, m_nbAbleRooms - 1)]);
+            int id = Random.Range(0, m_nbAbleRooms);
+            Debug.Log("ID : " + id);
+            AddRoom(m_nbFloors, m_ableRooms[id]);
         }
     }
 
