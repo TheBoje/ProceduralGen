@@ -433,5 +433,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ableRooms:
-  - {fileID: 706925108370879979, guid: a4fca97d8b399c7428f6d8a4e78c9401, type: 3}
-  - {fileID: -118921827791422772, guid: 831b7a30b3494f748a47710414936a04, type: 3}
+  - {fileID: 7158957565064610314, guid: a958e692ea4d41e4180f4ac31a16b9c7, type: 3}
+  - {fileID: 5418386422474837012, guid: 1162177112ab75145ae6ab17c57101b9, type: 3}
