@@ -429,6 +429,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1626586265}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf625c4f740df1942b519ebccac5b0cc, type: 3}
+  m_Script: {fileID: 11500000, guid: cec342ec409b66648a3ac2ab7cc14252, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_ableRooms:
+  - {fileID: 706925108370879979, guid: a4fca97d8b399c7428f6d8a4e78c9401, type: 3}
+  - {fileID: -118921827791422772, guid: 831b7a30b3494f748a47710414936a04, type: 3}
