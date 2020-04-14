@@ -9,6 +9,7 @@ public class testScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        house.GetComponent<House>().Start();
         house.GetComponent<House>().CreateHouse();
     }
 

@@ -21,7 +21,7 @@ public class House : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
         m_rooms = new List<GameObject>();
         m_nbRooms = 0;
@@ -31,6 +31,8 @@ public class House : MonoBehaviour
 
         m_maxFloors = 1; //Random.Range(1, MAX_FLOORS);
         m_maxRooms = 2; //Random.Range(1, MAX_ROOMS);
+
+        Debug.Log(m_maxRooms);
     }
 
     // Ajoute une pièce à la maison à l'étage passé en paramètre TODO -> Gérer les étages
@@ -59,14 +61,25 @@ public class House : MonoBehaviour
             Room originRoom = m_rooms[indRoom].GetComponent<Room>();
             Room addingRoom = room.GetComponent<Room>();
 
+            originRoom.Start();
+            addingRoom.Start();
+
             // On récupère l'identifiant d'une ancre aléatoirement
             int indAnchorOrigin = Random.Range(0, originRoom.NbAnchorsPoints - 1);
             int indAnchorAdding = Random.Range(0, addingRoom.NbAnchorsPoints - 1);
 
             GameObject addedRoom = originRoom.AddRoom(indAnchorOrigin, indAnchorAdding, room);
-            addedRoom.GetComponent<Room>().SetParent(gameObject);
-            m_nbRooms++;
-            m_rooms.Add(addedRoom);
+            if(addedRoom != null)
+            {
+                addedRoom.GetComponent<Room>().SetParent(gameObject);
+                m_nbRooms++;
+                m_rooms.Add(addedRoom);
+            }
+            else
+            {
+                Debug.Log("House.AddRoom - null addedRoom ");
+            }
+            
         }
     }
 
