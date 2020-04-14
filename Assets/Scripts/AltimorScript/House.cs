@@ -41,9 +41,17 @@ public class House : MonoBehaviour
         if(m_nbRooms == 0)
         {
             GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity);
-            addedRoom.GetComponent<Room>().SetParent(gameObject);
-            m_nbRooms++;
-            m_rooms.Add(addedRoom);
+
+            if (addedRoom != null)
+            {
+                addedRoom.GetComponent<Room>().SetParent(gameObject);
+                m_nbRooms++;
+                m_rooms.Add(addedRoom);
+            }
+            else
+            {
+                Debug.Log("House.AddRoom - null addedRoom ");
+            }
         }
         else if(m_nbRooms >= m_maxRooms)
         {
