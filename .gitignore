@@ -499,3 +499,5 @@ MigrationBackup/
 
 *.blend1
 *.blend1.meta
+Assets/Scripts/MainScript.meta
+Assets/Scripts/ThblScript.meta
