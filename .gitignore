@@ -496,3 +496,6 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/unity,jetbrains,visualstudio
+
+*.blend1
+*.blend1.meta
