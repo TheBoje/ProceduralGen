@@ -70,9 +70,11 @@ public class Room : MonoBehaviour
             RemInList(indOrigin);
             addedRoom.GetComponent<Room>().RemInList(indAdding);
 
-            return addedRoom;
             //Destroy(m_anchorsPoints[indOrigin]);
             //Destroy(addedRoom.GetComponent<Room>().AnchorsPoints[indAdding]);
+
+            return addedRoom;
+            
         }
     }
 

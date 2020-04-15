@@ -31,12 +31,12 @@ public class AnchorPoint : MonoBehaviour
         {
             float multiplier = 0.0f;
 
-            if (((int)m_anchorSide - 1) % 4 == (int)otherAnchors) // vérifie le côté gauche
+            if (4 + ((int)m_anchorSide - 1) % 4 == (int)otherAnchors) // vérifie le côté gauche
             {
                 multiplier = -1f;
                 m_anchorSide = (side)(4 + ((int)m_anchorSide + 1) % 4);
             }
-            else if (((int)m_anchorSide + 1) % 4 == (int)otherAnchors) // vérifie le côté droit
+            else if (4 + ((int)m_anchorSide + 1) % 4 == (int)otherAnchors) // vérifie le côté droit
             {
                 multiplier = 1f;
                 m_anchorSide = (side)( 4 + ((int)m_anchorSide - 1) % 4);
