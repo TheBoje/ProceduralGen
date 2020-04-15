@@ -60,10 +60,8 @@ public class Room : MonoBehaviour
             
             GameObject addedRoom = Instantiate(room, m_anchorsPoints[indOrigin].position, transform.rotation); //Euler(transform.rotation.x, transform.rotation.y - 90, transform.rotation.z)
 
-            addedRoom.GetComponent<Room>().Start();
             Vector3 rotation = addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].GetComponent<AnchorPoint>().RotateRoom(m_anchorsPoints[indOrigin].GetComponent<AnchorPoint>().AnchorSide);
             addedRoom.transform.Rotate(rotation);
-            addedRoom.name += " <- " + gameObject.name;
 
 
             foreach(Transform anchorPoint in addedRoom.GetComponent<Room>().AnchorsPoints)
@@ -95,15 +93,15 @@ public class Room : MonoBehaviour
     {
         if(m_nbAnchorsPoints == 0)
         {
-            Debug.Log(gameObject.name + " : Room.RemInList - Empty List");
+            Debug.Log("Room.RemInList - Empty List");
         }
         else if(m_nbAnchorsPoints < 0)
         {
-            Debug.Log(gameObject.name + " : Room.RemInList - Problem : m_nbAnchorsPoints < 0");
+            Debug.Log("Room.RemInList - Problem : m_nbAnchorsPoints < 0");
         }
         else if(index > m_nbAnchorsPoints - 1 || index < 0)
         {
-            Debug.Log(gameObject.name + " : Room.RemInList - Index out of range : " + index);
+            Debug.Log("Room.RemInList - Index out of range : " + index);
         }
         else
         {
