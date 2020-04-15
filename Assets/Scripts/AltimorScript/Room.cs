@@ -44,6 +44,8 @@ public class Room : MonoBehaviour
         //Debug.Log("gameObject's Parent: " + gameObject.transform.parent.name);
     }
 
+    
+
     // Ajoute une pièce sur le n-ième point d'ancrage (passé en paramètre)
     public GameObject AddRoom(int indOrigin, int indAdding, GameObject room)
     {
@@ -55,9 +57,17 @@ public class Room : MonoBehaviour
         }
         else
         {
+            
             GameObject addedRoom = Instantiate(room, m_anchorsPoints[indOrigin].position, transform.rotation); //Euler(transform.rotation.x, transform.rotation.y - 90, transform.rotation.z)
 
-            addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].GetComponent<AnchorPoint>().RotateRoom(m_anchorsPoints[indOrigin].GetComponent<AnchorPoint>().AnchorSide);
+            Vector3 rotation = addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].GetComponent<AnchorPoint>().RotateRoom(m_anchorsPoints[indOrigin].GetComponent<AnchorPoint>().AnchorSide);
+            addedRoom.transform.Rotate(rotation);
+
+
+            foreach(Transform anchorPoint in addedRoom.GetComponent<Room>().AnchorsPoints)
+            {
+                anchorPoint.GetComponent<AnchorPoint>().RotateAnchor(rotation);
+            }
 
             Vector3 anchorPos = addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].position;
             Vector3 addedRoomPos = addedRoom.transform.position;

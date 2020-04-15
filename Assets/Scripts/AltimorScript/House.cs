@@ -17,7 +17,7 @@ public class House : MonoBehaviour
     private int m_nbAbleRooms;
 
     private int m_maxFloors;
-    private int m_maxRooms;
+    [SerializeField] private int m_maxRooms;
 
 
     // Start is called before the first frame update
@@ -30,7 +30,7 @@ public class House : MonoBehaviour
         m_nbAbleRooms = m_ableRooms.Count;
 
         m_maxFloors = Random.Range(1, MAX_FLOORS);
-        m_maxRooms = Random.Range(1, MAX_ROOMS);
+        //m_maxRooms = Random.Range(1, MAX_ROOMS);
 
         Debug.Log(m_maxRooms);
     }
@@ -91,13 +91,19 @@ public class House : MonoBehaviour
         }
     }
 
+    IEnumerator Cor()
+    {
+        yield return new WaitForSeconds(2);
+    }
+
     // Créer la maison avec un nombre nbRooms de pièces
     public void CreateHouse()
     {
-
+        
         Debug.Log(m_maxRooms);
         for(int i = 0; i < m_maxRooms ; i++)
         {
+            StartCoroutine(Cor());
             int id = Random.Range(0, m_nbAbleRooms);
             Debug.Log("ID : " + id);
             AddRoom(m_nbFloors, m_ableRooms[id]);
