@@ -105,7 +105,7 @@ public class House : MonoBehaviour
         {
             StartCoroutine(Cor());
             int id = Random.Range(0, m_nbAbleRooms);
-            Debug.Log("ID : " + id);
+            //Debug.Log("ID : " + id);
             AddRoom(m_nbFloors, m_ableRooms[id]);
         }
     }
