@@ -445,4 +445,4 @@ MonoBehaviour:
   m_ableRooms:
   - {fileID: 7158957565064610314, guid: a958e692ea4d41e4180f4ac31a16b9c7, type: 3}
   - {fileID: 5418386422474837012, guid: 1162177112ab75145ae6ab17c57101b9, type: 3}
-  m_maxRooms: 4
+  m_maxRooms: 3
