@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class testScript : MonoBehaviour
 {
-    public GameObject house;
+    [SerializeField] private List<GameObject> m_houses;
 
     // Start is called before the first frame update
     void Start()
     {
-        house.GetComponent<House>().Start();
-        house.GetComponent<House>().CreateHouse();
+        foreach(GameObject house in m_houses)
+        {
+            house.GetComponent<House>().Start();
+            house.GetComponent<House>().CreateHouse();
+        }
+        
     }
 
 
