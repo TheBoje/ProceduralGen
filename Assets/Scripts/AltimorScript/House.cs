@@ -133,11 +133,16 @@ public class House : MonoBehaviour
             min_z = (min_z > (roomPos.z + (-0.5f * roomScale.z))) ? (roomPos.z + (-0.5f * roomScale.z)) : max_z;
         }
 
+        
 
+        //m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
+        //m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
+
+        // calcul d'un terrain carré (pour simplifier) 
         m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
         m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
-    }
 
+    }
 
     // GETTER
     public Vector3 Field
