@@ -8,16 +8,18 @@ public class House : MonoBehaviour
 {
     private const int MAX_FLOORS = 5;
     private const int MAX_ROOMS = 10;
+    private const float OFFSET_FIELD = 2f;
 
-    private int m_nbRooms;
-    private int m_nbFloors;
-    private List<GameObject> m_rooms;
+    private int m_nbRooms; // nombre de pièces
+    private int m_nbFloors; // nombre d'étages
+    private List<GameObject> m_rooms; // pièces de la maison
+    private Vector3 m_field; // taille du terrain ( > 0)
 
     [SerializeField] private List<GameObject> m_ableRooms;
     private int m_nbAbleRooms;
 
     private int m_maxFloors;
-    [SerializeField] private int m_maxRooms;
+    [SerializeField] private int m_maxRooms; // nombre maximale de pièces dans la maison
 
 
     // Start is called before the first frame update
@@ -26,6 +28,8 @@ public class House : MonoBehaviour
         m_rooms = new List<GameObject>();
         m_nbRooms = 0;
         m_nbFloors = 1; //  WIP -> rajouter BOTTOM et TOP pour les ancrages
+
+        m_field = new Vector3(0f, 0f, 0f);
 
         m_nbAbleRooms = m_ableRooms.Count;
 
@@ -108,6 +112,37 @@ public class House : MonoBehaviour
             Debug.Log("ID : " + id);
             AddRoom(m_nbFloors, m_ableRooms[id]);
         }
+    }
+
+    //Calcul le terrain de la maison 
+    private void ComputeField()
+    {
+        float max_x = 0f, min_x = 0f;
+        float max_z = 0f, min_z = 0f;
+
+        foreach(GameObject room in m_rooms)
+        {
+            Vector3 roomPos = room.transform.position;
+            Vector3 roomScale = room.transform.localScale;
+
+            // On calcule les maximums et minimums atteint par la maison
+            max_x = (max_x < (roomPos.x + 0.5f * roomScale.x)) ? (roomPos.x + 0.5f * roomScale.x) : max_x;
+            min_x = (min_x > (roomPos.x + (-0.5f * roomScale.x))) ? (roomPos.x + (-0.5f * roomScale.x)) : min_x;
+           
+            max_z = (max_z < (roomPos.z + 0.5f * roomScale.z)) ? (roomPos.z + 0.5f * roomScale.z) : max_z;
+            min_z = (min_z > (roomPos.z + (-0.5f * roomScale.z))) ? (roomPos.z + (-0.5f * roomScale.z)) : max_z;
+        }
+
+
+        m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
+        m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
+    }
+
+
+    // GETTER
+    public Vector3 Field
+    {
+        get { return m_field; }
     }
 
 }
