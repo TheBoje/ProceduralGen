@@ -37,6 +37,9 @@ public class House : MonoBehaviour
         //m_maxRooms = Random.Range(1, MAX_ROOMS);
 
         Debug.Log(m_maxRooms);
+
+        CreateHouse();
+        ComputeField();
     }
 
     // Ajoute une pièce à la maison à l'étage passé en paramètre TODO -> Gérer les étages
@@ -93,11 +96,6 @@ public class House : MonoBehaviour
             }
             
         }
-    }
-
-    IEnumerator Cor()
-    {
-        yield return new WaitForSeconds(2);
     }
 
     // Créer la maison avec un nombre nbRooms de pièces
