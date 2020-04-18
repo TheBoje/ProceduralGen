@@ -10,7 +10,7 @@ public class Room : MonoBehaviour
 
 
     // Start is called before the first frame update
-    public void Start()
+    void Awake()
     {
         //m_anchorsPoints = new List<Transform>();
 
@@ -60,7 +60,7 @@ public class Room : MonoBehaviour
             
             GameObject addedRoom = Instantiate(room, m_anchorsPoints[indOrigin].position, transform.rotation); //Euler(transform.rotation.x, transform.rotation.y - 90, transform.rotation.z)
 
-            addedRoom.GetComponent<Room>().Start();
+            //addedRoom.GetComponent<Room>().Start();
             Vector3 rotation = addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].GetComponent<AnchorPoint>().RotateRoom(m_anchorsPoints[indOrigin].GetComponent<AnchorPoint>().AnchorSide);
             addedRoom.transform.Rotate(rotation);
             addedRoom.name += " <- " + gameObject.name;

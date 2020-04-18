@@ -23,7 +23,7 @@ public class House : MonoBehaviour
 
 
     // Start is called before the first frame update
-    public void Start()
+    void Awake()
     {
         Debug.Log("Start");
 
@@ -47,7 +47,7 @@ public class House : MonoBehaviour
     {
         if(m_nbRooms == 0)
         {
-            GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity);
+            GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity) as GameObject;
 
             if (addedRoom != null)
             {
@@ -76,8 +76,8 @@ public class House : MonoBehaviour
             Room originRoom = m_rooms[indRoom].GetComponent<Room>();
             Room addingRoom = room.GetComponent<Room>();
 
-            originRoom.Start();
-            addingRoom.Start();
+            //originRoom.Start();
+            //addingRoom.Start();
 
             // On récupère l'identifiant d'une ancre aléatoirement
             int indAnchorOrigin = Random.Range(0, originRoom.NbAnchorsPoints - 1);

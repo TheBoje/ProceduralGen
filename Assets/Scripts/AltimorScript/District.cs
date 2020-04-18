@@ -43,21 +43,17 @@ public class District : MonoBehaviour
         if(m_houses.Count == 0)
         {
             // On créer la première maison sur la position du quartier
-            GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity);
+            GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity) as GameObject;
             addedHouse.transform.parent = transform;
             addedHouse.name += " " + m_houses.Count;
             m_houses.Add(addedHouse);
-
-            Debug.Log("max rooms : " + addedHouse.GetComponent<House>().MaxRooms);
         }
         else
         {
-            GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity);
+            GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity) as GameObject;
             addedHouse.transform.parent = transform;
             m_houses.Add(addedHouse);
             addedHouse.name += " " + m_houses.Count;
-
-            Debug.Log("max rooms : " + addedHouse.GetComponent<House>().MaxRooms);
 
             Vector3 newPos = ComputeNewCenterOfHouse(m_houses[m_houses.Count - 1], addedHouse);
 
