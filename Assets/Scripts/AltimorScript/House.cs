@@ -8,7 +8,7 @@ public class House : MonoBehaviour
 {
     private const int MAX_FLOORS = 5;
     private const int MAX_ROOMS = 4;
-    private const float OFFSET_FIELD = 2f;
+    private const float OFFSET_FIELD = 5f;
 
     private int m_nbRooms; // nombre de pièces
     private int m_nbFloors; // nombre d'étages
@@ -136,7 +136,7 @@ public class House : MonoBehaviour
         m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
         m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
 
-        Debug.Log("M_FIELD : " + m_field);
+        Debug.Log("M_FIELD " + gameObject.name + " : "+ m_field);
 
     }
 

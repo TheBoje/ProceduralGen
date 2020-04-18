@@ -55,7 +55,7 @@ public class District : MonoBehaviour
             m_houses.Add(addedHouse);
             addedHouse.name += " " + m_houses.Count;
 
-            Vector3 newPos = ComputeNewCenterOfHouse(m_houses[m_houses.Count - 1], addedHouse);
+            Vector3 newPos = ComputeNewCenterOfHouse(m_houses[m_houses.Count - 2], addedHouse);
 
             addedHouse.transform.position = newPos;
         }
