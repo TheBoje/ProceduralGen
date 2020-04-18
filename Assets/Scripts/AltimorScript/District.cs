@@ -28,23 +28,36 @@ public class District : MonoBehaviour
         Vector3 fieldHouse = house.GetComponent<House>().Field;
         Vector3 fieldAddedHouse = addedHouse.GetComponent<House>().Field;
 
-        return new Vector3(house.transform.position.x, 0f, house.transform.position.z + (fieldHouse.z / 2f) + (fieldAddedHouse.z / 2f));
+        Debug.Log("fieldHouse : " + fieldHouse);
+        Debug.Log("fieldAddedHouse : " + fieldAddedHouse);
+
+        Vector3 newPos = new Vector3(house.transform.position.x, 0f, house.transform.position.z + (fieldHouse.z / 2f) + (fieldAddedHouse.z / 2f));
+        
+        return newPos;
     }
 
     // Créer le quartier en y ajoutant les maisons
     private void AddHouse()
     {
+        Debug.Log("Adding House ...");
         if(m_houses.Count == 0)
         {
             // On créer la première maison sur la position du quartier
             GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity);
-            addedHouse.GetComponent<House>().Start();
+            addedHouse.transform.parent = transform;
+            addedHouse.name += " " + m_houses.Count;
             m_houses.Add(addedHouse);
+
+            Debug.Log("max rooms : " + addedHouse.GetComponent<House>().MaxRooms);
         }
         else
         {
             GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity);
-            addedHouse.GetComponent<House>().Start();
+            addedHouse.transform.parent = transform;
+            m_houses.Add(addedHouse);
+            addedHouse.name += " " + m_houses.Count;
+
+            Debug.Log("max rooms : " + addedHouse.GetComponent<House>().MaxRooms);
 
             Vector3 newPos = ComputeNewCenterOfHouse(m_houses[m_houses.Count - 1], addedHouse);
 

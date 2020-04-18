@@ -7,7 +7,7 @@ using UnityEngine;
 public class House : MonoBehaviour
 {
     private const int MAX_FLOORS = 5;
-    private const int MAX_ROOMS = 10;
+    private const int MAX_ROOMS = 4;
     private const float OFFSET_FIELD = 2f;
 
     private int m_nbRooms; // nombre de pièces
@@ -25,6 +25,8 @@ public class House : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
+        Debug.Log("Start");
+
         m_rooms = new List<GameObject>();
         m_nbRooms = 0;
         m_nbFloors = 1; //  WIP -> rajouter BOTTOM et TOP pour les ancrages
@@ -34,9 +36,7 @@ public class House : MonoBehaviour
         m_nbAbleRooms = m_ableRooms.Count;
 
         m_maxFloors = Random.Range(1, MAX_FLOORS);
-        //m_maxRooms = Random.Range(1, MAX_ROOMS);
-
-        Debug.Log(m_maxRooms);
+        m_maxRooms = Random.Range(2, MAX_ROOMS);
 
         CreateHouse();
         ComputeField();
@@ -101,18 +101,15 @@ public class House : MonoBehaviour
     // Créer la maison avec un nombre nbRooms de pièces
     public void CreateHouse()
     {
-        
-        Debug.Log(m_maxRooms);
         for(int i = 0; i < m_maxRooms ; i++)
         {
             int id = Random.Range(0, m_nbAbleRooms);
-            Debug.Log("ID : " + id);
             AddRoom(m_nbFloors, m_ableRooms[id]);
         }
     }
 
     //Calcul le terrain de la maison 
-    private void ComputeField()
+    public void ComputeField()
     {
         float max_x = 0f, min_x = 0f;
         float max_z = 0f, min_z = 0f;
@@ -139,6 +136,8 @@ public class House : MonoBehaviour
         m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
         m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
 
+        Debug.Log("M_FIELD : " + m_field);
+
     }
 
     // GETTER
@@ -147,4 +146,8 @@ public class House : MonoBehaviour
         get { return m_field; }
     }
 
+    public int MaxRooms
+    {
+        get { return m_maxRooms; }
+    }
 }
