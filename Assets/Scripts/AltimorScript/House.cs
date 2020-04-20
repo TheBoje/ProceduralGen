@@ -135,9 +135,28 @@ public class House : MonoBehaviour
 
         // calcul d'un terrain carré (pour simplifier) 
         m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
+        m_field.y = transform.position.y;
         m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
 
+        GameObject field = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        field.transform.parent = transform;
+
+        // TODO Problème au niveau du calcul du champ
+
+        Vector3 fieldPos = new Vector3(
+            min_x + m_field.x / 2f,
+            transform.position.y,
+            min_z + m_field.z / 2f
+            );
+
+        field.transform.localScale = m_field - new Vector3(OFFSET_FIELD, 0f, OFFSET_FIELD);
+        field.transform.position = fieldPos;
+        field.name = "House Field";
+        field.GetComponent<MeshRenderer>().enabled = false;
+         
+
         Debug.Log("M_FIELD " + gameObject.name + " : "+ m_field);
+
 
     }
 

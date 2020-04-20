@@ -31,7 +31,7 @@ public class District : MonoBehaviour
         Debug.Log("fieldHouse : " + fieldHouse);
         Debug.Log("fieldAddedHouse : " + fieldAddedHouse);
 
-        Vector3 newPos = new Vector3(house.transform.position.x, 0f, house.transform.position.z + (fieldHouse.z / 2f) + (fieldAddedHouse.z / 2f));
+        Vector3 newPos = new Vector3(house.transform.position.x, transform.position.y, house.transform.position.z + (fieldHouse.z / 2f) + (fieldAddedHouse.z / 2f));
         
         return newPos;
     }
