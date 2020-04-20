@@ -8,14 +8,10 @@ public class Room : MonoBehaviour
     [SerializeField] private List<Transform> m_anchorsPoints; // Liste des points d'ancrage
     private int m_nbAnchorsPoints;                          // Nombre de points d'ancrage
 
-
-    // Start is called before the first frame update
-    void Awake()
+    public void InitRoom()
     {
-        //m_anchorsPoints = new List<Transform>();
-
         m_nbAnchorsPoints = m_anchorsPoints.Count;
-        //Debug.Log("NOM : " + gameObject.name + " | nbAnchors : " + m_nbAnchorsPoints);
+        Debug.Log("NOM : " + gameObject.name + " | nbAnchors : " + m_nbAnchorsPoints);
     }
 
     // Place tous les points d'ancrage dans la liste

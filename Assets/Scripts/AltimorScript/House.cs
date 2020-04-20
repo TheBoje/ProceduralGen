@@ -36,7 +36,7 @@ public class House : MonoBehaviour
         m_nbAbleRooms = m_ableRooms.Count;
 
         m_maxFloors = Random.Range(1, MAX_FLOORS);
-        m_maxRooms = Random.Range(2, MAX_ROOMS);
+        m_maxRooms = Random.Range(3, MAX_ROOMS);
 
         CreateHouse();
         ComputeField();
@@ -47,7 +47,7 @@ public class House : MonoBehaviour
     {
         if(m_nbRooms == 0)
         {
-            GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity) as GameObject;
+            GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity);
 
             if (addedRoom != null)
             {
@@ -76,8 +76,8 @@ public class House : MonoBehaviour
             Room originRoom = m_rooms[indRoom].GetComponent<Room>();
             Room addingRoom = room.GetComponent<Room>();
 
-            //originRoom.Start();
-            //addingRoom.Start();
+            originRoom.InitRoom();
+            addingRoom.InitRoom();
 
             // On récupère l'identifiant d'une ancre aléatoirement
             int indAnchorOrigin = Random.Range(0, originRoom.NbAnchorsPoints - 1);
@@ -101,6 +101,7 @@ public class House : MonoBehaviour
     // Créer la maison avec un nombre nbRooms de pièces
     public void CreateHouse()
     {
+        Debug.Log(m_maxRooms);
         for(int i = 0; i < m_maxRooms ; i++)
         {
             int id = Random.Range(0, m_nbAbleRooms);
