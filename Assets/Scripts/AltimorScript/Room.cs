@@ -8,6 +8,7 @@ public class Room : MonoBehaviour
     [SerializeField] private List<Transform> m_anchorsPoints; // Liste des points d'ancrage
     private int m_nbAnchorsPoints;                          // Nombre de points d'ancrage
 
+
     public void InitRoom()
     {
         m_nbAnchorsPoints = m_anchorsPoints.Count;
