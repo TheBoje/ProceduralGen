@@ -14,11 +14,24 @@ public class Road : MonoBehaviour
         
     }
 
+    private void SetInTheMiddle(Vector3 pos1, Vector3 pos2)
+    {
+        Vector3 middle = new Vector3(
+            (pos1.x + pos2.x) / 2,
+            (pos1.y + pos2.y) / 2,
+            (pos1.z + pos2.z) / 2
+            );
+
+        transform.position = middle;
+    }
+
     // Calcul la longueur de la route
     private Vector3 ComputeVectRoad()
     {
         Vector3 pos1 = crossroad1.transform.position;
         Vector3 pos2 = crossroad2.transform.position;
+
+        SetInTheMiddle(pos1, pos2);
 
         return pos2 - pos1;
 
@@ -35,5 +48,7 @@ public class Road : MonoBehaviour
 
         return rotation;
     }
+
+    
 
 }
