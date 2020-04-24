@@ -41,17 +41,7 @@ public class Road : MonoBehaviour
     // Calcul l'orientation de la route
     private void ComputeAngleRoad()
     {
-        Vector3 rotation = new Vector3(0f, 0f, 0f);
-
-        rotation.x = Mathf.Atan(m_vectRoad.y / m_vectRoad.x) % (2f * Mathf.PI);
-        rotation.y = Mathf.Atan(m_vectRoad.x / m_vectRoad.z) % (2f * Mathf.PI);
-        //rotation.z = Mathf.Atan(m_vectRoad.y / m_vectRoad.z) % (2f * Mathf.PI);
-
-        Debug.Log("x : " + m_vectRoad.x + "z : " + m_vectRoad.z);
-        Debug.Log(Mathf.Atan(m_vectRoad.x / m_vectRoad.z));
-        Debug.Log("rotation : " + rotation);
-
-        transform.rotation = Quaternion.Euler(rotation * (180f / Mathf.PI));
+        transform.LookAt(m_crossroad1.transform);
     }
 
     public void SetRoad()
@@ -60,6 +50,10 @@ public class Road : MonoBehaviour
         ComputeAngleRoad();
         transform.localScale = new Vector3(0.1f, 0.1f, m_vectRoad.magnitude / 10f);
     }
-    
+
+    private void Update()
+    {
+        SetRoad();
+    }
 
 }
