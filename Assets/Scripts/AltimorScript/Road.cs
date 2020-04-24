@@ -43,18 +43,22 @@ public class Road : MonoBehaviour
     {
         Vector3 rotation = new Vector3(0f, 0f, 0f);
 
-        rotation.x = Mathf.Atan(m_vectRoad.z / m_vectRoad.y);
-        rotation.y = Mathf.Atan(m_vectRoad.x / m_vectRoad.z);
-        rotation.z = Mathf.Atan(m_vectRoad.y / m_vectRoad.x);
+        //rotation.x = (Mathf.Atan(m_vectRoad.z / m_vectRoad.y) + 360f) % 360f;
+        rotation.y = Mathf.Atan(m_vectRoad.x / m_vectRoad.z) % (2f * Mathf.PI);
+        //rotation.z = (Mathf.Atan(m_vectRoad.y / m_vectRoad.x) + 360f) % 360f;
 
-        transform.rotation = Quaternion.Euler(m_vectRoad);
+        Debug.Log("x : " + m_vectRoad.x + "z : " + m_vectRoad.z);
+        Debug.Log(Mathf.Atan(m_vectRoad.x / m_vectRoad.z));
+        Debug.Log("rotation : " + rotation);
+
+        transform.rotation = Quaternion.Euler(rotation * (180f / Mathf.PI));
     }
 
     public void SetRoad()
     {
         ComputeVectRoad();
-        //ComputeAngleRoad();
-        transform.localScale = new Vector3(m_vectRoad.magnitude / 10f, 0.1f, 0.1f);
+        ComputeAngleRoad();
+        transform.localScale = new Vector3(0.1f, 0.1f, m_vectRoad.magnitude / 10f);
     }
     
 
