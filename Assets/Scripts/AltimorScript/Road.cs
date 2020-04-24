@@ -43,9 +43,9 @@ public class Road : MonoBehaviour
     {
         Vector3 rotation = new Vector3(0f, 0f, 0f);
 
-        //rotation.x = (Mathf.Atan(m_vectRoad.z / m_vectRoad.y) + 360f) % 360f;
+        rotation.x = Mathf.Atan(m_vectRoad.y / m_vectRoad.x) % (2f * Mathf.PI);
         rotation.y = Mathf.Atan(m_vectRoad.x / m_vectRoad.z) % (2f * Mathf.PI);
-        //rotation.z = (Mathf.Atan(m_vectRoad.y / m_vectRoad.x) + 360f) % 360f;
+        //rotation.z = Mathf.Atan(m_vectRoad.y / m_vectRoad.z) % (2f * Mathf.PI);
 
         Debug.Log("x : " + m_vectRoad.x + "z : " + m_vectRoad.z);
         Debug.Log(Mathf.Atan(m_vectRoad.x / m_vectRoad.z));
