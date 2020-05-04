@@ -9,14 +9,16 @@ using UnityEngine;
 
 public class PoissonSampling : MonoBehaviour
 {
-    [SerializeField] private float Rayon = 30f;
+    [SerializeField] private float Rayon = 10f;
     [SerializeField] private int Iterations = 100;
     [SerializeField] private int Precision = 10000;
     [SerializeField] private int Dimension = 2;
     [SerializeField] private int Range_x = 500;
-    [SerializeField] private int Range_y = 500;
+    [SerializeField] private int Range_z = 500;
 
     [SerializeField] private GameObject pointPoisson;
+
+    private List<GameObject> instanciatedPoints;
 
     private float Cell_size;
     private int Rows_size;
@@ -27,21 +29,15 @@ public class PoissonSampling : MonoBehaviour
     private List<List<Vector3>> resultGrid;
 
 
-    private void initPoisson()
+    public void initPoisson()
     {
         Cell_size = (float)(Rayon / Math.Sqrt(Dimension));
         Rows_size = (int)Math.Floor(Range_x/Cell_size);
-        Cols_size = (int)Math.Floor(Range_y/Cell_size);
+        Cols_size = (int)Math.Floor(Range_z/Cell_size);
         grid = new Vector3[Cols_size, Rows_size];
-        /*for (int i = 0; i < Cols_size; i++)
-        {
-            for (int j = 0; j < Rows_size; j++){
-                grid[i,j] = new Vector3(0f, 0f, 0f); // TODO make this shit better please 
-            }
-        }*/
     }
 
-    private void computePoints()
+    public void computePoints()
     {
         Vector3 randomPos;
         Vector3 activePos;
@@ -58,9 +54,9 @@ public class PoissonSampling : MonoBehaviour
 
         initPoisson();
 
-        randomPos = new Vector3(UnityEngine.Random.Range(0, Range_x), UnityEngine.Random.Range(0, Range_y), 0f);
+        randomPos = new Vector3(UnityEngine.Random.Range(0, Range_x), 0f, UnityEngine.Random.Range(0, Range_z));
         randomPosFloored = floorVector3(randomPos);
-        grid[randomPosFloored.x, randomPosFloored.y] = randomPos;
+        grid[randomPosFloored.x, randomPosFloored.z] = randomPos;
         active.Add(randomPos);
 
 
@@ -79,31 +75,27 @@ public class PoissonSampling : MonoBehaviour
             for (int n = 0; n < Iterations; n++)
             {
 
-                newPos = new Vector3(UnityEngine.Random.Range(-1f, 1f),UnityEngine.Random.Range(-1f, 1f), 0f);
+                newPos = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
                 randomMagnitude = UnityEngine.Random.Range(0f, (float)2 * Rayon);
                 newPos = newPos * randomMagnitude;
                 newPos += activePos;
                 newPosFloored = floorVector3(newPos);
-                //Debug.Log("0 - im gonna kms");
-                if (0 <= newPosFloored.x && newPosFloored.x < Cols_size && 0 <= newPosFloored.y && newPosFloored.y < Rows_size && grid[newPosFloored.x, newPosFloored.y] == Vector3.zero)
+                if (0 <= newPosFloored.x && newPosFloored.x < Cols_size && 0 <= newPosFloored.z && newPosFloored.z < Rows_size && grid[newPosFloored.x, newPosFloored.z] == Vector3.zero)
                 {
                     isCorrectDistance = true;
-                    //Debug.Log("1 - Yee boi");
                     for (int i = -1; i < 2; i++)
                     {
                         for (int j = -1; j < 2; j++)
                         {
-                            if (newPosFloored[0] + i >= 0 && newPosFloored[0] + i < Cols_size && newPosFloored[1] + j >= 0 && newPosFloored[1] + j < Rows_size)
+                            if (newPosFloored.x + i >= 0 && newPosFloored.x + i < Cols_size && newPosFloored.z + j >= 0 && newPosFloored.z + j < Rows_size)
                             {
-                                neighborPos = grid[newPosFloored[0] + i, newPosFloored[1] + j];
-                                //Debug.Log("2 - Trying");
+                                neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
                                 if (neighborPos  != Vector3.zero)
                                 {
                                     distance = Vector3.Distance(newPos, neighborPos);
                                     if (distance < 2 * Rayon)
                                     {
                                         isCorrectDistance = false;
-                                        //Debug.Log("3 - Too close");
                                     }
                                 }
                             }
@@ -111,7 +103,7 @@ public class PoissonSampling : MonoBehaviour
                     }
                     if (isCorrectDistance)
                     {
-                        grid[newPosFloored[0], newPosFloored[1]] = newPos;
+                        grid[newPosFloored.x, newPosFloored.z] = newPos;
                         debugCount += 1;
                         active.Add(newPos);
                         isFound = true;
@@ -128,19 +120,28 @@ public class PoissonSampling : MonoBehaviour
     displayGrid();
     }
 
-    private void displayGrid()
+    public void displayGrid()
     {
+        instanciatedPoints = new List<GameObject>();
         for (int i = 0; i < Cols_size; i++)
         {
             for (int j = 0; j < Rows_size; j++)
             {
                 if (grid[i,j] != Vector3.zero)
                 {
-                    Debug.Log(grid[i, j]);
                     GameObject resultInstance = Instantiate(pointPoisson, grid[i, j], Quaternion.identity);
+                    instanciatedPoints.Add(resultInstance);
                 }
             }
         }
+    }
+
+    public void deleteComputed()
+    {
+        foreach (GameObject item in instanciatedPoints){
+            Destroy(item);
+        }
+        instanciatedPoints.Clear();
     }
     private void printGrid() //Its not working for some unknown reasons 
     {
@@ -156,9 +157,9 @@ public class PoissonSampling : MonoBehaviour
         }
         Debug.Log(resultGrid);
     }
-    private Vector3Int floorVector3(Vector3 vec) {
+    public Vector3Int floorVector3(Vector3 vec) {
         Vector3Int result;
-        result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), (int)Math.Floor(vec.y / Cell_size), (int)vec.z);
+        result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), (int)vec.z, (int)Math.Floor(vec.y / Cell_size));
         return result;
     }
     void Start()
