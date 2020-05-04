@@ -17,7 +17,6 @@ public class PoissonSampling : MonoBehaviour
     [SerializeField] private int Range_y = 500;
 
     [SerializeField] private GameObject pointPoisson;
-    [SerializeField] private Transform instantiateTransform;
 
     private float Cell_size;
     private int Rows_size;
@@ -131,16 +130,14 @@ public class PoissonSampling : MonoBehaviour
 
     private void displayGrid()
     {
-        instantiateTransform = new GameObject().transform;
         for (int i = 0; i < Cols_size; i++)
         {
             for (int j = 0; j < Rows_size; j++)
             {
                 if (grid[i,j] != Vector3.zero)
                 {
-                    instantiateTransform.position = grid[i,j];
-                    GameObject resultInstance = Instantiate(pointPoisson, instantiateTransform);
-                    resultInstance.transform.position = grid[i, j];
+                    Debug.Log(grid[i, j]);
+                    GameObject resultInstance = Instantiate(pointPoisson, grid[i, j], Quaternion.identity);
                 }
             }
         }
