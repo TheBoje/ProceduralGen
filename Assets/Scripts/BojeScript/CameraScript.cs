@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-
     [Range(0.2f, 10f)]
     public float mouseSensitivity = 1f;
 
-    [SerializeField] [Range(0f, 1f)]
+    public bool mouseLocked = true;
+    [SerializeField]
+    [Range(0f, 1f)]
     private float lerpCoef = 0.15f;
     public float maxYAngle = 80f;
     public float speed = 12f;
@@ -23,7 +24,7 @@ public class CameraScript : MonoBehaviour
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
-        transform.position = Vector3.Lerp(transform.position,transform.position + move, lerpCoef);
+        transform.position = Vector3.Lerp(transform.position, transform.position + move, lerpCoef);
 
         if (Input.GetMouseButton(0) == false)
         {
@@ -39,14 +40,14 @@ public class CameraScript : MonoBehaviour
         {
             Vector3 newPos = transform.position + Vector3.up * mouseWhell * 10f;
             transform.position = Vector3.Lerp(transform.position, newPos, lerpCoef);
-        } 
-
+        }
     }
-       
-
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        if (mouseLocked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 }
