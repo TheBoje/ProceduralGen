@@ -13,8 +13,8 @@ public class PoissonSampling : MonoBehaviour
     [SerializeField] private int Iterations = 100;
     [SerializeField] private int Precision = 10000;
     [SerializeField] private int Dimension = 2;
-    [SerializeField] private int Range_x = 500;
-    [SerializeField] private int Range_z = 500;
+    [SerializeField] public int Range_x = 500;
+    [SerializeField] public int Range_z = 500;
 
     [SerializeField] private GameObject pointPoisson;
 
@@ -27,6 +27,8 @@ public class PoissonSampling : MonoBehaviour
     [SerializeField] public List<Vector3> active;
 
     private List<List<Vector3>> resultGrid;
+    private int namingCount;
+    private Vector3 newPos;
 
 
     public void initPoisson()
@@ -41,7 +43,6 @@ public class PoissonSampling : MonoBehaviour
     {
         Vector3 randomPos;
         Vector3 activePos;
-        Vector3 newPos;
         Vector3 neighborPos;
         Vector3Int randomPosFloored;
         Vector3Int newPosFloored;
@@ -51,6 +52,9 @@ public class PoissonSampling : MonoBehaviour
         int debugCount = 0;
         bool isFound;
         bool isCorrectDistance;
+
+        namingCount = 0;
+        instanciatedPoints = new List<GameObject>();
 
         initPoisson();
 
@@ -67,20 +71,19 @@ public class PoissonSampling : MonoBehaviour
             // Remember that Random.Range(float a, float b) is [a, b] (inclusive inclusive)
             //               Random.Range(int a, int b) is [a, b[ (inclusive exclusive)
             // That's bullshit!
-
-            randomIndex = UnityEngine.Random.Range(0, active.Count - 1);
-            activePos = active[randomIndex];
             isFound = false;
+            randomIndex = UnityEngine.Random.Range(0, active.Count);
+            activePos = active[randomIndex];
 
             for (int n = 0; n < Iterations; n++)
             {
-
+                
                 newPos = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
-                randomMagnitude = UnityEngine.Random.Range(0f, (float)2 * Rayon);
+                randomMagnitude = UnityEngine.Random.Range(0f, (float)(2 * Rayon));
                 newPos = newPos * randomMagnitude;
                 newPos += activePos;
                 newPosFloored = floorVector3(newPos);
-                if (0 <= newPosFloored.x && newPosFloored.x < Cols_size && 0 <= newPosFloored.z && newPosFloored.z < Rows_size && grid[newPosFloored.x, newPosFloored.z] == Vector3.zero)
+                if (0 <= newPos.x && newPos.x < Range_x && 0 <= newPos.z && newPos.z < Range_z && 0 <= newPosFloored.x && newPosFloored.x < Cols_size && 0 <= newPosFloored.z && newPosFloored.z < Rows_size && grid[newPosFloored.x, newPosFloored.z] == Vector3.zero)
                 {
                     isCorrectDistance = true;
                     for (int i = -1; i < 2; i++)
@@ -106,6 +109,7 @@ public class PoissonSampling : MonoBehaviour
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
                         debugCount += 1;
                         active.Add(newPos);
+                        displayPoint();
                         isFound = true;
                     }
                 }
@@ -117,12 +121,11 @@ public class PoissonSampling : MonoBehaviour
         }
     Debug.Log("Poisson Terminé");
     Debug.Log(debugCount);
-    displayGrid();
+    //displayGrid();
     }
 
     public void displayGrid()
     {
-        instanciatedPoints = new List<GameObject>();
         for (int i = 0; i < Cols_size; i++)
         {
             for (int j = 0; j < Rows_size; j++)
@@ -130,12 +133,22 @@ public class PoissonSampling : MonoBehaviour
                 if (grid[i,j] != Vector3.zero)
                 {
                     GameObject resultInstance = Instantiate(pointPoisson, grid[i, j], Quaternion.identity);
+                    resultInstance.name = namingCount.ToString();
+                    namingCount++;
                     instanciatedPoints.Add(resultInstance);
                 }
             }
         }
     }
 
+    public void displayPoint()
+    {
+        Vector3 pt = newPos;
+        GameObject resultInstance = Instantiate(pointPoisson, pt, Quaternion.identity);
+        resultInstance.name = namingCount.ToString();
+        namingCount++;
+        instanciatedPoints.Add(resultInstance);
+    }
     public void deleteComputed()
     {
         foreach (GameObject item in instanciatedPoints){
