@@ -58,6 +58,11 @@ public class District : MonoBehaviour
             Vector3 newPos = ComputeNewCenterOfHouse(m_houses[m_houses.Count - 2], addedHouse);
 
             addedHouse.transform.position = newPos;
+
+            Vector3 side = addedHouse.transform.localPosition;
+            side.z = addedHouse.transform.localPosition.z * Mathf.Pow(-1f, m_houses.Count);
+
+            addedHouse.transform.localPosition = side;
         }
     }
 

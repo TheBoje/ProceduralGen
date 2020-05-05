@@ -34,7 +34,7 @@ public class Road : MonoBehaviour
         ComputeMiddle(pos1, pos2);
 
         m_vectRoad = pos2 - pos1;
-        Debug.Log("Vect : " + m_vectRoad);
+        //Debug.Log("Vect : " + m_vectRoad);
 
     }
 
