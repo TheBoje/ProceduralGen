@@ -10,17 +10,22 @@ using UnityEngine;
 
 public class PoissonSampling : MonoBehaviour
 {
-    [SerializeField] private float Rayon = 10f;
-    [SerializeField] private int Iterations = 100;
-    [SerializeField] private int Precision = 10000;
-    [SerializeField] private int Dimension = 2;
-    [SerializeField] public int Range_x = 500;
-    [SerializeField] public int Range_z = 500;
-    [SerializeField] private Vector3[,] grid;
-    [SerializeField] private List<Vector3> active;
-    [SerializeField] private GameObject pointPoisson;
+    [Header("Basic Settings")]
+    [SerializeField] [Range(0f, 100f)] [Tooltip("Distance minimale entre chaque points")] private float Rayon = 10f;
+    [SerializeField] [Tooltip("Nombre d'essais par nouveau point")] private int Iterations = 100;
+    [SerializeField] [Tooltip("Nombre d'essais de point")] private int Precision = 10000;
+    [SerializeField] [Range(2, 2)] [Tooltip("WIP - NE PAS MODIFIER")] private int Dimension = 2;
+    [SerializeField] [Range(0f, 2000f)] [Tooltip("Taille sur x")] public int Range_x = 500;
+    [SerializeField] [Range(0f, 2000f)] [Tooltip("Taille sur z")] public int Range_z = 500;
+    [SerializeField] [Tooltip("Objet instancié a chaque point calculé")] private GameObject pointPoisson;
+    [Header("Activity Settings")]
+    [SerializeField] private bool activityEnable;
+    [SerializeField] private int activityConcentration;
+    private Vector3[,] grid;
     private List<GameObject> instanciatedPoints;
     private List<List<Vector3>> resultGrid;
+    private List<Vector3> active;
+    private List<Vector3> activityPoints;
     private Vector3 newPos;
     private Vector3 randomPos;
     private Vector3 activePos;
@@ -31,6 +36,7 @@ public class PoissonSampling : MonoBehaviour
     private float Cell_size;
     private float randomMagnitude;
     private float distance;
+    private float activityRange;
     private int Cols_size;
     private int Rows_size;
     private int namingCount;
