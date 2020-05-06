@@ -242,15 +242,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7cc0b86a97993549b66e164b368cc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rayon: 30
+  Rayon: 10
   Iterations: 100
   Precision: 10000
   Dimension: 2
   Range_x: 500
   Range_z: 500
+  active: []
   pointPoisson: {fileID: 7862810968699769824, guid: 9f2609c44853d7149b34b292dc8d3fad,
     type: 3}
-  active: []
 --- !u!4 &297348074
 Transform:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Diagnostics;
 using UnityEngine;
 
 public class PoissonSampling : MonoBehaviour
@@ -15,71 +16,59 @@ public class PoissonSampling : MonoBehaviour
     [SerializeField] private int Dimension = 2;
     [SerializeField] public int Range_x = 500;
     [SerializeField] public int Range_z = 500;
-
-    [SerializeField] private GameObject pointPoisson;
-
-    private List<GameObject> instanciatedPoints;
-
-    private float Cell_size;
-    private int Rows_size;
-    private int Cols_size;
     [SerializeField] private Vector3[,] grid;
-    [SerializeField] public List<Vector3> active;
-
+    [SerializeField] private List<Vector3> active;
+    [SerializeField] private GameObject pointPoisson;
+    private List<GameObject> instanciatedPoints;
     private List<List<Vector3>> resultGrid;
-    private int namingCount;
     private Vector3 newPos;
-
+    private Vector3 randomPos;
+    private Vector3 activePos;
+    private Vector3 neighborPos;
+    private Vector3Int randomPosFloored;
+    private Vector3Int newPosFloored;
+    private Stopwatch stopwatchTimer;
+    private float Cell_size;
+    private float randomMagnitude;
+    private float distance;
+    private int Cols_size;
+    private int Rows_size;
+    private int namingCount;
+    private int randomIndex;
+    private int debugCount;
+    private bool isFound;
+    private bool isCorrectDistance;
 
     public void initPoisson()
     {
         Cell_size = (float)(Rayon / Math.Sqrt(Dimension));
-        Rows_size = (int)Math.Floor(Range_x/Cell_size);
-        Cols_size = (int)Math.Floor(Range_z/Cell_size);
+        Rows_size = (int)Math.Ceiling(Range_x / Cell_size);
+        Cols_size = (int)Math.Ceiling(Range_z / Cell_size);
         grid = new Vector3[Cols_size, Rows_size];
-    }
-
-    public void computePoints()
-    {
-        Vector3 randomPos;
-        Vector3 activePos;
-        Vector3 neighborPos;
-        Vector3Int randomPosFloored;
-        Vector3Int newPosFloored;
-        Int32 randomIndex;
-        float randomMagnitude;
-        float distance;
-        int debugCount = 0;
-        bool isFound;
-        bool isCorrectDistance;
-
         namingCount = 0;
+        debugCount = 0;
+        stopwatchTimer = new Stopwatch();
+        stopwatchTimer.Start();
         instanciatedPoints = new List<GameObject>();
-
-        initPoisson();
-
-        randomPos = new Vector3(UnityEngine.Random.Range(0, Range_x), 0f, UnityEngine.Random.Range(0, Range_z));
+        randomPos = new Vector3(UnityEngine.Random.Range(0.0f, (float)Range_x), 0f, UnityEngine.Random.Range(0.0f, (float)Range_z));
         randomPosFloored = floorVector3(randomPos);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos;
         active.Add(randomPos);
-
+    }
+    public void computePoints()
+    {
+        initPoisson();
 
         for (int l = 0; l < Precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
-
-            // Remember that Random.Range(float a, float b) is [a, b] (inclusive inclusive)
-            //               Random.Range(int a, int b) is [a, b[ (inclusive exclusive)
-            // That's bullshit!
             isFound = false;
             randomIndex = UnityEngine.Random.Range(0, active.Count);
             activePos = active[randomIndex];
-
             for (int n = 0; n < Iterations; n++)
             {
-                
-                newPos = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
-                randomMagnitude = UnityEngine.Random.Range(0f, (float)(2 * Rayon));
+                newPos = new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0f, UnityEngine.Random.Range(-1.0f, 1.0f)).normalized;
+                randomMagnitude = UnityEngine.Random.Range(0.0f, (float)(2 * Rayon));
                 newPos = newPos * randomMagnitude;
                 newPos += activePos;
                 newPosFloored = floorVector3(newPos);
@@ -93,12 +82,13 @@ public class PoissonSampling : MonoBehaviour
                             if (newPosFloored.x + i >= 0 && newPosFloored.x + i < Cols_size && newPosFloored.z + j >= 0 && newPosFloored.z + j < Rows_size)
                             {
                                 neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
-                                if (neighborPos  != Vector3.zero)
+                                if (neighborPos != Vector3.zero)
                                 {
                                     distance = Vector3.Distance(newPos, neighborPos);
                                     if (distance < 2 * Rayon)
                                     {
                                         isCorrectDistance = false;
+                                        break;
                                     }
                                 }
                             }
@@ -119,18 +109,16 @@ public class PoissonSampling : MonoBehaviour
                 active.Remove(active[randomIndex]);
             }
         }
-    Debug.Log("Poisson Terminé");
-    Debug.Log(debugCount);
-    //displayGrid();
+        stopwatchTimer.Stop();
+        UnityEngine.Debug.Log("Exec time to create " + debugCount.ToString() + " took " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms ");
     }
-
     public void displayGrid()
     {
         for (int i = 0; i < Cols_size; i++)
         {
             for (int j = 0; j < Rows_size; j++)
             {
-                if (grid[i,j] != Vector3.zero)
+                if (grid[i, j] != Vector3.zero)
                 {
                     GameObject resultInstance = Instantiate(pointPoisson, grid[i, j], Quaternion.identity);
                     resultInstance.name = namingCount.ToString();
@@ -140,7 +128,6 @@ public class PoissonSampling : MonoBehaviour
             }
         }
     }
-
     public void displayPoint()
     {
         Vector3 pt = newPos;
@@ -151,28 +138,16 @@ public class PoissonSampling : MonoBehaviour
     }
     public void deleteComputed()
     {
-        foreach (GameObject item in instanciatedPoints){
+        foreach (GameObject item in instanciatedPoints)
+        {
             Destroy(item);
         }
         instanciatedPoints.Clear();
     }
-    private void printGrid() //Its not working for some unknown reasons 
+    public Vector3Int floorVector3(Vector3 vec)
     {
-        resultGrid = new List<List<Vector3>>();
-        for (int i = 0; i < Cols_size; i++)
-        {
-            List<Vector3> temp = new List<Vector3>();
-            for (int j = 0; j < Rows_size; j++)
-            {
-                temp.Add(grid[i,j]);
-            }
-            resultGrid.Add(temp);
-        }
-        Debug.Log(resultGrid);
-    }
-    public Vector3Int floorVector3(Vector3 vec) {
         Vector3Int result;
-        result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), (int)vec.z, (int)Math.Floor(vec.y / Cell_size));
+        result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), (int)Math.Floor(vec.y / Cell_size), (int)Math.Floor(vec.z / Cell_size));
         return result;
     }
     void Start()
