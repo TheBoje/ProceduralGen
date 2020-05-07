@@ -171,7 +171,7 @@ public class PoissonSampling : MonoBehaviour
         }
         displayGrid();
         stopwatchTimer.Stop();
-        UnityEngine.Debug.Log("Poisson finished - Placed " + debugCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms ");
+        UnityEngine.Debug.Log("Poisson - Placed " + debugCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)debugCount).ToString() + "ms / pt");
     }
     public void displayGrid()
     {
