@@ -16,5 +16,9 @@ public class CustomPoissonEditor : Editor
             myScript.deleteComputed();
             myScript.computePoints();
         }
+        if (GUILayout.Button("Delete Instanciated"))
+        {
+            myScript.deleteComputed();
+        }
     }
 }

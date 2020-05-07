@@ -32,12 +32,26 @@ public class PoissonSampling : MonoBehaviour
 
     [SerializeField]
     [Range(0f, 2000f)]
-    [Tooltip("Taille sur x")]
+    [Tooltip("Taille sur X")]
     public int Range_x = 500;
 
     [SerializeField]
+    [Tooltip("Active le positionnement sur Y")]
+    private bool scale_yEnable = true;
+
+    [SerializeField]
+    [Range(0f, 100f)]
+    [Tooltip("Taille sur Y")]
+    public float scale_y = 2f;
+
+    [SerializeField]
+    [Range(0f, 10f)]
+    [Tooltip("Taille du masque de bruit de Perlin")]
+    public float perlinScale = 2f;
+
+    [SerializeField]
     [Range(0f, 2000f)]
-    [Tooltip("Taille sur z")]
+    [Tooltip("Taille sur Z")]
     public int Range_z = 500;
 
     [Header("Display Settings")]
@@ -48,7 +62,7 @@ public class PoissonSampling : MonoBehaviour
 
     [SerializeField]
     [Tooltip("Objet instancié a chaque point calculé")]
-    private GameObject pointPoisson;
+    private GameObject objetInstance;
 
     [Header("Activity Settings")]
 
@@ -82,6 +96,7 @@ public class PoissonSampling : MonoBehaviour
 
     public void initPoisson()
     {
+        deleteComputed();
         Cell_size = (float)(Rayon / Math.Sqrt(Dimension));
         Rows_size = (int)Math.Ceiling(Range_x / Cell_size);
         Cols_size = (int)Math.Ceiling(Range_z / Cell_size);
@@ -109,6 +124,7 @@ public class PoissonSampling : MonoBehaviour
                 newPos = new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0f, UnityEngine.Random.Range(-1.0f, 1.0f)).normalized;
                 randomMagnitude = UnityEngine.Random.Range(0.0f, (float)(2 * Rayon));
                 newPos = newPos * randomMagnitude;
+                //newPos.y = UnityEngine.Random.Range(-(float)(Range_y / 2f), (float)(Range_y / 2f));
                 newPos += activePos;
                 newPosFloored = floorVector3(newPos);
                 if (0 <= newPos.x && newPos.x < Range_x && 0 <= newPos.z && newPos.z < Range_z && 0 <= newPosFloored.x && newPosFloored.x < Cols_size && 0 <= newPosFloored.z && newPosFloored.z < Rows_size && grid[newPosFloored.x, newPosFloored.z] == Vector3.zero)
@@ -123,7 +139,9 @@ public class PoissonSampling : MonoBehaviour
                                 neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
                                 if (neighborPos != Vector3.zero)
                                 {
-                                    distance = Vector3.Distance(newPos, neighborPos);
+                                    Vector2 pt1 = new Vector2(newPos.x, newPos.z);
+                                    Vector2 pt2 = new Vector2(neighborPos.x, neighborPos.z);
+                                    distance = Vector2.Distance(pt1, pt2);
                                     if (distance < 2 * Rayon)
                                     {
                                         isCorrectDistance = false;
@@ -138,7 +156,6 @@ public class PoissonSampling : MonoBehaviour
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
                         debugCount += 1;
                         active.Add(newPos);
-                        displayPoint();
                         isFound = true;
                     }
                 }
@@ -148,21 +165,29 @@ public class PoissonSampling : MonoBehaviour
                 active.Remove(active[randomIndex]);
             }
         }
+        if (scale_yEnable)
+        {
+            computePointsHeight();
+        }
+        displayGrid();
         stopwatchTimer.Stop();
         UnityEngine.Debug.Log("Exec time to create " + debugCount.ToString() + " took " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms ");
     }
     public void displayGrid()
     {
-        for (int i = 0; i < Cols_size; i++)
+        if (instanciateEnable)
         {
-            for (int j = 0; j < Rows_size; j++)
+            for (int i = 0; i < Cols_size; i++)
             {
-                if (grid[i, j] != Vector3.zero && instanciateEnable)
+                for (int j = 0; j < Rows_size; j++)
                 {
-                    GameObject resultInstance = Instantiate(pointPoisson, grid[i, j], Quaternion.identity);
-                    resultInstance.name = namingCount.ToString();
-                    namingCount++;
-                    instanciatedPoints.Add(resultInstance);
+                    if (grid[i, j] != Vector3.zero)
+                    {
+                        GameObject resultInstance = Instantiate(objetInstance, grid[i, j], Quaternion.identity);
+                        resultInstance.name = namingCount.ToString();
+                        namingCount++;
+                        instanciatedPoints.Add(resultInstance);
+                    }
                 }
             }
         }
@@ -172,7 +197,7 @@ public class PoissonSampling : MonoBehaviour
         if (instanciateEnable)
         {
             Vector3 pt = newPos;
-            GameObject resultInstance = Instantiate(pointPoisson, pt, Quaternion.identity);
+            GameObject resultInstance = Instantiate(objetInstance, pt, Quaternion.identity);
             resultInstance.name = namingCount.ToString();
             namingCount++;
             instanciatedPoints.Add(resultInstance);
@@ -180,7 +205,7 @@ public class PoissonSampling : MonoBehaviour
     }
     public void deleteComputed()
     {
-        if (instanciateEnable && instanciatedPoints.Count > 0)
+        if (instanciatedPoints.Count > 0)
         {
             foreach (GameObject item in instanciatedPoints)
             {
@@ -189,10 +214,25 @@ public class PoissonSampling : MonoBehaviour
             instanciatedPoints.Clear();
         }
     }
+    public void computePointsHeight()
+    {
+        for (int i = 0; i < Cols_size; i++)
+        {
+            for (int j = 0; j < Rows_size; j++)
+            {
+                if (grid[i, j] != Vector3.zero)
+                {
+                    Vector3 temp = grid[i, j];
+                    temp.y = GetComponent<PerlinNoiseGenerator>().perlinNoiseGeneratePoint(temp.x, temp.z, Range_x, Range_z, perlinScale) * scale_y;
+                    grid[i, j] = temp;
+                }
+            }
+        }
+    }
     public Vector3Int floorVector3(Vector3 vec)
     {
         Vector3Int result;
-        result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), (int)Math.Floor(vec.y / Cell_size), (int)Math.Floor(vec.z / Cell_size));
+        result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), 0, (int)Math.Floor(vec.z / Cell_size));
         return result;
     }
     public Vector3[,] poissonGrid
@@ -207,8 +247,4 @@ public class PoissonSampling : MonoBehaviour
     {
         get { return Cols_size; }
     }
-    /*void Start()
-    {
-        //computePoints();
-    }*/
 }
