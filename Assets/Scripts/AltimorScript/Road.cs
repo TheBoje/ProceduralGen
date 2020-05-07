@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class Road : MonoBehaviour
 {
-    private GameObject m_crossroad1;
-    private GameObject m_crossroad2;
+    private Vector3 m_crossroad1;
+    private Vector3 m_crossroad2;
     private Vector3 m_vectRoad;
 
-    public void InitCrossroads(GameObject cr1, GameObject cr2)
+
+
+    public void Init(Vector3 cr1, Vector3 cr2)
     {
         m_crossroad1 = cr1;
         m_crossroad2 = cr2;
@@ -28,12 +30,10 @@ public class Road : MonoBehaviour
     // Calcul la longueur de la route
     private void ComputeVectRoad()
     {
-        Vector3 pos1 = m_crossroad1.transform.position;
-        Vector3 pos2 = m_crossroad2.transform.position;
 
-        ComputeMiddle(pos1, pos2);
+        ComputeMiddle(m_crossroad1, m_crossroad2);
 
-        m_vectRoad = pos2 - pos1;
+        m_vectRoad = m_crossroad2 - m_crossroad1;
         //Debug.Log("Vect : " + m_vectRoad);
 
     }
@@ -41,7 +41,7 @@ public class Road : MonoBehaviour
     // Calcul l'orientation de la route
     private void ComputeAngleRoad()
     {
-        transform.LookAt(m_crossroad1.transform);
+        transform.LookAt(m_crossroad1);
     }
 
     public void SetRoad()
@@ -53,7 +53,7 @@ public class Road : MonoBehaviour
 
     private void Update()
     {
-        SetRoad();
+        //SetRoad();
     }
 
 }
