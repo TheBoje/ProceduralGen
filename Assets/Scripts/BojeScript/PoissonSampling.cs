@@ -207,8 +207,8 @@ public class PoissonSampling : MonoBehaviour
     {
         get { return Cols_size; }
     }
-    void Start()
+    /*void Start()
     {
-        computePoints();
-    }
+        //computePoints();
+    }*/
 }

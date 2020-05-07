@@ -6,16 +6,17 @@ using UnityEngine;
 public class IntersectionMaker : MonoBehaviour
 {
     private List<Intersection> m_intersections;
-    private GameObject poisson;
+    private PoissonSampling m_poissonScript;
 
 
     // Calcul les points les plus proches et retourne la liste des points
-    private List<Vector3> NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols)
+    private List<Vector3> NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
     {
         int length = 1;
         List<Vector3> nearestPoints = new List<Vector3>();
+      
 
-        while(nearestPoints.Count < nbPointsSearched)
+        while(nearestPoints.Count <= nbPointsSearched)
         {
             for(int i = -length; i <= length; i++)
             {
@@ -23,14 +24,20 @@ public class IntersectionMaker : MonoBehaviour
                 {
                     if( (0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
                     {
-                        if(poisson.GetComponent<PoissonSampling>().poissonGrid[x + i, y + j] != null)
+                        if(m_poissonScript.poissonGrid[x + i, y + j] != Vector3.zero)
                         {
-                            nearestPoints.Add(poisson.GetComponent<PoissonSampling>().poissonGrid[x + i, y + j]);
+                            nearestPoints.Add(m_poissonScript.poissonGrid[x + i, y + j]);
+                            //Debug.Log("passe");
                         }
                     }
+                    
                 }
-                length++;
+                
             }
+            length++;
+
+            //Debug.Log("Nearest point = " + nearestPoints.Count);
+            //nearestPoints.Add(Vector3.one);
         }
         return nearestPoints;
     }
@@ -42,10 +49,11 @@ public class IntersectionMaker : MonoBehaviour
         {
             for(int y = 0; y < cols; y++)
             {
-                if(poisson.GetComponent<PoissonSampling>().poissonGrid[x, y] != null)
+                if (m_poissonScript.poissonGrid[x, y] != Vector3.zero)
                 {
-                    int nbNearPoints = 2; //UnityEngine.Random.Range(1, 3);
-                    m_intersections.Add(new Intersection(poisson.GetComponent<PoissonSampling>().poissonGrid[x, y], NearestPoint(x, y, nbNearPoints, rows, cols)));
+                    int nbNearPoints = UnityEngine.Random.Range(1, 3);
+                    m_intersections.Add(new Intersection(m_poissonScript.poissonGrid[x, y], NearestPoint(x, y, nbNearPoints, rows, cols)));
+                    //Debug.Log(nbNearPoints);
                 }
             }
         }
@@ -55,11 +63,12 @@ public class IntersectionMaker : MonoBehaviour
     private void ComputeRoad()
     {
         // va lancer la génération
-        PoissonSampling poissonScript = poisson.GetComponent<PoissonSampling>();
+        m_poissonScript = gameObject.GetComponent<PoissonSampling>();
 
-        poissonScript.computePoints();
-        ComputeNearestPoint(poissonScript.getRowSize, poissonScript.getColSize); // TODO get des lignes et colonnes
-       /* 
+        m_poissonScript.computePoints();
+        ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
+
+        
         foreach(Intersection intersection in m_intersections)
         {
             foreach(Vector3 nPos in intersection.neighbours)
@@ -69,12 +78,11 @@ public class IntersectionMaker : MonoBehaviour
                 road.Init(intersection.position, nPos);
                 road.SetRoad();
             }
-        }*/
+        }
     }
 
     private void Start()
     {
-        poisson = gameObject;
         ComputeRoad();
     }
 }
