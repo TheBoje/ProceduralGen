@@ -83,6 +83,8 @@ public class IntersectionMaker : MonoBehaviour
 
     private void Start()
     {
+        m_intersections = new List<Intersection>();
+
         ComputeRoad();
     }
 }
