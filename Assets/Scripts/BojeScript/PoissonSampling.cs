@@ -11,20 +11,55 @@ using UnityEngine;
 public class PoissonSampling : MonoBehaviour
 {
     [Header("Basic Settings")]
-    [SerializeField] [Range(0f, 100f)] [Tooltip("Distance minimale entre chaque points")] private float Rayon = 10f;
-    [SerializeField] [Tooltip("Nombre d'essais par nouveau point")] private int Iterations = 100;
-    [SerializeField] [Tooltip("Nombre d'essais de point")] private int Precision = 10000;
-    [SerializeField] [Range(2, 2)] [Tooltip("WIP - NE PAS MODIFIER")] private int Dimension = 2;
-    [SerializeField] [Range(0f, 2000f)] [Tooltip("Taille sur x")] public int Range_x = 500;
-    [SerializeField] [Range(0f, 2000f)] [Tooltip("Taille sur z")] public int Range_z = 500;
-    [SerializeField] [Tooltip("Objet instancié a chaque point calculé")] private GameObject pointPoisson;
+
+    [SerializeField]
+    [Range(0f, 100f)]
+    [Tooltip("Distance minimale entre chaque points")]
+    private float Rayon = 10f;
+
+    [SerializeField]
+    [Tooltip("Nombre d'essais par nouveau point")]
+    private int Iterations = 100;
+
+    [SerializeField]
+    [Tooltip("Nombre d'essais de point")]
+    private int Precision = 10000;
+
+    [SerializeField]
+    [Range(2, 2)]
+    [Tooltip("WIP - NE PAS MODIFIER")]
+    private int Dimension = 2;
+
+    [SerializeField]
+    [Range(0f, 2000f)]
+    [Tooltip("Taille sur x")]
+    public int Range_x = 500;
+
+    [SerializeField]
+    [Range(0f, 2000f)]
+    [Tooltip("Taille sur z")]
+    public int Range_z = 500;
+
+    [Header("Display Settings")]
+
+    [SerializeField]
+    [Tooltip("Active l'instanciation")]
+    private bool instanciateEnable = true;
+
+    [SerializeField]
+    [Tooltip("Objet instancié a chaque point calculé")]
+    private GameObject pointPoisson;
+
     [Header("Activity Settings")]
-    [SerializeField] private bool activityEnable;
+
+    [SerializeField] private bool activityEnable = true;
     [SerializeField] private int activityConcentration;
+
+
     private Vector3[,] grid;
-    private List<GameObject> instanciatedPoints;
+    private List<GameObject> instanciatedPoints = new List<GameObject>();
     private List<List<Vector3>> resultGrid;
-    private List<Vector3> active;
+    private List<Vector3> active = new List<Vector3>();
     private List<Vector3> activityPoints;
     private Vector3 newPos;
     private Vector3 randomPos;
@@ -55,7 +90,6 @@ public class PoissonSampling : MonoBehaviour
         debugCount = 0;
         stopwatchTimer = new Stopwatch();
         stopwatchTimer.Start();
-        instanciatedPoints = new List<GameObject>();
         randomPos = new Vector3(UnityEngine.Random.Range(0.0f, (float)Range_x), 0f, UnityEngine.Random.Range(0.0f, (float)Range_z));
         randomPosFloored = floorVector3(randomPos);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos;
@@ -64,7 +98,6 @@ public class PoissonSampling : MonoBehaviour
     public void computePoints()
     {
         initPoisson();
-
         for (int l = 0; l < Precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
@@ -124,7 +157,7 @@ public class PoissonSampling : MonoBehaviour
         {
             for (int j = 0; j < Rows_size; j++)
             {
-                if (grid[i, j] != Vector3.zero)
+                if (grid[i, j] != Vector3.zero && instanciateEnable)
                 {
                     GameObject resultInstance = Instantiate(pointPoisson, grid[i, j], Quaternion.identity);
                     resultInstance.name = namingCount.ToString();
@@ -136,19 +169,25 @@ public class PoissonSampling : MonoBehaviour
     }
     public void displayPoint()
     {
-        Vector3 pt = newPos;
-        GameObject resultInstance = Instantiate(pointPoisson, pt, Quaternion.identity);
-        resultInstance.name = namingCount.ToString();
-        namingCount++;
-        instanciatedPoints.Add(resultInstance);
+        if (instanciateEnable)
+        {
+            Vector3 pt = newPos;
+            GameObject resultInstance = Instantiate(pointPoisson, pt, Quaternion.identity);
+            resultInstance.name = namingCount.ToString();
+            namingCount++;
+            instanciatedPoints.Add(resultInstance);
+        }
     }
     public void deleteComputed()
     {
-        foreach (GameObject item in instanciatedPoints)
+        if (instanciateEnable && instanciatedPoints.Count > 0)
         {
-            Destroy(item);
+            foreach (GameObject item in instanciatedPoints)
+            {
+                Destroy(item);
+            }
+            instanciatedPoints.Clear();
         }
-        instanciatedPoints.Clear();
     }
     public Vector3Int floorVector3(Vector3 vec)
     {
@@ -156,8 +195,8 @@ public class PoissonSampling : MonoBehaviour
         result = new Vector3Int((int)Math.Floor(vec.x / Cell_size), (int)Math.Floor(vec.y / Cell_size), (int)Math.Floor(vec.z / Cell_size));
         return result;
     }
-    void Start()
+    public Vector3[,] poissonGrid
     {
-        computePoints();
+        get { return grid; }
     }
 }
