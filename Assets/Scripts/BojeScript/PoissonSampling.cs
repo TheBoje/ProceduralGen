@@ -199,7 +199,14 @@ public class PoissonSampling : MonoBehaviour
     {
         get { return grid; }
     }
-
+    public int getRowSize
+    {
+        get { return Rows_size; }
+    }
+    public int getColSize
+    {
+        get { return Cols_size; }
+    }
     void Start()
     {
         computePoints();
