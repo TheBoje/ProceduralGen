@@ -199,4 +199,9 @@ public class PoissonSampling : MonoBehaviour
     {
         get { return grid; }
     }
+
+    void Start()
+    {
+        computePoints();
+    }
 }
