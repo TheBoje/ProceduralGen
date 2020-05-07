@@ -9,8 +9,8 @@ public class BackgroundPlane : MonoBehaviour
     {
         PoissonSampling myScript = GameObject.Find("GenManager").GetComponent<PoissonSampling>(); // FIXME wrong scale equation
     
-        GetComponent<Transform>().localScale = new Vector3(myScript.Range_x / 10, 1, myScript.Range_z / 10);
-        GetComponent<Transform>().position = new Vector3(myScript.Range_x / 2, 1, myScript.Range_z / 2);
+        GetComponent<Transform>().localScale = new Vector3(myScript.rangeX / 10, 1, myScript.Range_z / 10);
+        GetComponent<Transform>().position = new Vector3(myScript.rangeX / 2, 1, myScript.Range_z / 2);
 
     }*/
 }

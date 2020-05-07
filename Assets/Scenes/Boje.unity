@@ -213,6 +213,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 16.181002, y: -23.413002, z: 16.414001}
+--- !u!4 &247190553 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6039499438039890552, guid: 81de1dd21c7ec7e498e0d0a9485313d4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6039499438519981631}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &297348072
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,13 +249,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7cc0b86a97993549b66e164b368cc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rayon: 10
-  Iterations: 100
-  Precision: 10000
-  Dimension: 2
-  Range_x: 500
-  scale_y: 2
-  Range_z: 500
+  rayonPoisson: 10
+  iterations: 100
+  precision: 10000
+  dimension: 2
+  rangeX: 500
+  rangeZ: 500
+  scaleYEnable: 1
+  scaleY: 2
+  perlinScale: 2
   instanciateEnable: 1
   objetInstance: {fileID: 7862810968699769824, guid: 9f2609c44853d7149b34b292dc8d3fad,
     type: 3}
@@ -479,6 +487,11 @@ PrefabInstance:
       propertyPath: mouseSensitivity
       value: 2.21
       objectReference: {fileID: 0}
+    - target: {fileID: 6039499438039890551, guid: 81de1dd21c7ec7e498e0d0a9485313d4,
+        type: 3}
+      propertyPath: transform
+      value: 
+      objectReference: {fileID: 247190553}
     - target: {fileID: 6039499438039890552, guid: 81de1dd21c7ec7e498e0d0a9485313d4,
         type: 3}
       propertyPath: m_LocalPosition.x
