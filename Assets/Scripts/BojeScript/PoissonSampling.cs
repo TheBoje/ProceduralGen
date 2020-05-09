@@ -39,6 +39,8 @@ public class PoissonSampling : MonoBehaviour
     [Range(0f, 2000f)]
     [Tooltip("Taille sur Z")]
     public int rangeZ = 500;
+
+
     [Header("Y Settings")]
 
     [SerializeField]
@@ -99,8 +101,8 @@ public class PoissonSampling : MonoBehaviour
     {
         deleteComputed();
         cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
-        rowsSize = (int)Math.Ceiling(rangeX / cellSize);
-        colsSize = (int)Math.Ceiling(rangeZ / cellSize);
+        rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
+        colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
         grid = new Vector3[colsSize, rowsSize];
         namingCount = 0;
         debugCount = 0;
@@ -111,7 +113,7 @@ public class PoissonSampling : MonoBehaviour
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
         active.Add(randomPos);
     }
-    public void computePoints()
+    public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
         initPoisson();
         for (int l = 0; l < precision; l++)
@@ -171,8 +173,18 @@ public class PoissonSampling : MonoBehaviour
         }
         displayGrid();
         stopwatchTimer.Stop();
-        UnityEngine.Debug.Log("Poisson finished - Placed " + debugCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms ");
+        UnityEngine.Debug.Log("Poisson - Placed " + debugCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)debugCount).ToString() + "ms / pt");
     }
+
+    private void computeActivityPoints()
+    {
+        activityPoints.Clear();
+        for (int i = 0; i < activityConcentration; i++)
+        {
+            activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
+        }
+    }
+
     public void displayGrid()
     {
         if (instanciateEnable)

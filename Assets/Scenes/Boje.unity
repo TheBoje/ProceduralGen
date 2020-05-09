@@ -229,6 +229,7 @@ GameObject:
   m_Component:
   - component: {fileID: 297348074}
   - component: {fileID: 297348073}
+  - component: {fileID: 297348076}
   - component: {fileID: 297348075}
   m_Layer: 0
   m_Name: GenManager
@@ -249,16 +250,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7cc0b86a97993549b66e164b368cc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayonPoisson: 10
+  rayonPoisson: 30
   iterations: 100
-  precision: 10000
+  precision: 40000
   dimension: 2
   rangeX: 500
   rangeZ: 500
   scaleYEnable: 1
-  scaleY: 2
-  perlinScale: 2
-  instanciateEnable: 1
+  scaleY: 51.9
+  perlinScale: 2.14
+  instanciateEnable: 0
   objetInstance: {fileID: 7862810968699769824, guid: 9f2609c44853d7149b34b292dc8d3fad,
     type: 3}
   activityEnable: 1
@@ -287,6 +288,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b68822c103fa164da1f52e32e0168a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &297348076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297348072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ab2e67bd4f0d144d9a6c19e3b054a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &946592349
