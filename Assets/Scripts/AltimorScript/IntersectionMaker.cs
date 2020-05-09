@@ -14,7 +14,6 @@ public class IntersectionMaker : MonoBehaviour
     {
         int length = 1;
         List<Vector3> nearestPoints = new List<Vector3>();
-      
 
         while(nearestPoints.Count <= nbPointsSearched)
         {
@@ -27,7 +26,6 @@ public class IntersectionMaker : MonoBehaviour
                         if(m_poissonScript.poissonGrid[x + i, y + j] != Vector3.zero)
                         {
                             nearestPoints.Add(m_poissonScript.poissonGrid[x + i, y + j]);
-                            //Debug.Log("passe");
                         }
                     }
                     
@@ -36,8 +34,6 @@ public class IntersectionMaker : MonoBehaviour
             }
             length++;
 
-            //Debug.Log("Nearest point = " + nearestPoints.Count);
-            //nearestPoints.Add(Vector3.one);
         }
         return nearestPoints;
     }
@@ -53,7 +49,6 @@ public class IntersectionMaker : MonoBehaviour
                 {
                     int nbNearPoints = UnityEngine.Random.Range(1, 3);
                     m_intersections.Add(new Intersection(m_poissonScript.poissonGrid[x, y], NearestPoint(x, y, nbNearPoints, rows, cols)));
-                    //Debug.Log(nbNearPoints);
                 }
             }
         }
@@ -79,6 +74,11 @@ public class IntersectionMaker : MonoBehaviour
                 road.SetRoad();
             }
         }
+    }
+
+    private void ComputeDistrict()
+    {
+
     }
 
     private void Start()
