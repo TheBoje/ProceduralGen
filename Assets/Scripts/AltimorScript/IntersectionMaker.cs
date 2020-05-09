@@ -73,19 +73,24 @@ public class IntersectionMaker : MonoBehaviour
                 Road road = plane.AddComponent<Road>();
                 road.Init(intersection.position, nPos);
                 road.SetRoad();
+                plane.transform.parent = transform;
             }
         }
     }
 
-    private void ComputeDistrict()
+    public void ClearIntersections()
     {
-
+        m_intersections.Clear();
+        foreach(Transform children in transform)
+        {
+            Destroy(children.gameObject);
+        }
     }
 
     private void Start()
     {
         m_intersections = new List<Intersection>();
 
-        ComputeRoad();
+        //ComputeRoad();
     }
 }

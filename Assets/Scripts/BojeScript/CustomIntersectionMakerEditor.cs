@@ -14,8 +14,14 @@ public class CustomIntersectionMakerEditor : Editor
         IntersectionMaker intersectionScript = (IntersectionMaker)target;
         if (GUILayout.Button("Generate Roads"))
         {
+            intersectionScript.ClearIntersections();
             poissonScript.deleteComputed();
             intersectionScript.ComputeRoad();
+        }
+
+        if(GUILayout.Button("Delete Roads"))
+        {
+            intersectionScript.ClearIntersections();
         }
     }
 }
