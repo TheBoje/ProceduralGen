@@ -151,14 +151,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7cc0b86a97993549b66e164b368cc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rayon: 10
-  Iterations: 100
-  Precision: 10000
-  Dimension: 2
-  Range_x: 100
-  Range_z: 100
+  rayonPoisson: 10
+  iterations: 100
+  precision: 10000
+  dimension: 2
+  rangeX: 500
+  rangeZ: 500
+  scaleYEnable: 1
+  scaleY: 2
+  perlinScale: 2
   instanciateEnable: 1
-  pointPoisson: {fileID: 1886821198}
+  objetInstance: {fileID: 7862810968699769824, guid: 9f2609c44853d7149b34b292dc8d3fad,
+    type: 3}
   activityEnable: 1
   activityConcentration: 0
 --- !u!4 &37517741

@@ -9,16 +9,15 @@ public class CustomPoissonEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-
-        PoissonSampling myScript = (PoissonSampling)target;
+        PoissonSampling poissonScript = (PoissonSampling)target;
         if (GUILayout.Button("Poisson Sampling"))
         {
-            myScript.deleteComputed();
-            myScript.computePoints();
+            poissonScript.deleteComputed();
+            poissonScript.computePoints();
         }
         if (GUILayout.Button("Delete Instanciated"))
         {
-            myScript.deleteComputed();
+            poissonScript.deleteComputed();
         }
     }
 }

@@ -14,25 +14,25 @@ public class IntersectionMaker : MonoBehaviour
     {
         int length = 1;
         List<Vector3> nearestPoints = new List<Vector3>();
-      
 
-        while(nearestPoints.Count <= nbPointsSearched)
+
+        while (nearestPoints.Count <= nbPointsSearched)
         {
-            for(int i = -length; i <= length; i++)
+            for (int i = -length; i <= length; i++)
             {
-                for(int j = -length + Mathf.Abs(i); j <= length - Mathf.Abs(i); j++)
+                for (int j = -length + Mathf.Abs(i); j <= length - Mathf.Abs(i); j++)
                 {
-                    if( (0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
+                    if ((0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
                     {
-                        if(m_poissonScript.poissonGrid[x + i, y + j] != Vector3.zero)
+                        if (m_poissonScript.poissonGrid[x + i, y + j] != Vector3.zero)
                         {
                             nearestPoints.Add(m_poissonScript.poissonGrid[x + i, y + j]);
                             //Debug.Log("passe");
                         }
                     }
-                    
+
                 }
-                
+
             }
             length++;
 
@@ -45,9 +45,9 @@ public class IntersectionMaker : MonoBehaviour
     // Calcul les points les plus proches de chaques points
     private void ComputeNearestPoint(int rows, int cols)
     {
-        for(int x = 0; x < rows; x++)
+        for (int x = 0; x < rows; x++)
         {
-            for(int y = 0; y < cols; y++)
+            for (int y = 0; y < cols; y++)
             {
                 if (m_poissonScript.poissonGrid[x, y] != Vector3.zero)
                 {
@@ -60,7 +60,7 @@ public class IntersectionMaker : MonoBehaviour
     }
 
     // Génère les routes en fonctions des voisins
-    private void ComputeRoad()
+    public void ComputeRoad()
     {
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
@@ -68,10 +68,10 @@ public class IntersectionMaker : MonoBehaviour
         m_poissonScript.computePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
 
-        
-        foreach(Intersection intersection in m_intersections)
+
+        foreach (Intersection intersection in m_intersections)
         {
-            foreach(Vector3 nPos in intersection.neighbours)
+            foreach (Vector3 nPos in intersection.neighbours)
             {
                 GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
                 Road road = plane.AddComponent<Road>();
