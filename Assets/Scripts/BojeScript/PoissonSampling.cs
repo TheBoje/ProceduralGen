@@ -13,6 +13,10 @@ public class PoissonSampling : MonoBehaviour
     [Header("Basic Settings")]
 
     [SerializeField]
+    [Tooltip("Seed de génération")]
+    private int randomSeed = 1;
+
+    [SerializeField]
     [Range(0f, 100f)]
     [Tooltip("Distance minimale entre chaque points")]
     private float rayonPoisson = 10f;
@@ -100,6 +104,7 @@ public class PoissonSampling : MonoBehaviour
     public void initPoisson()
     {
         deleteComputed();
+        UnityEngine.Random.seed = randomSeed;
         cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
