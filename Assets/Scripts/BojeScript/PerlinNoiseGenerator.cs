@@ -17,8 +17,8 @@ public class PerlinNoiseGenerator : MonoBehaviour
         return perlinResult;
     }
 
-    public float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scale)
-    {
-        return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
-    }
+    /*     public float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scale)
+        {
+            return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
+        } */
 }

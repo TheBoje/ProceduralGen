@@ -12,12 +12,15 @@ public class CustomPoissonEditor : Editor
         PoissonSampling poissonScript = (PoissonSampling)target;
         if (GUILayout.Button("Poisson Sampling"))
         {
-            poissonScript.deleteComputed();
-            poissonScript.computePoints();
+            poissonScript.StartCoroutine(poissonScript.threadedComputePoints());
         }
         if (GUILayout.Button("Delete Instanciated"))
         {
             poissonScript.deleteComputed();
+        }
+        if (GUILayout.Button("Display Points"))
+        {
+            poissonScript.displayGrid();
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Diagnostics;
 using UnityEngine;
 
@@ -76,7 +77,7 @@ public class PoissonSampling : MonoBehaviour
     [SerializeField] private bool activityEnable = true;
     [SerializeField] private int activityConcentration;
 
-
+    Thread threadComputePoints;
     private Vector3[,] grid;
     private List<GameObject> instanciatedPoints = new List<GameObject>();
     private List<List<Vector3>> resultGrid;
@@ -88,6 +89,7 @@ public class PoissonSampling : MonoBehaviour
     private Vector3 neighborPos;
     private Vector3Int randomPosFloored;
     private Vector3Int newPosFloored;
+    private System.Random randGiver = new System.Random(); // TODO Creer randomThread.cs 
     private Stopwatch stopwatchTimer;
     private float cellSize;
     private float randomMagnitude;
@@ -101,7 +103,9 @@ public class PoissonSampling : MonoBehaviour
     private bool isFound;
     private bool isCorrectDistance;
 
-    public void initPoisson()
+
+
+    private void initComputePoints()
     {
         deleteComputed();
         UnityEngine.Random.seed = randomSeed;
@@ -113,24 +117,25 @@ public class PoissonSampling : MonoBehaviour
         debugCount = 0;
         stopwatchTimer = new Stopwatch();
         stopwatchTimer.Start();
-        randomPos = new Vector3(UnityEngine.Random.Range(0.0f, (float)rangeX), 0f, UnityEngine.Random.Range(0.0f, (float)rangeZ));
+        randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
         randomPosFloored = floorVector3(randomPos);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
         active.Add(randomPos);
     }
+
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
-        initPoisson();
+        UnityEngine.Debug.Log("PoissonSampling::computePoints - Starting");
         for (int l = 0; l < precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
             isFound = false;
-            randomIndex = UnityEngine.Random.Range(0, active.Count);
+            randomIndex = randomRangeIntThreadSafe(0, active.Count);
             activePos = active[randomIndex];
             for (int n = 0; n < iterations; n++)
             {
-                newPos = new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0f, UnityEngine.Random.Range(-1.0f, 1.0f)).normalized;
-                randomMagnitude = UnityEngine.Random.Range(0.0f, (float)(2 * rayonPoisson));
+                newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
+                randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
                 newPos = newPos * randomMagnitude;
                 newPos += activePos;
                 newPosFloored = floorVector3(newPos);
@@ -176,9 +181,26 @@ public class PoissonSampling : MonoBehaviour
         {
             computePointsHeight();
         }
-        displayGrid();
         stopwatchTimer.Stop();
+        UnityEngine.Debug.Log("PoissonSampling::computePoints - Finished");
         UnityEngine.Debug.Log("Poisson - Placed " + debugCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)debugCount).ToString() + "ms / pt");
+    }
+
+
+    public IEnumerator threadedComputePoints()
+    {
+
+        UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
+        initComputePoints();
+        threadComputePoints = new Thread(computePoints);
+        threadComputePoints.IsBackground = true;
+        threadComputePoints.Start();
+        while (threadComputePoints.IsAlive)
+        {
+            yield return null;
+        }
+        displayGrid();
+        UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
 
     private void computeActivityPoints()
@@ -186,9 +208,26 @@ public class PoissonSampling : MonoBehaviour
         activityPoints.Clear();
         for (int i = 0; i < activityConcentration; i++)
         {
-            activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
+            //FIXME activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
+            activityPoints.Add(new Vector3(randomRangeFloatThreadSafe(0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0f, (float)rangeZ)));
         }
     }
+
+    private float randomRangeFloatThreadSafe(float a, float b)
+    {
+        float result;
+        result = a + (float)randGiver.NextDouble() * (b - a);
+        return result;
+    }
+
+
+    private int randomRangeIntThreadSafe(int a, int b)
+    {
+        int result;
+        result = randGiver.Next(a, b);
+        return result;
+    }
+
 
     public void displayGrid()
     {
@@ -233,6 +272,7 @@ public class PoissonSampling : MonoBehaviour
     }
     public void computePointsHeight()
     {
+        threadComputePoints.IsBackground = false;
         for (int i = 0; i < colsSize; i++)
         {
             for (int j = 0; j < rowsSize; j++)
@@ -240,11 +280,12 @@ public class PoissonSampling : MonoBehaviour
                 if (grid[i, j] != Vector3.zero)
                 {
                     Vector3 temp = grid[i, j];
-                    temp.y = GetComponent<PerlinNoiseGenerator>().perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
+                    temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
                     grid[i, j] = temp;
                 }
             }
         }
+        threadComputePoints.IsBackground = true;
     }
     public Vector3Int floorVector3(Vector3 vec)
     {
@@ -252,6 +293,12 @@ public class PoissonSampling : MonoBehaviour
         result = new Vector3Int((int)Math.Floor(vec.x / cellSize), 0, (int)Math.Floor(vec.z / cellSize));
         return result;
     }
+
+    private float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scale)
+    {
+        return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
+    }
+
     public Vector3[,] poissonGrid
     {
         get { return grid; }

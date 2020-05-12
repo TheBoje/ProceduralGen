@@ -61,7 +61,7 @@ public class IntersectionMaker : MonoBehaviour
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
 
-        m_poissonScript.computePoints();
+        m_poissonScript.threadedComputePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
 
 
@@ -81,7 +81,7 @@ public class IntersectionMaker : MonoBehaviour
     public void ClearIntersections()
     {
         m_intersections.Clear();
-        foreach(Transform children in transform)
+        foreach (Transform children in transform)
         {
             Destroy(children.gameObject);
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEditor;
 
@@ -19,7 +20,7 @@ public class CustomIntersectionMakerEditor : Editor
             intersectionScript.ComputeRoad();
         }
 
-        if(GUILayout.Button("Delete Roads"))
+        if (GUILayout.Button("Delete Roads"))
         {
             intersectionScript.ClearIntersections();
         }
