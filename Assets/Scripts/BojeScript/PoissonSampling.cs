@@ -80,7 +80,6 @@ public class PoissonSampling : MonoBehaviour
     Thread threadComputePoints;
     private Vector3[,] grid;
     private List<GameObject> instanciatedPoints = new List<GameObject>();
-    private List<List<Vector3>> resultGrid;
     private List<Vector3> active = new List<Vector3>();
     private List<Vector3> activityPoints;
     private Vector3 newPos;
@@ -89,7 +88,7 @@ public class PoissonSampling : MonoBehaviour
     private Vector3 neighborPos;
     private Vector3Int randomPosFloored;
     private Vector3Int newPosFloored;
-    private System.Random randGiver = new System.Random(); // TODO Creer randomThread.cs 
+    private System.Random randGiver = new System.Random(); // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
     private Stopwatch stopwatchTimer;
     private float cellSize;
     private float randomMagnitude;
@@ -97,12 +96,39 @@ public class PoissonSampling : MonoBehaviour
     private float activityRange;
     private int colsSize;
     private int rowsSize;
-    private int namingCount;
+    private int poissonCount;
     private int randomIndex;
-    private int debugCount;
     private bool isFound;
     private bool isCorrectDistance;
 
+    private struct poissonDataset
+    {
+        private Vector3[,] grid;
+        private List<GameObject> instanciatedPoints;
+        private float cellSize;
+        private int colsSize;
+        private int rowsSize;
+    }
+
+    private struct poissonLocalVar
+    {
+        private List<Vector3> active;
+        private List<Vector3> activityPoints;
+        private Vector3 newPos;
+        private Vector3 randomPos;
+        private Vector3 activePos;
+        private Vector3 neighborPos;
+        private Vector3Int randomPosFloored;
+        private Vector3Int newPosFloored;
+        private Stopwatch stopwatchTimer;
+        private float randomMagnitude;
+        private float distance;
+        private float activityRange;
+        private int poissonCount;
+        private int randomIndex;
+        private bool isFound;
+        private bool isCorrectDistance;
+    }
 
 
     private void initComputePoints()
@@ -113,8 +139,7 @@ public class PoissonSampling : MonoBehaviour
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
         grid = new Vector3[colsSize, rowsSize];
-        namingCount = 0;
-        debugCount = 0;
+        poissonCount = 0;
         stopwatchTimer = new Stopwatch();
         stopwatchTimer.Start();
         randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
@@ -125,7 +150,6 @@ public class PoissonSampling : MonoBehaviour
 
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
-        UnityEngine.Debug.Log("PoissonSampling::computePoints - Starting");
         for (int l = 0; l < precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
@@ -151,9 +175,7 @@ public class PoissonSampling : MonoBehaviour
                                 neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
                                 if (neighborPos != Vector3.zero)
                                 {
-                                    Vector2 pt1 = new Vector2(newPos.x, newPos.z);
-                                    Vector2 pt2 = new Vector2(neighborPos.x, neighborPos.z);
-                                    distance = Vector2.Distance(pt1, pt2);
+                                    distance = Vector3.Distance(newPos, neighborPos);
                                     if (distance < 2 * rayonPoisson)
                                     {
                                         isCorrectDistance = false;
@@ -166,8 +188,8 @@ public class PoissonSampling : MonoBehaviour
                     if (isCorrectDistance)
                     {
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
-                        debugCount += 1;
                         active.Add(newPos);
+                        poissonCount += 1;
                         isFound = true;
                     }
                 }
@@ -182,8 +204,7 @@ public class PoissonSampling : MonoBehaviour
             computePointsHeight();
         }
         stopwatchTimer.Stop();
-        UnityEngine.Debug.Log("PoissonSampling::computePoints - Finished");
-        UnityEngine.Debug.Log("Poisson - Placed " + debugCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)debugCount).ToString() + "ms / pt");
+        UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
     }
 
 
@@ -208,7 +229,7 @@ public class PoissonSampling : MonoBehaviour
         activityPoints.Clear();
         for (int i = 0; i < activityConcentration; i++)
         {
-            //FIXME activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
+            //activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
             activityPoints.Add(new Vector3(randomRangeFloatThreadSafe(0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0f, (float)rangeZ)));
         }
     }
@@ -240,8 +261,7 @@ public class PoissonSampling : MonoBehaviour
                     if (grid[i, j] != Vector3.zero)
                     {
                         GameObject resultInstance = Instantiate(objetInstance, grid[i, j], Quaternion.identity);
-                        resultInstance.name = namingCount.ToString();
-                        namingCount++;
+                        resultInstance.transform.parent = gameObject.transform;
                         instanciatedPoints.Add(resultInstance);
                     }
                 }
@@ -254,8 +274,7 @@ public class PoissonSampling : MonoBehaviour
         {
             Vector3 pt = newPos;
             GameObject resultInstance = Instantiate(objetInstance, pt, Quaternion.identity);
-            resultInstance.name = namingCount.ToString();
-            namingCount++;
+            resultInstance.transform.parent = gameObject.transform;
             instanciatedPoints.Add(resultInstance);
         }
     }
