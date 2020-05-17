@@ -101,6 +101,7 @@ public class PoissonSampling : MonoBehaviour
     private bool isFound;
     private bool isCorrectDistance;
 
+    // WIP dataStruct pour ne pas avoir des variables globales partout et pouvoir utiliser certaines choses en parametre
     private struct poissonDataset
     {
         private Vector3[,] grid;
