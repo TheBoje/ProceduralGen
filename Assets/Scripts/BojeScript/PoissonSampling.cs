@@ -81,7 +81,7 @@ public class PoissonSampling : MonoBehaviour
     private Vector3[,] grid;
     private List<GameObject> instanciatedPoints = new List<GameObject>();
     private List<Vector3> active = new List<Vector3>();
-    private List<Vector3> activityPoints;
+    private List<Vector3> activityPoints = new List<Vector3>();
     private Vector3 newPos;
     private Vector3 randomPos;
     private Vector3 activePos;
@@ -110,7 +110,7 @@ public class PoissonSampling : MonoBehaviour
         private int colsSize;
         private int rowsSize;
     }
-
+    // WIP aswell
     private struct poissonLocalVar
     {
         private List<Vector3> active;
