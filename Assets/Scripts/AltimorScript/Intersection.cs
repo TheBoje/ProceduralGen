@@ -21,6 +21,7 @@ public class Intersection : MonoBehaviour
     public Vector3 position
     {
         get { return m_position; }
+        set { m_position = value; }
     }
 
     public List<Vector3> neighbours
