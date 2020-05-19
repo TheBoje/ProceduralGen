@@ -14,7 +14,7 @@ using UnityEngine;
 public class PoissonSampling : MonoBehaviour
 {
     [Header("Basic Settings")]
-
+    // Git branch Fonctionnalites is working ?
     [SerializeField]
     [Tooltip("Seed de génération")]
     private int randomSeed = 1;
