@@ -5,12 +5,17 @@ using UnityEngine;
 public class Intersection : MonoBehaviour
 {
     private Vector3 m_position;
-    private List<Vector3> m_neighbours;
+    private List<Intersection> m_neighbours;
 
-    public Intersection(Vector3 position, List<Vector3> neighbours)
+    public Intersection(Vector3 position, List<Intersection> neighbours)
     {
         m_position = position;
         m_neighbours = neighbours;
+    }
+
+    public void AddNeighbour(Intersection neighbour)
+    {
+        m_neighbours.Add(neighbour);
     }
 
     public Vector3 position
@@ -18,7 +23,7 @@ public class Intersection : MonoBehaviour
         get { return m_position; }
     }
 
-    public List<Vector3> neighbours
+    public List<Intersection> neighbours
     {
         get { return m_neighbours; }
         set { m_neighbours = value; }
