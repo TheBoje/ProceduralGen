@@ -22,7 +22,7 @@ public class PoissonSampling : MonoBehaviour
     [Range(0f, 100f)]
     [Tooltip("Distance minimale entre chaque points")]
     private float rayonPoisson = 10f;
-
+    // Git master is working aswell ? 
     [SerializeField]
     [Tooltip("Nombre d'essais par nouveau point")]
     private int iterations = 100;
