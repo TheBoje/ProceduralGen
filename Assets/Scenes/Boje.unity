@@ -251,19 +251,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomSeed: 1
-  rayonPoisson: 30
+  rayonPoisson: 10
   iterations: 100
-  precision: 40000
+  precision: 10000
   dimension: 2
   rangeX: 500
   rangeZ: 500
   scaleYEnable: 1
-  scaleY: 51.9
-  perlinScale: 2.14
-  instanciateEnable: 1
-  objetInstance: {fileID: 7862810968699769824, guid: 9f2609c44853d7149b34b292dc8d3fad,
-    type: 3}
-  activityEnable: 1
+  scaleY: 2
+  perlinScale: 2
+  instanciateEnable: 0
+  objetInstance: {fileID: 737401733}
+  activityEnable: 0
   activityConcentration: 0
 --- !u!4 &297348074
 Transform:
@@ -303,6 +302,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab2e67bd4f0d144d9a6c19e3b054a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &737401733 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7862810968699769824, guid: 9f2609c44853d7149b34b292dc8d3fad,
+    type: 3}
+  m_PrefabInstance: {fileID: 946592349}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &946592349
 PrefabInstance:
   m_ObjectHideFlags: 0
