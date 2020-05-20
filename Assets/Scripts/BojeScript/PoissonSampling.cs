@@ -137,11 +137,24 @@ public class PoissonSampling : MonoBehaviour
     private void initComputePoints()
     {
         deleteComputed();
+
+        newPos = new Intersection(Vector3.zero, new List<Intersection>());
+        randomPos = new Intersection(Vector3.zero, new List<Intersection>());
+        activePos = new Intersection(Vector3.zero, new List<Intersection>());
+        neighborPos = new Intersection(Vector3.zero, new List<Intersection>());
+
         UnityEngine.Random.seed = randomSeed;
         cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
         grid = new Intersection[colsSize, rowsSize];
+        for (int i = 0; i < colsSize; i++)
+        {
+            for (int j = 0; j < rowsSize; j++)
+            {
+                grid[i, j] = new Intersection(Vector3.zero, new List<Intersection>());
+            }
+        }
         poissonCount = 0;
         stopwatchTimer = new Stopwatch();
         stopwatchTimer.Start();
@@ -219,6 +232,7 @@ public class PoissonSampling : MonoBehaviour
         threadComputePoints = new Thread(computePoints);
         threadComputePoints.IsBackground = true;
         threadComputePoints.Start();
+        UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Started as Thread#" + ((int)threadComputePoints.ManagedThreadId).ToString()); //FIXME Retourne tout sauf ce qu'il faut
         while (threadComputePoints.IsAlive)
         {
             yield return null;
@@ -232,7 +246,6 @@ public class PoissonSampling : MonoBehaviour
         activityPoints.Clear();
         for (int i = 0; i < activityConcentration; i++)
         {
-            //activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
             activityPoints.Add(new Intersection(new Vector3(randomRangeFloatThreadSafe(0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0f, (float)rangeZ)), new List<Intersection>()));
         }
     }
