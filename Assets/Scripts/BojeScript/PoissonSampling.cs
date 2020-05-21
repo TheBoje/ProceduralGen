@@ -91,7 +91,8 @@ public class PoissonSampling : MonoBehaviour
     private Vector3Int randomPosFloored;
     private Vector3Int newPosFloored;
     private System.Random randGiver = new System.Random(); // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
-    private Stopwatch stopwatchTimer;
+    private Stopwatch stopwatchTimerMain;
+
     private float cellSize;
     private float randomMagnitude;
     private float distance;
@@ -102,37 +103,6 @@ public class PoissonSampling : MonoBehaviour
     private int randomIndex;
     private bool isFound;
     private bool isCorrectDistance;
-
-    // WIP dataStruct pour ne pas avoir des variables globales partout et pouvoir utiliser certaines choses en parametre
-    private struct poissonDataset
-    {
-        private Intersection[,] grid;
-        private List<GameObject> instanciatedPoints;
-        private float cellSize;
-        private int colsSize;
-        private int rowsSize;
-    }
-    // WIP aswell
-    private struct poissonLocalVar
-    {
-        private List<Vector3> active;
-        private List<Vector3> activityPoints;
-        private Intersection newPos;
-        private Intersection randomPos;
-        private Intersection activePos;
-        private Intersection neighborPos;
-        private Vector3Int randomPosFloored;
-        private Vector3Int newPosFloored;
-        private Stopwatch stopwatchTimer;
-        private float randomMagnitude;
-        private float distance;
-        private float activityRange;
-        private int poissonCount;
-        private int randomIndex;
-        private bool isFound;
-        private bool isCorrectDistance;
-    }
-
 
     private void initComputePoints()
     {
@@ -156,8 +126,7 @@ public class PoissonSampling : MonoBehaviour
             }
         }
         poissonCount = 0;
-        stopwatchTimer = new Stopwatch();
-        stopwatchTimer.Start();
+        stopwatchTimerMain = new Stopwatch();
         randomPos = new Intersection(new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ)), new List<Intersection>());
         randomPosFloored = floorVector3(randomPos.position);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
@@ -166,6 +135,7 @@ public class PoissonSampling : MonoBehaviour
 
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
+        stopwatchTimerMain.Start();
         for (int l = 0; l < precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
@@ -220,20 +190,18 @@ public class PoissonSampling : MonoBehaviour
         {
             computePointsHeight();
         }
-        stopwatchTimer.Stop();
-        UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
+        stopwatchTimerMain.Stop();
+        UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimerMain.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimerMain.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
     }
 
 
     public IEnumerator threadedComputePoints()
     {
-
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
         initComputePoints();
         threadComputePoints = new Thread(computePoints);
         threadComputePoints.IsBackground = true;
         threadComputePoints.Start();
-        UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Started as Thread#" + ((int)threadComputePoints.ManagedThreadId).ToString()); //FIXME Retourne tout sauf ce qu'il faut
         while (threadComputePoints.IsAlive)
         {
             yield return null;
