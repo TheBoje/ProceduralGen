@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomSeed: 1
-  rayonPoisson: 10
+  rayonPoisson: 50
   iterations: 100
   precision: 10000
   dimension: 2

@@ -10,7 +10,7 @@ public class IntersectionMaker : MonoBehaviour
 
 
     // Calcul les points les plus proches et retourne la liste des points
-    private List<Vector3> NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
+    /*private List<Vector3> NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
     {
         int length = 1;
         List<Vector3> nearestPoints = new List<Vector3>();
@@ -37,10 +37,37 @@ public class IntersectionMaker : MonoBehaviour
 
         }
         return nearestPoints;
+    }*/
+
+    // Calcul les points les plus proches et retourne la liste des points
+    private void NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
+    {
+        int length = 1;
+
+        while (m_poissonScript.poissonGrid[x, y].neighbours.Count <= nbPointsSearched)
+        {
+            for (int i = -length; i <= length; i++)
+            {
+                for (int j = -length + Mathf.Abs(i); j <= length - Mathf.Abs(i); j++)
+                {
+                    if ((0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
+                    {
+                        if (m_poissonScript.poissonGrid[x + i, y + j].position != Vector3.zero)
+                        {
+                            //nearestPoints.Add(m_poissonScript.poissonGrid[x + i, y + j]);
+                            m_poissonScript.poissonGrid[x, y].AddNeighbour(m_poissonScript.poissonGrid[x + i, y + j]);
+                        }
+                    }
+                }
+            }
+            length++;
+        }
     }
 
+
+
     // Calcul les points les plus proches de chaques points
-    private void ComputeNearestPoint(int rows, int cols)
+    /*private void ComputeNearestPoint(int rows, int cols)
     {
         for (int x = 0; x < rows; x++)
         {
@@ -53,10 +80,28 @@ public class IntersectionMaker : MonoBehaviour
                 }
             }
         }
+    }*/
+
+    private void ComputeNearestPoint(int rows, int cols)
+    {
+        for (int x = 0; x < rows; x++)
+        {
+            for (int y = 0; y < cols; y++)
+            {
+                if (m_poissonScript.poissonGrid[x, y].position != Vector3.zero)
+                {
+                    int nbNearPoints = UnityEngine.Random.Range(1, 3);
+                    //m_intersections.Add(new Intersection(m_poissonScript.poissonGrid[x, y], NearestPoint(x, y, nbNearPoints, rows, cols)));
+                    NearestPoint(x, y, nbNearPoints, rows, cols);
+                }
+            }
+        }
     }
 
+
+
     // Génère les routes en fonctions des voisins
-    public void ComputeRoad()
+    /*public void ComputeRoad()
     {
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
@@ -76,7 +121,38 @@ public class IntersectionMaker : MonoBehaviour
                 plane.transform.parent = transform;
             }
         }
+    }*/
+
+    // Génère les routes en fonctions des voisins
+    public void ComputeRoad()
+    {
+        // va lancer la génération
+        m_poissonScript = gameObject.GetComponent<PoissonSampling>();
+
+        //m_poissonScript.threadedComputePoints();
+        ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
+
+        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        {
+            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            {
+                if(m_poissonScript.poissonGrid[i, j].position != Vector3.zero)
+                {
+                    foreach(Intersection neighbour in m_poissonScript.poissonGrid[i, j].neighbours)
+                    {
+                        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+                        Road road = plane.AddComponent<Road>();
+                        road.Init(m_poissonScript.poissonGrid[i, j].position, neighbour.position);
+                        road.SetRoad();
+                        plane.transform.parent = transform;
+                    }
+                }
+            }
+        }
     }
+
+
+
 
     public void ClearIntersections()
     {
