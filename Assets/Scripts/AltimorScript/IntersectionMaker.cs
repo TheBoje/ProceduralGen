@@ -13,7 +13,9 @@ public class IntersectionMaker : MonoBehaviour
     {
         int length = 1;
 
-        while (m_poissonScript.poissonGrid[x, y].neighbours.Count <= nbPointsSearched)
+        Intersection intersection = m_poissonScript.poissonGrid[x, y];
+
+        while (intersection.neighbours.Count <= nbPointsSearched)
         {
             for (int i = -length; i <= length; i++)
             {
@@ -21,13 +23,14 @@ public class IntersectionMaker : MonoBehaviour
                 {
                     if ((0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
                     {
-                        if (m_poissonScript.poissonGrid[x + i, y + j].position != Vector3.zero && !m_poissonScript.poissonGrid[x, y].neighbours.Contains(m_poissonScript.poissonGrid[x + i, y + j]))
+                        Intersection neighbour = m_poissonScript.poissonGrid[x + i, y + j];
+                        if (neighbour.position != Vector3.zero)
                         {
-                            m_poissonScript.poissonGrid[x, y].AddNeighbour(m_poissonScript.poissonGrid[x + i, y + j]);
+                            intersection.AddNeighbour(neighbour);
 
                             // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
-                            if (!m_poissonScript.poissonGrid[x + i, y + j].neighbours.Contains(m_poissonScript.poissonGrid[x, y]))
-                                m_poissonScript.poissonGrid[x + i, y + j].AddNeighbour(m_poissonScript.poissonGrid[x, y]);
+                            if (!neighbour.neighbours.Contains(intersection))
+                                neighbour.AddNeighbour(intersection);
                         }
                     }
                 }
@@ -52,39 +55,32 @@ public class IntersectionMaker : MonoBehaviour
         }
     }
 
-
-
-    // Génère les routes en fonctions des voisins
-    /*public void ComputeRoad()
+    // Nettoie les routes en enlevant les triangles
+    public void DelTriangles()
     {
-        // va lancer la génération
-        m_poissonScript = gameObject.GetComponent<PoissonSampling>();
-
-        m_poissonScript.threadedComputePoints();
-        ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
-
-
-        foreach (Intersection intersection in m_intersections)
+        for(int i = 0; i < m_poissonScript.getRowSize; i++)
         {
-            foreach (Vector3 nPos in intersection.neighbours)
+            for(int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                Road road = plane.AddComponent<Road>();
-                road.Init(intersection.position, nPos);
-                road.SetRoad();
-                plane.transform.parent = transform;
+                if(m_poissonScript.poissonGrid[i, j].position != Vector3.zero)
+                {
+                    m_poissonScript.poissonGrid[i, j].DelTriangle();
+                }
             }
         }
-    }*/
+    }
 
     // Génère les routes en fonctions des voisins
-    public void ComputeRoad()
+    public void ComputeRoad(bool delTriangles)
     {
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
 
         //m_poissonScript.threadedComputePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
+
+        if (delTriangles)
+            this.DelTriangles();
 
         for(int i = 0; i < m_poissonScript.getRowSize; i++)
         {

@@ -39,7 +39,9 @@ public class Intersection : MonoBehaviour
     // Supprime les voisins formant des triangles
     public void DelTriangle()
     {
-        foreach(Intersection n in m_neighbours)
+        List<Intersection> copy = new List<Intersection>(m_neighbours);
+
+        foreach(Intersection n in copy)
         {
             if(IsTriangle(2, n))
             {
@@ -47,6 +49,11 @@ public class Intersection : MonoBehaviour
                 n.neighbours.Remove(this);
             }
         }
+    }
+
+    public bool ContainNeighbour(Intersection neighbour)
+    {
+        return m_neighbours.Contains(neighbour);
     }
 
     public Vector3 position
