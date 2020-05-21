@@ -10,7 +10,7 @@ using UnityEngine;
 
 // Git branch TEST#1 
 // Git branch Fonctionnalites
-
+// Git branch Terrain 
 public class PoissonSampling : MonoBehaviour
 {
     [Header("Basic Settings")]
@@ -80,18 +80,19 @@ public class PoissonSampling : MonoBehaviour
     [SerializeField] private int activityConcentration;
 
     Thread threadComputePoints;
-    private Vector3[,] grid;
+    private Intersection[,] grid;
     private List<GameObject> instanciatedPoints = new List<GameObject>();
-    private List<Vector3> active = new List<Vector3>();
-    private List<Vector3> activityPoints = new List<Vector3>();
-    private Vector3 newPos;
-    private Vector3 randomPos;
-    private Vector3 activePos;
-    private Vector3 neighborPos;
+    private List<Intersection> active = new List<Intersection>();
+    private List<Intersection> activityPoints = new List<Intersection>();
+    private Intersection newPos;
+    private Intersection randomPos;
+    private Intersection activePos;
+    private Intersection neighborPos;
     private Vector3Int randomPosFloored;
     private Vector3Int newPosFloored;
     private System.Random randGiver = new System.Random(); // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
-    private Stopwatch stopwatchTimer;
+    private Stopwatch stopwatchTimerMain;
+
     private float cellSize;
     private float randomMagnitude;
     private float distance;
@@ -103,56 +104,38 @@ public class PoissonSampling : MonoBehaviour
     private bool isFound;
     private bool isCorrectDistance;
 
-    // WIP dataStruct pour ne pas avoir des variables globales partout et pouvoir utiliser certaines choses en parametre
-    private struct poissonDataset
-    {
-        private Vector3[,] grid;
-        private List<GameObject> instanciatedPoints;
-        private float cellSize;
-        private int colsSize;
-        private int rowsSize;
-    }
-    // WIP aswell
-    private struct poissonLocalVar
-    {
-        private List<Vector3> active;
-        private List<Vector3> activityPoints;
-        private Vector3 newPos;
-        private Vector3 randomPos;
-        private Vector3 activePos;
-        private Vector3 neighborPos;
-        private Vector3Int randomPosFloored;
-        private Vector3Int newPosFloored;
-        private Stopwatch stopwatchTimer;
-        private float randomMagnitude;
-        private float distance;
-        private float activityRange;
-        private int poissonCount;
-        private int randomIndex;
-        private bool isFound;
-        private bool isCorrectDistance;
-    }
-
-
     private void initComputePoints()
     {
         deleteComputed();
+
+        newPos = new Intersection(Vector3.zero, new List<Intersection>());
+        randomPos = new Intersection(Vector3.zero, new List<Intersection>());
+        activePos = new Intersection(Vector3.zero, new List<Intersection>());
+        neighborPos = new Intersection(Vector3.zero, new List<Intersection>());
+
         UnityEngine.Random.seed = randomSeed;
         cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
-        grid = new Vector3[colsSize, rowsSize];
+        grid = new Intersection[colsSize, rowsSize];
+        for (int i = 0; i < colsSize; i++)
+        {
+            for (int j = 0; j < rowsSize; j++)
+            {
+                grid[i, j] = new Intersection(Vector3.zero, new List<Intersection>());
+            }
+        }
         poissonCount = 0;
-        stopwatchTimer = new Stopwatch();
-        stopwatchTimer.Start();
-        randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
-        randomPosFloored = floorVector3(randomPos);
+        stopwatchTimerMain = new Stopwatch();
+        randomPos = new Intersection(new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ)), new List<Intersection>());
+        randomPosFloored = floorVector3(randomPos.position);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
         active.Add(randomPos);
     }
 
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
+        stopwatchTimerMain.Start();
         for (int l = 0; l < precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
@@ -161,12 +144,13 @@ public class PoissonSampling : MonoBehaviour
             activePos = active[randomIndex];
             for (int n = 0; n < iterations; n++)
             {
-                newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
+                newPos = new Intersection(Vector3.zero, new List<Intersection>());
+                newPos.position = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
                 randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
-                newPos = newPos * randomMagnitude;
-                newPos += activePos;
-                newPosFloored = floorVector3(newPos);
-                if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] == Vector3.zero)
+                newPos.position = newPos.position * randomMagnitude;
+                newPos.position += activePos.position;
+                newPosFloored = floorVector3(newPos.position);
+                if (0 <= newPos.position.x && newPos.position.x < rangeX && 0 <= newPos.position.z && newPos.position.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z].position == Vector3.zero)
                 {
                     isCorrectDistance = true;
                     for (int i = -1; i < 2; i++)
@@ -176,9 +160,9 @@ public class PoissonSampling : MonoBehaviour
                             if (newPosFloored.x + i >= 0 && newPosFloored.x + i < colsSize && newPosFloored.z + j >= 0 && newPosFloored.z + j < rowsSize)
                             {
                                 neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
-                                if (neighborPos != Vector3.zero)
+                                if (neighborPos.position != Vector3.zero)
                                 {
-                                    distance = Vector3.Distance(newPos, neighborPos);
+                                    distance = Vector3.Distance(newPos.position, neighborPos.position);
                                     if (distance < 2 * rayonPoisson)
                                     {
                                         isCorrectDistance = false;
@@ -206,14 +190,13 @@ public class PoissonSampling : MonoBehaviour
         {
             computePointsHeight();
         }
-        stopwatchTimer.Stop();
-        UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimer.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimer.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
+        stopwatchTimerMain.Stop();
+        UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimerMain.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimerMain.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
     }
 
 
     public IEnumerator threadedComputePoints()
     {
-
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
         initComputePoints();
         threadComputePoints = new Thread(computePoints);
@@ -232,8 +215,7 @@ public class PoissonSampling : MonoBehaviour
         activityPoints.Clear();
         for (int i = 0; i < activityConcentration; i++)
         {
-            //activityPoints.Add(new Vector3(UnityEngine.Random.Range(0f, (float)rangeX), 0f, UnityEngine.Random.Range(0f, (float)rangeZ)));
-            activityPoints.Add(new Vector3(randomRangeFloatThreadSafe(0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0f, (float)rangeZ)));
+            activityPoints.Add(new Intersection(new Vector3(randomRangeFloatThreadSafe(0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0f, (float)rangeZ)), new List<Intersection>()));
         }
     }
 
@@ -261,9 +243,9 @@ public class PoissonSampling : MonoBehaviour
             {
                 for (int j = 0; j < rowsSize; j++)
                 {
-                    if (grid[i, j] != Vector3.zero)
+                    if (grid[i, j].position != Vector3.zero)
                     {
-                        GameObject resultInstance = Instantiate(objetInstance, grid[i, j], Quaternion.identity);
+                        GameObject resultInstance = Instantiate(objetInstance, grid[i, j].position, Quaternion.identity);
                         resultInstance.transform.parent = gameObject.transform;
                         instanciatedPoints.Add(resultInstance);
                     }
@@ -275,7 +257,7 @@ public class PoissonSampling : MonoBehaviour
     {
         if (instanciateEnable)
         {
-            Vector3 pt = newPos;
+            Vector3 pt = newPos.position;
             GameObject resultInstance = Instantiate(objetInstance, pt, Quaternion.identity);
             resultInstance.transform.parent = gameObject.transform;
             instanciatedPoints.Add(resultInstance);
@@ -299,11 +281,11 @@ public class PoissonSampling : MonoBehaviour
         {
             for (int j = 0; j < rowsSize; j++)
             {
-                if (grid[i, j] != Vector3.zero)
+                if (grid[i, j].position != Vector3.zero)
                 {
-                    Vector3 temp = grid[i, j];
+                    Vector3 temp = grid[i, j].position;
                     temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
-                    grid[i, j] = temp;
+                    grid[i, j].position = temp;
                 }
             }
         }
@@ -321,7 +303,7 @@ public class PoissonSampling : MonoBehaviour
         return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
     }
 
-    public Vector3[,] poissonGrid
+    public Intersection[,] poissonGrid
     {
         get { return grid; }
     }
