@@ -129,7 +129,7 @@ public class IntersectionMaker : MonoBehaviour
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
 
-        m_poissonScript.threadedComputePoints();
+        //m_poissonScript.threadedComputePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
 
         for(int i = 0; i < m_poissonScript.getRowSize; i++)

@@ -174,6 +174,7 @@ public class PoissonSampling : MonoBehaviour
             activePos = active[randomIndex];
             for (int n = 0; n < iterations; n++)
             {
+                newPos = new Intersection(Vector3.zero, new List<Intersection>());
                 newPos.position = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
                 randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
                 newPos.position = newPos.position * randomMagnitude;
