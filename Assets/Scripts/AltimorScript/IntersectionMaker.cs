@@ -8,37 +8,6 @@ public class IntersectionMaker : MonoBehaviour
     private List<Intersection> m_intersections;
     private PoissonSampling m_poissonScript;
 
-
-    // Calcul les points les plus proches et retourne la liste des points
-    /*private List<Vector3> NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
-    {
-        int length = 1;
-        List<Vector3> nearestPoints = new List<Vector3>();
-
-
-        while (nearestPoints.Count <= nbPointsSearched)
-        {
-            for (int i = -length; i <= length; i++)
-            {
-                for (int j = -length + Mathf.Abs(i); j <= length - Mathf.Abs(i); j++)
-                {
-                    if ((0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
-                    {
-                        if (m_poissonScript.poissonGrid[x + i, y + j] != Vector3.zero)
-                        {
-                            nearestPoints.Add(m_poissonScript.poissonGrid[x + i, y + j]);
-                        }
-                    }
-
-                }
-
-            }
-            length++;
-
-        }
-        return nearestPoints;
-    }*/
-
     // Calcul les points les plus proches et retourne la liste des points
     private void NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
     {
@@ -52,10 +21,13 @@ public class IntersectionMaker : MonoBehaviour
                 {
                     if ((0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
                     {
-                        if (m_poissonScript.poissonGrid[x + i, y + j].position != Vector3.zero)
+                        if (m_poissonScript.poissonGrid[x + i, y + j].position != Vector3.zero && !m_poissonScript.poissonGrid[x, y].neighbours.Contains(m_poissonScript.poissonGrid[x + i, y + j]))
                         {
-                            //nearestPoints.Add(m_poissonScript.poissonGrid[x + i, y + j]);
                             m_poissonScript.poissonGrid[x, y].AddNeighbour(m_poissonScript.poissonGrid[x + i, y + j]);
+
+                            // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
+                            if (!m_poissonScript.poissonGrid[x + i, y + j].neighbours.Contains(m_poissonScript.poissonGrid[x, y]))
+                                m_poissonScript.poissonGrid[x + i, y + j].AddNeighbour(m_poissonScript.poissonGrid[x, y]);
                         }
                     }
                 }
@@ -63,24 +35,6 @@ public class IntersectionMaker : MonoBehaviour
             length++;
         }
     }
-
-
-
-    // Calcul les points les plus proches de chaques points
-    /*private void ComputeNearestPoint(int rows, int cols)
-    {
-        for (int x = 0; x < rows; x++)
-        {
-            for (int y = 0; y < cols; y++)
-            {
-                if (m_poissonScript.poissonGrid[x, y] != Vector3.zero)
-                {
-                    int nbNearPoints = UnityEngine.Random.Range(1, 3);
-                    m_intersections.Add(new Intersection(m_poissonScript.poissonGrid[x, y], NearestPoint(x, y, nbNearPoints, rows, cols)));
-                }
-            }
-        }
-    }*/
 
     private void ComputeNearestPoint(int rows, int cols)
     {

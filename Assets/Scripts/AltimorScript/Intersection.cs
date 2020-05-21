@@ -18,6 +18,37 @@ public class Intersection : MonoBehaviour
         m_neighbours.Add(neighbour);
     }
 
+    // Vérifie si le voisin créer un triangle
+    private bool IsTriangle(int nbEdge, Intersection neighbour)
+    {
+        if (nbEdge < 0)
+            return false;
+        else if (this == neighbour && nbEdge == 0)
+            return true;
+        else
+        {
+            foreach(Intersection n in neighbour.neighbours)
+            {
+                if (IsTriangle(nbEdge - 1, n))
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    // Supprime les voisins formant des triangles
+    public void DelTriangle()
+    {
+        foreach(Intersection n in m_neighbours)
+        {
+            if(IsTriangle(2, n))
+            {
+                m_neighbours.Remove(n);
+                n.neighbours.Remove(this);
+            }
+        }
+    }
+
     public Vector3 position
     {
         get { return m_position; }
