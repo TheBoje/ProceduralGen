@@ -96,10 +96,10 @@ public class PoissonSampling : MonoBehaviour
         //==================================================//
 
 
-        Intersection newPos = new Intersection(Vector3.zero, new List<Intersection>());
-        Intersection randomPos = new Intersection(Vector3.zero, new List<Intersection>());
-        Intersection activePos = new Intersection(Vector3.zero, new List<Intersection>());
-        Intersection neighborPos = new Intersection(Vector3.zero, new List<Intersection>());
+        Intersection newPos = new Intersection(Vector3.zero);
+        Intersection randomPos = new Intersection(Vector3.zero);
+        Intersection activePos = new Intersection(Vector3.zero);
+        Intersection neighborPos = new Intersection(Vector3.zero);
         List<Intersection> activityPoints = new List<Intersection>();
 
         instanciatedPoints = new List<GameObject>();
@@ -115,13 +115,13 @@ public class PoissonSampling : MonoBehaviour
         {
             for (int j = 0; j < rowsSize; j++)
             {
-                grid[i, j] = new Intersection(Vector3.zero, new List<Intersection>());
+                grid[i, j] = new Intersection(Vector3.zero);
             }
         }
         int poissonCount = 0;
 
         Stopwatch stopwatchTimerMain = new Stopwatch();
-        randomPos = new Intersection(new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ)), new List<Intersection>());
+        randomPos = new Intersection(new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ)));
         Vector3Int randomPosFloored = floorVector3(randomPos.position, cellSize);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
         List<Intersection> active = new List<Intersection>();
@@ -141,7 +141,7 @@ public class PoissonSampling : MonoBehaviour
             activePos = active[randomIndex];
             for (int n = 0; n < iterations; n++)
             {
-                newPos = new Intersection(Vector3.zero, new List<Intersection>());
+                newPos = new Intersection(Vector3.zero);
                 newPos.position = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
                 float randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
                 newPos.position = newPos.position * randomMagnitude;

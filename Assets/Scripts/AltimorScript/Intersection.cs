@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class Intersection : MonoBehaviour
 {
-    private Vector3 m_position;
+    private Vector3 m_position; 
     private List<Intersection> m_neighbours;
+    private List<bool> m_joined;
 
-    public Intersection(Vector3 position, List<Intersection> neighbours)
+
+    public Intersection(Vector3 position)
     {
         m_position = position;
-        m_neighbours = neighbours;
+        m_neighbours = new List<Intersection>();
+        m_joined = new List<bool>();
     }
 
     public void AddNeighbour(Intersection neighbour)
