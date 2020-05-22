@@ -48,8 +48,14 @@ public class Intersection : MonoBehaviour
         {
             if(IsTriangle(2, n))
             {
-                m_neighbours.Remove(n);
-                n.neighbours.Remove(this);
+                int indexInter = m_neighbours.IndexOf(n);
+                int indexNeig = n.neighbours.IndexOf(this);
+
+                m_neighbours.RemoveAt(indexInter);
+                m_joined.RemoveAt(indexInter);
+
+                n.neighbours.RemoveAt(indexNeig);
+                n.Joined.RemoveAt(indexNeig);
             }
         }
     }
@@ -69,5 +75,11 @@ public class Intersection : MonoBehaviour
     {
         get { return m_neighbours; }
         set { m_neighbours = value; }
+    }
+
+    public List<bool> Joined
+    {
+        get { return m_joined; }
+        set { m_joined = value; }
     }
 }
