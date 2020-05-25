@@ -5,20 +5,88 @@ using UnityEngine;
 public class Intersection : MonoBehaviour
 {
     private Vector3 m_position; 
-    private List<Intersection> m_neighbours;
-    private List<bool> m_joined;
+    //private List<Intersection> m_neighbours;
+    //private List<bool> m_joined;
+
+    // Test alternatif pour gérer les voisins 
+    public struct Neighbour
+    {
 
 
+        public Neighbour(Intersection n, bool join)
+        {
+            inter = n;
+            joined = join;
+        }
+
+        public void SetJoined(bool val)
+        {
+            joined = val;
+        }
+
+        public Intersection inter { get; }
+        public bool joined { get; set; }
+
+    }
+
+    private List<Neighbour> m_neighbours;
+
+    // CONSTRUCTEUR 
     public Intersection(Vector3 position)
     {
         m_position = position;
-        m_neighbours = new List<Intersection>();
-        m_joined = new List<bool>();
+
+        m_neighbours = new List<Neighbour>();
     }
 
     public void AddNeighbour(Intersection neighbour)
     {
-        m_neighbours.Add(neighbour);
+        m_neighbours.Add(new Neighbour(neighbour, false));
+    }
+
+    // Regarde si l'intersection inter est déjà voisine
+    public bool ContainsIntersection(Intersection inter)
+    {
+        foreach(Neighbour n in m_neighbours)
+        {
+            if (n.inter == inter)
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool IsJoined(Intersection inter)
+    {
+        foreach(Neighbour n in m_neighbours)
+        {
+            if(n.inter == inter)
+            {
+                return n.joined;
+            }
+        }
+        return false;
+    }
+
+    public void SetJoined(Intersection inter, bool val)
+    {
+        foreach(Neighbour n in m_neighbours)
+        {
+            if(n.inter == inter)
+            {
+                n.SetJoined(val);
+            }
+        }
+    }
+
+    public int IndexOfInter(Intersection inter)
+    {
+        for(int i = 0; i < m_neighbours.Count; i++)
+        {
+            if (m_neighbours[i].inter == inter)
+                return i;
+        }
+        return -1;
     }
 
     // Vérifie si le voisin créer un triangle
@@ -30,9 +98,9 @@ public class Intersection : MonoBehaviour
             return true;
         else
         {
-            foreach(Intersection n in neighbour.neighbours)
+            foreach(Neighbour n in neighbour.Neighbours)
             {
-                if (IsTriangle(nbEdge - 1, n))
+                if (IsTriangle(nbEdge - 1, n.inter))
                     return true;
             }
             return false;
@@ -42,27 +110,19 @@ public class Intersection : MonoBehaviour
     // Supprime les voisins formant des triangles
     public void DelTriangle()
     {
-        List<Intersection> copy = new List<Intersection>(m_neighbours);
+        List<Neighbour> copy = new List<Neighbour>(m_neighbours);
 
-        foreach(Intersection n in copy)
+        foreach(Neighbour n in copy)
         {
-            if(IsTriangle(2, n))
+            if(IsTriangle(2, n.inter))
             {
                 int indexInter = m_neighbours.IndexOf(n);
-                int indexNeig = n.neighbours.IndexOf(this);
+                int indexNeig = n.inter.IndexOfInter(this);
 
                 m_neighbours.RemoveAt(indexInter);
-                m_joined.RemoveAt(indexInter);
-
-                n.neighbours.RemoveAt(indexNeig);
-                n.Joined.RemoveAt(indexNeig);
+                n.inter.Neighbours.RemoveAt(indexNeig);
             }
         }
-    }
-
-    public bool ContainNeighbour(Intersection neighbour)
-    {
-        return m_neighbours.Contains(neighbour);
     }
 
     public Vector3 position
@@ -71,15 +131,9 @@ public class Intersection : MonoBehaviour
         set { m_position = value; }
     }
 
-    public List<Intersection> neighbours
+    public List<Neighbour> Neighbours
     {
         get { return m_neighbours; }
         set { m_neighbours = value; }
-    }
-
-    public List<bool> Joined
-    {
-        get { return m_joined; }
-        set { m_joined = value; }
     }
 }
