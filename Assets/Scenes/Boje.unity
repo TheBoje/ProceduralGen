@@ -251,16 +251,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomSeed: 1
-  rayonPoisson: 50
+  rayonPoisson: 2
   iterations: 100
-  precision: 10000
+  precision: 1000000
   dimension: 2
   rangeX: 500
   rangeZ: 500
   scaleYEnable: 1
-  scaleY: 2
+  scaleY: 70
   perlinScale: 2
-  instanciateEnable: 0
+  instanciateEnable: 1
   objetInstance: {fileID: 737401733}
   activityEnable: 0
   activityConcentration: 0
