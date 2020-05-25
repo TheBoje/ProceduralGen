@@ -116,7 +116,7 @@ public class PoissonSampling : MonoBehaviour
         {
             for (int j = 0; j < rowsSize; j++)
             {
-                grid[i, j] = Vector3.zero;
+                grid[i, j] = null;
             }
         }
         int poissonCount = 0;
