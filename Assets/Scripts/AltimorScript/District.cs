@@ -12,7 +12,7 @@ public class District : MonoBehaviour
 
     private List<GameObject> m_houses;
 
-    [SerializeField] GameObject m_house;
+    [SerializeField] GameObject m_house = null;
 
     public void Start()
     {
@@ -21,7 +21,7 @@ public class District : MonoBehaviour
         CreateDistrict();
     }
 
-    
+
     // Calcule la distance à laquelle le centre de la deuxième maison doit être placé
     private Vector3 ComputeNewCenterOfHouse(GameObject house, GameObject addedHouse)
     {
@@ -32,7 +32,7 @@ public class District : MonoBehaviour
         Debug.Log("fieldAddedHouse : " + fieldAddedHouse);
 
         Vector3 newPos = new Vector3(house.transform.position.x, transform.position.y, house.transform.position.z + (fieldHouse.z / 2f) + (fieldAddedHouse.z / 2f));
-        
+
         return newPos;
     }
 
@@ -40,7 +40,7 @@ public class District : MonoBehaviour
     private void AddHouse()
     {
         Debug.Log("Adding House ...");
-        if(m_houses.Count == 0)
+        if (m_houses.Count == 0)
         {
             // On créer la première maison sur la position du quartier
             GameObject addedHouse = Instantiate(m_house, transform.position, Quaternion.identity);
@@ -69,7 +69,7 @@ public class District : MonoBehaviour
     // Créer le quartier
     private void CreateDistrict()
     {
-        for(int i = 0 ; i < m_nbHouses; i++)
+        for (int i = 0; i < m_nbHouses; i++)
         {
             AddHouse();
         }

@@ -23,10 +23,6 @@ public class PoissonSampling : MonoBehaviour
     private int iterations = 100;
 
     [SerializeField]
-    [Tooltip("Nombre d'essais de point")]
-    private int precision = 10000;
-
-    [SerializeField]
     [Range(2, 2)]
     [Tooltip("WIP - NE PAS MODIFIER")]
     private int dimension = 2;
@@ -66,7 +62,7 @@ public class PoissonSampling : MonoBehaviour
 
     [SerializeField]
     [Tooltip("Objet instancié a chaque point calculé")]
-    private GameObject objetInstance;
+    private GameObject objetInstance = null;
 
     /*
     * [Header("Activity Settings")]
@@ -119,7 +115,8 @@ public class PoissonSampling : MonoBehaviour
 
         pointPoissonCount = 0;
         Stopwatch stopwatchPoissonCompute = new Stopwatch();
-
+        bool firstRun = true;
+        int iterationsDebug = 0;
 
         randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
         Vector3Int randomPosFloored = floorVector3((Vector3)randomPos, cellSize);
@@ -135,12 +132,15 @@ public class PoissonSampling : MonoBehaviour
         stopwatchPoissonCompute.Start();
 
 
-        for (int l = 0; l < precision; l++)
+        //for (int l = 0; l < precision; l++)
+        while (active.Count > 0 || firstRun)
         {
-            if (active.Count <= 0 && l != 0) { break; } // Safety check
+            //if (active.Count <= 0 && l != 0) { break; } // Safety check
             bool isFound = false;
             int randomIndex = randomRangeIntThreadSafe(0, active.Count);
             activePos = active[randomIndex];
+            firstRun = false;
+            iterationsDebug += 1;
             for (int n = 0; n < iterations; n++)
             {
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
@@ -194,6 +194,7 @@ public class PoissonSampling : MonoBehaviour
         }
         stopwatchPoissonCompute.Stop();
         UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
+        UnityEngine.Debug.Log("PoissonSampling::computePoints - Iterations count : " + iterationsDebug);
     }
 
 

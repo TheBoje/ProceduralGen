@@ -15,7 +15,7 @@ public class House : MonoBehaviour
     private List<GameObject> m_rooms; // pièces de la maison
     private Vector3 m_field; // taille du terrain ( > 0)
 
-    [SerializeField] private List<GameObject> m_ableRooms;
+    [SerializeField] private List<GameObject> m_ableRooms = null;
     private int m_nbAbleRooms;
 
     private int m_maxFloors;
@@ -45,7 +45,7 @@ public class House : MonoBehaviour
     // Ajoute une pièce à la maison à l'étage passé en paramètre TODO -> Gérer les étages
     public void AddRoom(int floor, GameObject room)
     {
-        if(m_nbRooms == 0)
+        if (m_nbRooms == 0)
         {
             GameObject addedRoom = Instantiate(room, transform.position, Quaternion.identity);
 
@@ -60,11 +60,11 @@ public class House : MonoBehaviour
                 Debug.Log("House.AddRoom - null addedRoom ");
             }
         }
-        else if(m_nbRooms >= m_maxRooms)
+        else if (m_nbRooms >= m_maxRooms)
         {
             Debug.Log("House.AddRoom - Max rooms reached");
         }
-        else if(floor < 1 || floor > m_maxFloors)
+        else if (floor < 1 || floor > m_maxFloors)
         {
             Debug.Log("House.AddRoom - Invalid floor");
         }
@@ -84,7 +84,7 @@ public class House : MonoBehaviour
             int indAnchorAdding = Random.Range(0, addingRoom.NbAnchorsPoints - 1);
 
             GameObject addedRoom = originRoom.AddRoom(indAnchorOrigin, indAnchorAdding, room);
-            if(addedRoom != null)
+            if (addedRoom != null)
             {
                 addedRoom.GetComponent<Room>().SetParent(gameObject);
                 m_nbRooms++;
@@ -94,7 +94,7 @@ public class House : MonoBehaviour
             {
                 Debug.Log("House.AddRoom - null addedRoom ");
             }
-            
+
         }
     }
 
@@ -102,7 +102,7 @@ public class House : MonoBehaviour
     public void CreateHouse()
     {
         Debug.Log(m_maxRooms);
-        for(int i = 0; i < m_maxRooms ; i++)
+        for (int i = 0; i < m_maxRooms; i++)
         {
             int id = Random.Range(0, m_nbAbleRooms);
             AddRoom(m_nbFloors, m_ableRooms[id]);
@@ -115,7 +115,7 @@ public class House : MonoBehaviour
         float max_x = 0f, min_x = 0f;
         float max_z = 0f, min_z = 0f;
 
-        foreach(GameObject room in m_rooms)
+        foreach (GameObject room in m_rooms)
         {
             Vector3 roomPos = room.transform.position;
             Vector3 roomScale = room.transform.localScale;
@@ -123,12 +123,12 @@ public class House : MonoBehaviour
             // On calcule les maximums et minimums atteint par la maison
             max_x = (max_x < (roomPos.x + 0.5f * roomScale.x)) ? (roomPos.x + 0.5f * roomScale.x) : max_x;
             min_x = (min_x > (roomPos.x + (-0.5f * roomScale.x))) ? (roomPos.x + (-0.5f * roomScale.x)) : min_x;
-           
+
             max_z = (max_z < (roomPos.z + 0.5f * roomScale.z)) ? (roomPos.z + 0.5f * roomScale.z) : max_z;
             min_z = (min_z > (roomPos.z + (-0.5f * roomScale.z))) ? (roomPos.z + (-0.5f * roomScale.z)) : max_z;
         }
 
-        
+
 
         //m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
         //m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
@@ -153,9 +153,9 @@ public class House : MonoBehaviour
         field.transform.position = fieldPos;
         field.name = "House Field";
         field.GetComponent<MeshRenderer>().enabled = false;
-         
 
-        Debug.Log("M_FIELD " + gameObject.name + " : "+ m_field);
+
+        Debug.Log("M_FIELD " + gameObject.name + " : " + m_field);
 
 
     }

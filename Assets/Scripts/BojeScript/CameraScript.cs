@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#pragma warning disable 0108
+
 public class CameraScript : MonoBehaviour
 {
     [Range(0.2f, 10f)]
