@@ -71,10 +71,12 @@ public class PoissonSampling : MonoBehaviour
     [Tooltip("Objet instancié a chaque point calculé")]
     private GameObject objetInstance;
 
-    [Header("Activity Settings")]
+    /*
+    * [Header("Activity Settings")]
 
-    [SerializeField] private bool activityEnable = true;
-    [SerializeField] private int activityConcentration;
+    * [SerializeField] private bool activityEnable = true;
+    * [SerializeField] private int activityConcentration;
+    */
 
     Thread threadComputePoints;
 
@@ -83,6 +85,7 @@ public class PoissonSampling : MonoBehaviour
     private List<GameObject> instanciatedPoints = new List<GameObject>();
     private int rowsSize;
     private int colsSize;
+
 
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
@@ -122,7 +125,7 @@ public class PoissonSampling : MonoBehaviour
 
         randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
         Vector3Int randomPosFloored = floorVector3((Vector3)randomPos, cellSize);
-        grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
+        grid[randomPosFloored.x, randomPosFloored.z] = randomPos;
         List<Vector3> active = new List<Vector3>();
         active.Add((Vector3)randomPos);
 

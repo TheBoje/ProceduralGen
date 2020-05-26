@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Intersection : MonoBehaviour
+public class Intersection
 {
 
     //private List<Intersection> m_neighbours;
@@ -55,7 +55,7 @@ public class Intersection : MonoBehaviour
     // Regarde si l'intersection inter est déjà voisine
     public bool ContainsIntersection(Intersection intersection)
     {
-        foreach(Neighbour n in m_neighbours)
+        foreach (Neighbour n in m_neighbours)
         {
             if (n.coords == intersection.Coords)
                 return true;
@@ -66,9 +66,9 @@ public class Intersection : MonoBehaviour
 
     public bool IsJoined(Intersection intersection)
     {
-        foreach(Neighbour n in m_neighbours)
+        foreach (Neighbour n in m_neighbours)
         {
-            if(n.coords == intersection.Coords)
+            if (n.coords == intersection.Coords)
             {
                 return n.joined;
             }
@@ -78,9 +78,9 @@ public class Intersection : MonoBehaviour
 
     public void SetJoined(Intersection intersection, bool val)
     {
-        foreach(Neighbour n in m_neighbours)
+        foreach (Neighbour n in m_neighbours)
         {
-            if(n.coords == intersection.Coords)
+            if (n.coords == intersection.Coords)
             {
                 n.SetJoined(val);
             }
@@ -89,7 +89,7 @@ public class Intersection : MonoBehaviour
 
     public int IndexOfInter(Intersection inter)
     {
-        for(int i = 0; i < m_neighbours.Count; i++)
+        for (int i = 0; i < m_neighbours.Count; i++)
         {
             if (m_neighbours[i].coords == inter.Coords)
                 return i;
