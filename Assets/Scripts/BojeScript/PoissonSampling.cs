@@ -101,7 +101,6 @@ public class PoissonSampling : MonoBehaviour
         Vector3? activePos = new Vector3();
         Vector3? neighborPos = new Vector3();
         List<Vector3> activityPoints = new List<Vector3>();
-        List<long> execTime = new List<long>();
 
         instanciatedPoints = new List<GameObject>();
 
@@ -122,7 +121,6 @@ public class PoissonSampling : MonoBehaviour
         int poissonCount = 0;
 
         Stopwatch stopwatchTimerMain = new Stopwatch();
-        Stopwatch stopwatchTimerOther = new Stopwatch();
         randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
         Vector3Int randomPosFloored = floorVector3((Vector3)randomPos, cellSize);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
@@ -143,13 +141,7 @@ public class PoissonSampling : MonoBehaviour
             activePos = active[randomIndex];
             for (int n = 0; n < iterations; n++)
             {
-                stopwatchTimerOther.Reset();
-                stopwatchTimerOther.Start();
-
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
-
-                stopwatchTimerOther.Stop();
-                execTime.Add(stopwatchTimerOther.ElapsedMilliseconds);
 
                 float randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
                 newPos = newPos * randomMagnitude;
@@ -197,11 +189,6 @@ public class PoissonSampling : MonoBehaviour
         }
         stopwatchTimerMain.Stop();
         UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimerMain.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimerMain.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
-        execTime.Sort();
-        foreach (var item in execTime)
-        {
-            UnityEngine.Debug.Log(item.ToString() + " ticks");
-        }
     }
 
 
