@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class Intersection : MonoBehaviour
 {
-    private Vector3 m_position; 
+
     //private List<Intersection> m_neighbours;
     //private List<bool> m_joined;
 
-    // Test alternatif pour gérer les voisins 
+    // type structuré contenant les voisins
     public struct Neighbour
     {
 
-
-        public Neighbour(Intersection n, bool join)
+        public Neighbour(Vector2Int coord, bool join)
         {
-            inter = n;
             joined = join;
+            coords = coord;
+
         }
 
         public void SetJoined(bool val)
@@ -24,43 +24,51 @@ public class Intersection : MonoBehaviour
             joined = val;
         }
 
-        public Intersection inter { get; }
         public bool joined { get; set; }
+        public Vector2Int coords { get; set; }
 
     }
 
     private List<Neighbour> m_neighbours;
+    private Vector3 m_position;
+    private Vector2Int m_coordonates;
 
     // CONSTRUCTEUR 
-    public Intersection(Vector3 position)
+    public Intersection(Vector3 position, Vector2Int coords)
     {
         m_position = position;
+        m_coordonates = coords;
 
+        //m_neighbours = new List<Neighbour>();
+    }
+
+    public void InitNeighbours()
+    {
         m_neighbours = new List<Neighbour>();
     }
 
-    public void AddNeighbour(Intersection neighbour)
+    public void AddNeighbour(int i, int j)
     {
-        m_neighbours.Add(new Neighbour(neighbour, false));
+        m_neighbours.Add(new Neighbour(new Vector2Int(i, j), false));
     }
 
     // Regarde si l'intersection inter est déjà voisine
-    public bool ContainsIntersection(Intersection inter)
+    public bool ContainsIntersection(Intersection intersection)
     {
         foreach(Neighbour n in m_neighbours)
         {
-            if (n.inter == inter)
+            if (n.coords == intersection.Coords)
                 return true;
         }
 
         return false;
     }
 
-    public bool IsJoined(Intersection inter)
+    public bool IsJoined(Intersection intersection)
     {
         foreach(Neighbour n in m_neighbours)
         {
-            if(n.inter == inter)
+            if(n.coords == intersection.Coords)
             {
                 return n.joined;
             }
@@ -68,11 +76,11 @@ public class Intersection : MonoBehaviour
         return false;
     }
 
-    public void SetJoined(Intersection inter, bool val)
+    public void SetJoined(Intersection intersection, bool val)
     {
         foreach(Neighbour n in m_neighbours)
         {
-            if(n.inter == inter)
+            if(n.coords == intersection.Coords)
             {
                 n.SetJoined(val);
             }
@@ -83,14 +91,14 @@ public class Intersection : MonoBehaviour
     {
         for(int i = 0; i < m_neighbours.Count; i++)
         {
-            if (m_neighbours[i].inter == inter)
+            if (m_neighbours[i].coords == inter.Coords)
                 return i;
         }
         return -1;
     }
 
     // Vérifie si le voisin créer un triangle
-    private bool IsTriangle(int nbEdge, Intersection neighbour)
+    /*private bool IsTriangle(int nbEdge, Intersection neighbour)
     {
         if (nbEdge < 0)
             return false;
@@ -123,7 +131,7 @@ public class Intersection : MonoBehaviour
                 n.inter.Neighbours.RemoveAt(indexNeig);
             }
         }
-    }
+    }*/
 
     public Vector3 position
     {
@@ -135,5 +143,11 @@ public class Intersection : MonoBehaviour
     {
         get { return m_neighbours; }
         set { m_neighbours = value; }
+    }
+
+    public Vector2Int Coords
+    {
+        get { return m_coordonates; }
+        set { m_coordonates = value; }
     }
 }

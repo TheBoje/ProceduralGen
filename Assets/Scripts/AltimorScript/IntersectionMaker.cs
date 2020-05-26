@@ -7,15 +7,35 @@ public class IntersectionMaker : MonoBehaviour
 {
     private List<Intersection> m_intersections;
     private PoissonSampling m_poissonScript;
+    private Intersection[,] m_poissonGrid;
+
+    private void InitPoissonGrid()
+    {
+        m_poissonGrid = new Intersection[m_poissonScript.getRowSize, m_poissonScript.getColSize];
+
+        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        {
+            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            {
+                if(m_poissonScript.poissonGrid[i, j] != null)
+                {
+                    m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
+                    m_poissonGrid[i, j].InitNeighbours();
+                }
+                else
+                {
+                    m_poissonGrid[i, j] = null;
+                }
+            }
+        }
+    }
 
     // Calcul les points les plus proches et retourne la liste des points
     private void NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
     {
         int length = 1;
-
-        Intersection intersection = m_poissonScript.poissonGrid[x, y];
-
-        while (intersection.Neighbours.Count <= nbPointsSearched)
+        
+        while (m_poissonGrid[x, y].Neighbours.Count <= nbPointsSearched)
         {
             for (int i = -length; i <= length; i++)
             {
@@ -23,15 +43,17 @@ public class IntersectionMaker : MonoBehaviour
                 {
                     if ((0 <= x + i) && (x + i < rows) && (0 <= y + j) && (y + j < cols) && !(i == 0 && j == 0))
                     {
-                        Intersection neighbour = m_poissonScript.poissonGrid[x + i, y + j];
-                        if (neighbour.position != Vector3.zero)
+                        if (m_poissonGrid[x + i, y + j] != null)
                         {
-                            intersection.AddNeighbour(neighbour);
-
-                            // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
-                            if (!neighbour.ContainsIntersection(intersection))
+                            if(!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
                             {
-                                neighbour.AddNeighbour(intersection);
+                                m_poissonGrid[x, y].AddNeighbour(x + i, y + j);
+                            }
+                            
+                            // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
+                            if (!m_poissonGrid[x + i, y + j].ContainsIntersection(m_poissonGrid[x, y]))
+                            {
+                                m_poissonGrid[x + i, y + j].AddNeighbour(x, y);
                             }
                                 
                         }
@@ -50,7 +72,7 @@ public class IntersectionMaker : MonoBehaviour
         {
             for (int y = 0; y < cols; y++)
             {
-                if (m_poissonScript.poissonGrid[x, y].position != Vector3.zero)
+                if (m_poissonGrid[x, y] != null)
                 {
                     int nbNearPoints = UnityEngine.Random.Range(1, 3);
                     NearestPoint(x, y, nbNearPoints, rows, cols);
@@ -68,9 +90,9 @@ public class IntersectionMaker : MonoBehaviour
         {
             for(int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(m_poissonScript.poissonGrid[i, j].position != Vector3.zero)
+                if(m_poissonGrid[i, j] != null)
                 {
-                    m_poissonScript.poissonGrid[i, j].DelTriangle();
+                    //m_poissonGrid[i, j].DelTriangle();
                 }
             }
         }
@@ -81,7 +103,7 @@ public class IntersectionMaker : MonoBehaviour
     {
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
-        Intersection[,] poissonGrid = m_poissonScript.poissonGrid;
+        InitPoissonGrid();
         
         //m_poissonScript.threadedComputePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
@@ -93,24 +115,21 @@ public class IntersectionMaker : MonoBehaviour
         {
             for(int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(poissonGrid[i, j].position != Vector3.zero)
+                if(m_poissonGrid[i, j] != null)
                 {
-                    for(int n = 0; n < poissonGrid[i, j].Neighbours.Count; n++)
+                    foreach(Intersection.Neighbour n in m_poissonGrid[i, j].Neighbours)
                     {
-                        
-                        // on vérifie si les deux intersections ne sont pas jointes
-                        if (!poissonGrid[i, j].Neighbours[n].joined && !poissonGrid[i, j].Neighbours[n].inter.IsJoined(poissonGrid[i, j]))
+                        if(!n.joined && !m_poissonGrid[n.coords.x, n.coords.y].IsJoined(m_poissonGrid[i, j]))
                         {
-                            poissonGrid[i, j].Neighbours[n].SetJoined(true);
-                            poissonGrid[i, j].Neighbours[n].inter.SetJoined(poissonGrid[i, j], true);
+                            m_poissonGrid[i, j].SetJoined(m_poissonGrid[n.coords.x, n.coords.y], true);
+                            m_poissonGrid[n.coords.x, n.coords.y].SetJoined(m_poissonGrid[i, j], true);
 
                             GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
                             Road road = plane.AddComponent<Road>();
-                            road.Init(m_poissonScript.poissonGrid[i, j].position, poissonGrid[i, j].Neighbours[n].inter.position);
+                            road.Init((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[n.coords.x, n.coords.y].position);
                             road.SetRoad();
                             plane.transform.parent = transform;
                         }
-
                     }
                 }
             }
