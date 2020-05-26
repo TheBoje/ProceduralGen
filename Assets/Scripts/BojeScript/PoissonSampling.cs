@@ -132,7 +132,7 @@ public class PoissonSampling : MonoBehaviour
         stopwatchPoissonCompute.Start();
 
 
-        //for (int l = 0; l < precision; l++)
+        //for (int l = 0; l < precision; l++) 
         while (active.Count > 0 || firstRun)
         {
             //if (active.Count <= 0 && l != 0) { break; } // Safety check
