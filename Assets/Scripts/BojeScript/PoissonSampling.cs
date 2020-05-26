@@ -71,6 +71,13 @@ public class PoissonSampling : MonoBehaviour
     * [SerializeField] private int activityConcentration;
     */
 
+    [Header("Debug Settings")]
+
+    [SerializeField]
+    [Tooltip("Active l'affichage des messages de debug dans la console")]
+    private bool displayDebugLogs = true;
+
+
     Thread threadComputePoints;
 
     private System.Random randGiver; // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
@@ -80,6 +87,14 @@ public class PoissonSampling : MonoBehaviour
     private int colsSize;
     private int pointPoissonCount;
 
+
+    void Update()
+    {
+        if (UnityEngine.Debug.unityLogger.logEnabled != displayDebugLogs)
+        {
+            UnityEngine.Debug.unityLogger.logEnabled = displayDebugLogs;
+        }
+    }
 
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
@@ -193,14 +208,18 @@ public class PoissonSampling : MonoBehaviour
             computePointsHeight();
         }
         stopwatchPoissonCompute.Stop();
+
+
         UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
-        UnityEngine.Debug.Log("PoissonSampling::computePoints - Iterations count : " + iterationsDebug);
+
     }
 
 
     public IEnumerator threadedComputePoints()
     {
+
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
+
 
         deleteComputed();
         threadComputePoints = new Thread(computePoints);
@@ -216,6 +235,7 @@ public class PoissonSampling : MonoBehaviour
         {
             displayGrid();
         }
+
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
 
@@ -254,8 +274,9 @@ public class PoissonSampling : MonoBehaviour
             }
         }
         stopwatchDisplayGrid.Stop();
-        UnityEngine.Debug.Log("PoissonSampling::displayGrid - Placed " + pointPoissonCount + " points in  " + stopwatchDisplayGrid.ElapsedMilliseconds + " ms | " + (float)stopwatchDisplayGrid.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
 
+
+        UnityEngine.Debug.Log("PoissonSampling::displayGrid - Placed " + pointPoissonCount + " points in  " + stopwatchDisplayGrid.ElapsedMilliseconds + " ms | " + (float)stopwatchDisplayGrid.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
     }
 
 
@@ -280,6 +301,7 @@ public class PoissonSampling : MonoBehaviour
                 Destroy(item);
             }
             instanciatedPoints.Clear();
+
             UnityEngine.Debug.Log("PoissonSampling::deleteComputed - Finished");
         }
     }
