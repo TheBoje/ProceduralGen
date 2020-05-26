@@ -8,13 +8,10 @@ using System.Threading;
 using System.Diagnostics;
 using UnityEngine;
 
-// Git branch TEST#1 
-// Git branch Fonctionnalites
-// Git branch Terrain 
 public class PoissonSampling : MonoBehaviour
 {
     [Header("Basic Settings")]
-    // Git branch Fonctionnalites is working ?
+
     [SerializeField]
     [Tooltip("Seed de génération")]
     private int randomSeed = 1;
@@ -81,9 +78,9 @@ public class PoissonSampling : MonoBehaviour
 
     Thread threadComputePoints;
 
-    private System.Random randGiver = new System.Random(); // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
+    private System.Random randGiver; // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
     private Vector3?[,] grid;
-    private List<GameObject> instanciatedPoints;
+    private List<GameObject> instanciatedPoints = new List<GameObject>();
     private int rowsSize;
     private int colsSize;
 
@@ -102,15 +99,14 @@ public class PoissonSampling : MonoBehaviour
         Vector3? neighborPos = new Vector3();
         List<Vector3> activityPoints = new List<Vector3>();
 
-        instanciatedPoints = new List<GameObject>();
-
+        randGiver = new System.Random(randomSeed);
 
         float cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
 
-        grid = new Vector3?[colsSize, rowsSize];
 
+        grid = new Vector3?[colsSize, rowsSize];
         for (int i = 0; i < colsSize; i++)
         {
             for (int j = 0; j < rowsSize; j++)
@@ -118,21 +114,26 @@ public class PoissonSampling : MonoBehaviour
                 grid[i, j] = null;
             }
         }
-        int poissonCount = 0;
 
+
+        int poissonCount = 0;
         Stopwatch stopwatchTimerMain = new Stopwatch();
+
+
         randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
         Vector3Int randomPosFloored = floorVector3((Vector3)randomPos, cellSize);
         grid[randomPosFloored.x, randomPosFloored.z] = randomPos; //FIXME
         List<Vector3> active = new List<Vector3>();
         active.Add((Vector3)randomPos);
-        deleteComputed();
+
 
         //==================================================//
         //          Actual algorithm                        //
         //==================================================//
 
         stopwatchTimerMain.Start();
+
+
         for (int l = 0; l < precision; l++)
         {
             if (active.Count <= 0 && l != 0) { break; } // Safety check
@@ -144,12 +145,15 @@ public class PoissonSampling : MonoBehaviour
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
 
                 float randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
+
                 newPos = newPos * randomMagnitude;
                 newPos += (Vector3)activePos;
                 Vector3Int newPosFloored = floorVector3((Vector3)newPos, cellSize);
+
                 if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] == null)
                 {
                     bool isCorrectDistance = true;
+
                     for (int i = -1; i < 2; i++)
                     {
                         for (int j = -1; j < 2; j++)
@@ -160,6 +164,7 @@ public class PoissonSampling : MonoBehaviour
                                 if (neighborPos != null)
                                 {
                                     float distance = Vector3.Distance(newPos, (Vector3)neighborPos);
+
                                     if (distance < 2 * rayonPoisson)
                                     {
                                         isCorrectDistance = false;
@@ -174,7 +179,6 @@ public class PoissonSampling : MonoBehaviour
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
                         active.Add(newPos);
                         poissonCount += 1;
-                        isFound = true;
                     }
                 }
             }
@@ -188,20 +192,27 @@ public class PoissonSampling : MonoBehaviour
             computePointsHeight();
         }
         stopwatchTimerMain.Stop();
-        UnityEngine.Debug.Log("Poisson - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimerMain.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimerMain.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
+        UnityEngine.Debug.Log("PoissonSampling::computePoints - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimerMain.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimerMain.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
     }
 
 
     public IEnumerator threadedComputePoints()
     {
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
-        UnityEngine.Random.seed = randomSeed; //FIXME Find a better solution to this 
+
+        deleteComputed();
         threadComputePoints = new Thread(computePoints);
         threadComputePoints.IsBackground = true;
         threadComputePoints.Start();
+
         while (threadComputePoints.IsAlive)
         {
             yield return null;
+        }
+
+        if (!threadComputePoints.IsAlive && instanciateEnable)
+        {
+            displayGrid();
         }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
@@ -226,22 +237,21 @@ public class PoissonSampling : MonoBehaviour
 
     public void displayGrid()
     {
-        if (instanciateEnable)
+        for (int i = 0; i < colsSize; i++)
         {
-            for (int i = 0; i < colsSize; i++)
+            for (int j = 0; j < rowsSize; j++)
             {
-                for (int j = 0; j < rowsSize; j++)
+                if (grid[i, j] != null)
                 {
-                    if (grid[i, j] != null)
-                    {
-                        GameObject resultInstance = Instantiate(objetInstance, (Vector3)grid[i, j], Quaternion.identity);
-                        resultInstance.transform.parent = gameObject.transform;
-                        instanciatedPoints.Add(resultInstance);
-                    }
+                    GameObject resultInstance = Instantiate(objetInstance, (Vector3)grid[i, j], Quaternion.identity);
+                    resultInstance.transform.parent = gameObject.transform;
+                    instanciatedPoints.Add(resultInstance);
                 }
             }
         }
     }
+
+
     private void displayPoint(Vector3 newPos)
     {
         if (instanciateEnable)
@@ -252,6 +262,8 @@ public class PoissonSampling : MonoBehaviour
             instanciatedPoints.Add(resultInstance);
         }
     }
+
+
     public void deleteComputed()
     {
         if (instanciatedPoints.Count > 0)
@@ -261,8 +273,11 @@ public class PoissonSampling : MonoBehaviour
                 Destroy(item);
             }
             instanciatedPoints.Clear();
+            UnityEngine.Debug.Log("PoissonSampling::deleteComputed - Finished");
         }
     }
+
+
     public void computePointsHeight()
     {
         threadComputePoints.IsBackground = false;
@@ -279,7 +294,11 @@ public class PoissonSampling : MonoBehaviour
             }
         }
         threadComputePoints.IsBackground = true;
+
+        UnityEngine.Debug.Log("PoissonSampling::computePointsHeight - Finished");
     }
+
+
     public Vector3Int floorVector3(Vector3 vec, float cellSize)
     {
         Vector3Int result;
