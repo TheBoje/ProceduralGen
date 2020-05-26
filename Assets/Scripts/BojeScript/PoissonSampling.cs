@@ -155,7 +155,7 @@ public class PoissonSampling : MonoBehaviour
                 newPos = newPos * randomMagnitude;
                 newPos += (Vector3)activePos;
                 Vector3Int newPosFloored = floorVector3((Vector3)newPos, cellSize);
-                if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] != null)
+                if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] == null)
                 {
                     bool isCorrectDistance = true;
                     for (int i = -1; i < 2; i++)
@@ -165,7 +165,7 @@ public class PoissonSampling : MonoBehaviour
                             if (newPosFloored.x + i >= 0 && newPosFloored.x + i < colsSize && newPosFloored.z + j >= 0 && newPosFloored.z + j < rowsSize)
                             {
                                 neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
-                                if (neighborPos != Vector3.zero)
+                                if (neighborPos != null)
                                 {
                                     float distance = Vector3.Distance(newPos, (Vector3)neighborPos);
                                     if (distance < 2 * rayonPoisson)
@@ -283,7 +283,7 @@ public class PoissonSampling : MonoBehaviour
         {
             for (int j = 0; j < rowsSize; j++)
             {
-                if (grid[i, j] != Vector3.zero)
+                if (grid[i, j] != null)
                 {
                     Vector3 temp = (Vector3)grid[i, j];
                     temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
