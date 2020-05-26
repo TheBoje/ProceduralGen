@@ -82,6 +82,7 @@ public class PoissonSampling : MonoBehaviour
     private List<GameObject> instanciatedPoints = new List<GameObject>();
     private int rowsSize;
     private int colsSize;
+    private int pointPoissonCount;
 
 
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
@@ -116,8 +117,8 @@ public class PoissonSampling : MonoBehaviour
         }
 
 
-        int poissonCount = 0;
-        Stopwatch stopwatchTimerMain = new Stopwatch();
+        pointPoissonCount = 0;
+        Stopwatch stopwatchPoissonCompute = new Stopwatch();
 
 
         randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
@@ -131,7 +132,7 @@ public class PoissonSampling : MonoBehaviour
         //          Actual algorithm                        //
         //==================================================//
 
-        stopwatchTimerMain.Start();
+        stopwatchPoissonCompute.Start();
 
 
         for (int l = 0; l < precision; l++)
@@ -178,7 +179,7 @@ public class PoissonSampling : MonoBehaviour
                     {
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
                         active.Add(newPos);
-                        poissonCount += 1;
+                        pointPoissonCount += 1;
                     }
                 }
             }
@@ -191,8 +192,8 @@ public class PoissonSampling : MonoBehaviour
         {
             computePointsHeight();
         }
-        stopwatchTimerMain.Stop();
-        UnityEngine.Debug.Log("PoissonSampling::computePoints - Placed " + poissonCount.ToString() + " points in " + (stopwatchTimerMain.ElapsedMilliseconds).ToString() + " ms | " + ((float)stopwatchTimerMain.ElapsedMilliseconds / (float)poissonCount).ToString() + "ms / pt");
+        stopwatchPoissonCompute.Stop();
+        UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
     }
 
 
@@ -237,6 +238,8 @@ public class PoissonSampling : MonoBehaviour
 
     public void displayGrid()
     {
+        Stopwatch stopwatchDisplayGrid = new Stopwatch();
+        stopwatchDisplayGrid.Start();
         for (int i = 0; i < colsSize; i++)
         {
             for (int j = 0; j < rowsSize; j++)
@@ -249,6 +252,9 @@ public class PoissonSampling : MonoBehaviour
                 }
             }
         }
+        stopwatchDisplayGrid.Stop();
+        UnityEngine.Debug.Log("PoissonSampling::displayGrid - Placed " + pointPoissonCount + " points in  " + stopwatchDisplayGrid.ElapsedMilliseconds + " ms | " + (float)stopwatchDisplayGrid.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
+
     }
 
 
@@ -294,8 +300,6 @@ public class PoissonSampling : MonoBehaviour
             }
         }
         threadComputePoints.IsBackground = true;
-
-        UnityEngine.Debug.Log("PoissonSampling::computePointsHeight - Finished");
     }
 
 

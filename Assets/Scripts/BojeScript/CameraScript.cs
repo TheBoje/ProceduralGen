@@ -27,7 +27,7 @@ public class CameraScript : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         // Applique les inputs a la camera avec lissage (proportionnel a lerpCoef [0, 1]) 
-        move = transform.right * x + transform.forward * z;
+        move = transform.right * x * speed + transform.forward * z * speed;
         transform.position = Vector3.Lerp(transform.position, transform.position + move, lerpCoef);
 
         // ROTATION
