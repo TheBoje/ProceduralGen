@@ -11,13 +11,13 @@ public class Intersection
     // type structuré contenant les voisins
     public struct Neighbour
     {
-        public bool joined;
-        public Vector2Int coords;
+        public bool joined;         // Booléen vérifiant si l'intersection est liée à ce voisin
+        public Vector2Int coords;   // Coordonnées dans le tableau d'intersections
     }
 
-    private List<Neighbour> m_neighbours;
-    private Vector3 m_position;
-    private Vector2Int m_coordonates;
+    private List<Neighbour> m_neighbours;   // Liste des voisins des l'intersection
+    private Vector3 m_position;             // Position dans l'espace de l'intersection 
+    private Vector2Int m_coordonates;       // Coordonnées dans le tableau
 
     // CONSTRUCTEUR 
     public Intersection(Vector3 position, Vector2Int coords)
@@ -25,23 +25,20 @@ public class Intersection
         m_position = position;
         m_coordonates = coords;
 
-        //m_neighbours = new List<Neighbour>();
-    }
-
-    public void InitNeighbours()
-    {
         m_neighbours = new List<Neighbour>();
     }
 
+    // Ajoute un voisin à l'intersection en prenant ses coordonnées dans le tableau en paramètre
     public void AddNeighbour(int i, int j)
     {
         Neighbour n;
         n.joined = false;
         n.coords = new Vector2Int(i, j);
+
         m_neighbours.Add(n);
     }
 
-    // Regarde si l'intersection inter est déjà voisine
+    // Regarde si l'intersection passée en paramètre est déjà une voisine
     public bool ContainsIntersection(Intersection intersection)
     {
         foreach (Neighbour n in m_neighbours)
@@ -53,6 +50,7 @@ public class Intersection
         return false;
     }
 
+    // Vérifie si l'intersection passée en paramètre et déjà jointe
     public bool IsJoined(Intersection intersection)
     {
         foreach (Neighbour n in m_neighbours)
@@ -65,6 +63,7 @@ public class Intersection
         return false;
     }
 
+    // Change la valeur booléenne "joined" dans la liste des voisins correspondant à l'intersection passée en paramètre
     public void SetJoined(Intersection intersection, bool val)
     {
         for (int i = 0; i < m_neighbours.Count; i++)
@@ -74,11 +73,13 @@ public class Intersection
                 Neighbour n = m_neighbours[i];
                 n.joined = true;
                 m_neighbours[i] = n;
-                break;
+                return ;
             }
         }
+        Debug.Log("Intersection not in neighbours list");
     }
 
+    // Retourne l'index de l'intersection passé en paramètre dans la liste des voisins
     public int IndexOfInter(Intersection inter)
     {
         for (int i = 0; i < m_neighbours.Count; i++)
@@ -89,7 +90,7 @@ public class Intersection
         return -1;
     }
 
-    // Vérifie si le voisin créer un triangle
+    // Vérifie si le chemin emprunté par le voisins "neighbour" créer un triangle (RECURSIF)
     private bool IsTriangle(int nbEdge, Intersection neighbour, Intersection[,] intersections)
     {
         if (nbEdge < 0)
@@ -98,6 +99,7 @@ public class Intersection
             return true;
         else
         {
+            // Parcours les voisins du voisin passé en paramètre
             foreach(Neighbour n in neighbour.Neighbours)
             {
                 if (IsTriangle(nbEdge - 1, intersections[n.coords.x, n.coords.y], intersections))
@@ -124,6 +126,8 @@ public class Intersection
             }
         }
     }
+
+    // GETTER ---- SETTER
 
     public Vector3 position
     {

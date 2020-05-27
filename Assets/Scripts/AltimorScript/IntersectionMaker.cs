@@ -20,7 +20,6 @@ public class IntersectionMaker : MonoBehaviour
                 if(m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
-                    m_poissonGrid[i, j].InitNeighbours();
                 }
                 else
                 {
