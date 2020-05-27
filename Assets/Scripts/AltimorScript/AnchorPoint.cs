@@ -9,20 +9,13 @@ public class AnchorPoint : MonoBehaviour
 
     [SerializeField] side m_anchorSide; // à automatiser par la suite en fonction de la position
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
     // Tourne le parent ou non (Room) en fonction de la face qui lui est présenté WIP : ajouter le haut et le bas
     public Vector3 RotateRoom(side otherAnchors)
     {
-
         Transform parent = transform.parent;
         Vector3 rot = new Vector3(0f, 90f, 0f);
 
-        if (m_anchorSide == otherAnchors)
+        if (m_anchorSide == otherAnchors) // rotation à 180° si ils sont sur le même côté
         {
             return new Vector3(0f, 180f, 0f);
             m_anchorSide = (side)(((int)m_anchorSide + 2) % 4);
@@ -46,6 +39,7 @@ public class AnchorPoint : MonoBehaviour
         }
     }
 
+    // Calcul le nouveau côté "side" de l'ancre en fonction de la rotation
     public void RotateAnchor(Vector3 rot)
     {
         side newSide = (side)((4 + ((int)m_anchorSide + (rot.y / 90f))) % 4);
