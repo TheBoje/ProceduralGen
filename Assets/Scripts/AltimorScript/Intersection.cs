@@ -11,22 +11,8 @@ public class Intersection
     // type structuré contenant les voisins
     public struct Neighbour
     {
-
-        public Neighbour(Vector2Int coord, bool join)
-        {
-            joined = join;
-            coords = coord;
-
-        }
-
-        public void SetJoined(bool val)
-        {
-            joined = val;
-        }
-
-        public bool joined { get; set; }
-        public Vector2Int coords { get; set; }
-
+        public bool joined;
+        public Vector2Int coords;
     }
 
     private List<Neighbour> m_neighbours;
@@ -49,7 +35,10 @@ public class Intersection
 
     public void AddNeighbour(int i, int j)
     {
-        m_neighbours.Add(new Neighbour(new Vector2Int(i, j), false));
+        Neighbour n;
+        n.joined = false;
+        n.coords = new Vector2Int(i, j);
+        m_neighbours.Add(n);
     }
 
     // Regarde si l'intersection inter est déjà voisine
@@ -78,11 +67,14 @@ public class Intersection
 
     public void SetJoined(Intersection intersection, bool val)
     {
-        foreach (Neighbour n in m_neighbours)
+        for (int i = 0; i < m_neighbours.Count; i++)
         {
-            if (n.coords == intersection.Coords)
+            if (m_neighbours[i].coords == intersection.Coords)
             {
-                n.SetJoined(val);
+                Neighbour n = m_neighbours[i];
+                n.joined = true;
+                m_neighbours[i] = n;
+                break;
             }
         }
     }

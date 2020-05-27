@@ -117,16 +117,17 @@ public class IntersectionMaker : MonoBehaviour
             {
                 if(m_poissonGrid[i, j] != null)
                 {
-                    foreach(Intersection.Neighbour n in m_poissonGrid[i, j].Neighbours)
+                    for (int n = 0; n < m_poissonGrid[i, j].Neighbours.Count; n++)
                     {
-                        if(!n.joined && !m_poissonGrid[n.coords.x, n.coords.y].IsJoined(m_poissonGrid[i, j]))
+                        Vector2Int coords = m_poissonGrid[i, j].Neighbours[n].coords;
+                        if (!(m_poissonGrid[i, j].Neighbours[n].joined) && !(m_poissonGrid[coords.x, coords.y].IsJoined(m_poissonGrid[i, j])))
                         {
-                            m_poissonGrid[i, j].SetJoined(m_poissonGrid[n.coords.x, n.coords.y], true);
-                            m_poissonGrid[n.coords.x, n.coords.y].SetJoined(m_poissonGrid[i, j], true);
+                            m_poissonGrid[i, j].SetJoined(m_poissonGrid[coords.x, coords.y], true);
+                            m_poissonGrid[coords.x, coords.y].SetJoined(m_poissonGrid[i, j], true);
 
                             GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
                             Road road = plane.AddComponent<Road>();
-                            road.Init((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[n.coords.x, n.coords.y].position);
+                            road.Init((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[coords.x, coords.y].position);
                             road.SetRoad();
                             plane.transform.parent = transform;
                         }
