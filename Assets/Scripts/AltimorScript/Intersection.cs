@@ -90,7 +90,7 @@ public class Intersection
     }
 
     // Vérifie si le voisin créer un triangle
-    /*private bool IsTriangle(int nbEdge, Intersection neighbour)
+    private bool IsTriangle(int nbEdge, Intersection neighbour, Intersection[,] intersections)
     {
         if (nbEdge < 0)
             return false;
@@ -100,7 +100,7 @@ public class Intersection
         {
             foreach(Neighbour n in neighbour.Neighbours)
             {
-                if (IsTriangle(nbEdge - 1, n.inter))
+                if (IsTriangle(nbEdge - 1, intersections[n.coords.x, n.coords.y], intersections))
                     return true;
             }
             return false;
@@ -108,22 +108,22 @@ public class Intersection
     }
 
     // Supprime les voisins formant des triangles
-    public void DelTriangle()
+    public void DelTriangle(Intersection[,] intersections)
     {
         List<Neighbour> copy = new List<Neighbour>(m_neighbours);
 
         foreach(Neighbour n in copy)
         {
-            if(IsTriangle(2, n.inter))
+            if(IsTriangle(2, intersections[n.coords.x, n.coords.y], intersections))
             {
                 int indexInter = m_neighbours.IndexOf(n);
-                int indexNeig = n.inter.IndexOfInter(this);
+                int indexNeig = intersections[n.coords.x, n.coords.y].IndexOfInter(this);
 
                 m_neighbours.RemoveAt(indexInter);
-                n.inter.Neighbours.RemoveAt(indexNeig);
+                intersections[n.coords.x, n.coords.y].Neighbours.RemoveAt(indexNeig);
             }
         }
-    }*/
+    }
 
     public Vector3 position
     {
