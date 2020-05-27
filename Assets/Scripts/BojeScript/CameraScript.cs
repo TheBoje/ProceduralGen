@@ -10,11 +10,14 @@ public class CameraScript : MonoBehaviour
     public float mouseSensitivity = 1f;
 
     public bool mouseLocked = true;
+
     [SerializeField]
     [Range(0f, 1f)]
     private float lerpCoef = 0.15f; // [0, 1] 
     private float maxYAngle = 80f;
-    private float speed = 12f;
+    public float speed = 12f;
+
+    private int FPSTarget = 60;
 
     private float mouseWhell;
     private Vector3 move;
@@ -56,6 +59,18 @@ public class CameraScript : MonoBehaviour
             Vector3 newPos = transform.position + Vector3.up * mouseWhell * 10f;
             transform.position = Vector3.Lerp(transform.position, newPos, lerpCoef);
         }
+    }
+
+    void Awake()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = FPSTarget;
+    }
+
+    void Update()
+    {
+        if (Application.targetFrameRate != FPSTarget)
+            Application.targetFrameRate = FPSTarget;
     }
 
     void Start()
