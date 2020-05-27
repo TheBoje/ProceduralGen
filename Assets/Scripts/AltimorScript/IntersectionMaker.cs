@@ -92,7 +92,7 @@ public class IntersectionMaker : MonoBehaviour
             {
                 if(m_poissonGrid[i, j] != null)
                 {
-                    //m_poissonGrid[i, j].DelTriangle();
+                    m_poissonGrid[i, j].DelTriangle(m_poissonGrid);
                 }
             }
         }
