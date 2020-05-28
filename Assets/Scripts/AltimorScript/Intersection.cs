@@ -127,6 +127,18 @@ public class Intersection
         }
     }
 
+    // Créer une plane au niveau de l'intersection (le futur parent est mit en argument)
+    public void GenerateIntersection(Transform parent)
+    {
+        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        plane.transform.position = m_position;
+        plane.name = "Intersection";
+        plane.transform.parent = parent;
+    }
+    
+
+
+
     // GETTER ---- SETTER
 
     public Vector3 position

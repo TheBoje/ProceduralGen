@@ -9,6 +9,8 @@ public class IntersectionMaker : MonoBehaviour
     private PoissonSampling m_poissonScript;
     private Intersection[,] m_poissonGrid;
 
+
+    // Créer un tableau à deux dimensions d'intersections
     private void InitPoissonGrid()
     {
         m_poissonGrid = new Intersection[m_poissonScript.getRowSize, m_poissonScript.getColSize];
@@ -20,6 +22,7 @@ public class IntersectionMaker : MonoBehaviour
                 if(m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
+                    m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
                 }
                 else
                 {
@@ -97,7 +100,18 @@ public class IntersectionMaker : MonoBehaviour
         }
     }
 
-    // Génère les routes en fonctions des voisins
+    // Instancie une route entre les deux positions
+    private void GenerateRoad(Vector3 cr1, Vector3 cr2)
+    {
+        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        Road road = plane.AddComponent<Road>();
+        road.Init(cr1, cr2);
+        road.SetRoad();
+        plane.name = "Road";
+        plane.transform.parent = transform;
+    }
+
+    // Calcul les routes en fonctions des voisins
     public void ComputeRoad(bool delTriangles)
     {
         // va lancer la génération
@@ -124,11 +138,8 @@ public class IntersectionMaker : MonoBehaviour
                             m_poissonGrid[i, j].SetJoined(m_poissonGrid[coords.x, coords.y], true);
                             m_poissonGrid[coords.x, coords.y].SetJoined(m_poissonGrid[i, j], true);
 
-                            GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                            Road road = plane.AddComponent<Road>();
-                            road.Init((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[coords.x, coords.y].position);
-                            road.SetRoad();
-                            plane.transform.parent = transform;
+                            GenerateRoad((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[coords.x, coords.y].position);
+
                         }
                     }
                 }
