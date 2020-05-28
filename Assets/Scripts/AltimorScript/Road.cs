@@ -9,13 +9,14 @@ public class Road : MonoBehaviour
     private Vector3 m_vectRoad;
 
 
-
+    // Initialise les deux variables correspondant aux deux intersections
     public void Init(Vector3 cr1, Vector3 cr2)
     {
         m_crossroad1 = cr1;
         m_crossroad2 = cr2;
     }
 
+    // Calcule la position du milieu des deux intersections
     private void ComputeMiddle(Vector3 pos1, Vector3 pos2)
     {
         Vector3 middle = new Vector3(
@@ -27,7 +28,7 @@ public class Road : MonoBehaviour
         transform.position = middle;
     }
 
-    // Calcul la longueur de la route
+    // Calcul le vecteur directeur de la route
     private void ComputeVectRoad()
     {
 
@@ -48,12 +49,7 @@ public class Road : MonoBehaviour
     {
         ComputeVectRoad();
         ComputeAngleRoad();
-        transform.localScale = new Vector3(0.1f, 0.1f, m_vectRoad.magnitude / 10f);
-    }
-
-    private void Update()
-    {
-        //SetRoad();
+        transform.localScale = new Vector3(0.1f, 0.1f, m_vectRoad.magnitude / 10f); // Transforme la route pour que sa longueur soit la norme du vecteur directeur
     }
 
 }
