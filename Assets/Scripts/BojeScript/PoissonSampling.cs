@@ -77,8 +77,9 @@ public class PoissonSampling : MonoBehaviour
     [Tooltip("Active l'affichage des messages de debug dans la console")]
     private bool displayDebugLogs = true;
 
-
+    // Creation du thread secondaire pour le calcul de poisson
     Thread threadComputePoints;
+
 
     private System.Random randGiver; // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
     private Vector3?[,] grid;
@@ -90,12 +91,17 @@ public class PoissonSampling : MonoBehaviour
 
     void Update()
     {
+        /*  
+            Permet d'activer ou désactiver le logging dans la console 
+            Attention: a un effet global - quand val=False, rien n'est affiché dans la console
+        */
         if (UnityEngine.Debug.unityLogger.logEnabled != displayDebugLogs)
         {
             UnityEngine.Debug.unityLogger.logEnabled = displayDebugLogs;
         }
     }
 
+    /// <summary>Ajoute des points séparés de au moins 2*rayonPoisson dans grid[,]</summary>
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
 
@@ -104,15 +110,24 @@ public class PoissonSampling : MonoBehaviour
         //      Initialisation of all local variables       //
         //==================================================//
 
-
-        Vector3 newPos = new Vector3();
-        Vector3? randomPos = new Vector3();
-        Vector3? activePos = new Vector3();
-        Vector3? neighborPos = new Vector3();
+        // Contient la liste des points dont la proximité est potentiellement libre
+        // Des qu'un point est crée, on le place dans cette liste pour pouvoir placer les points adjascents s'il y a assez de place
+        List<Vector3> active = new List<Vector3>();
+        // WIP - Liste des points concernant des zones d'activité 
         List<Vector3> activityPoints = new List<Vector3>();
 
+        // Point temporaire aléatoire proche d'un point sélectionné dans activityPoints - représente aussi le premier point placé
+        Vector3 newPos = new Vector3();
+        // Point pioché dans la liste active
+        Vector3 activePos = new Vector3();
+        // Point de comparaison avec newPos - si la distance est trop faible, on ne garde pas le point
+        Vector3? neighborPos = new Vector3();
+
+
+        // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
         randGiver = new System.Random(randomSeed);
 
+        // TODO I left here
         float cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
@@ -133,11 +148,10 @@ public class PoissonSampling : MonoBehaviour
         bool firstRun = true;
         int iterationsDebug = 0;
 
-        randomPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
-        Vector3Int randomPosFloored = floorVector3((Vector3)randomPos, cellSize);
-        grid[randomPosFloored.x, randomPosFloored.z] = randomPos;
-        List<Vector3> active = new List<Vector3>();
-        active.Add((Vector3)randomPos);
+        newPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
+        Vector3Int newPosFloored = floorVector3(newPos, cellSize);
+        grid[newPosFloored.x, newPosFloored.z] = newPos;
+        active.Add(newPos);
 
 
         //==================================================//
@@ -164,7 +178,7 @@ public class PoissonSampling : MonoBehaviour
 
                 newPos = newPos * randomMagnitude;
                 newPos += (Vector3)activePos;
-                Vector3Int newPosFloored = floorVector3((Vector3)newPos, cellSize);
+                newPosFloored = floorVector3((Vector3)newPos, cellSize);
 
                 if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] == null)
                 {
