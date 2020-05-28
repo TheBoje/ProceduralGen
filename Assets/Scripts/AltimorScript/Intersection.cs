@@ -132,6 +132,7 @@ public class Intersection
     {
         GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
         plane.transform.position = m_position;
+        plane.transform.localScale = new Vector3(0.1f, 1f, 0.1f);
         plane.name = "Intersection";
         plane.transform.parent = parent;
     }

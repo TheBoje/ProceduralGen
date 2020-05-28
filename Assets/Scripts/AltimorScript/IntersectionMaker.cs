@@ -60,7 +60,12 @@ public class IntersectionMaker : MonoBehaviour
                                 
                         }
                     }
+
+                    if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                        break;
                 }
+                if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                    break;
             }
             length++;
         }
