@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 37517740}
   - component: {fileID: 37517742}
   - component: {fileID: 37517743}
+  - component: {fileID: 37517744}
   m_Layer: 0
   m_Name: GenManager
   m_TagString: Untagged
@@ -152,9 +153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7cc0b86a97993549b66e164b368cc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  randomSeed: 1
   rayonPoisson: 10
   iterations: 100
-  precision: 10000
   dimension: 2
   rangeX: 100
   rangeZ: 100
@@ -163,8 +164,7 @@ MonoBehaviour:
   perlinScale: 2
   instanciateEnable: 0
   objetInstance: {fileID: 1886821198}
-  activityEnable: 1
-  activityConcentration: 0
+  displayDebugLogs: 1
 --- !u!4 &37517741
 Transform:
   m_ObjectHideFlags: 0
@@ -203,6 +203,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b68822c103fa164da1f52e32e0168a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &37517744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37517739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe8ac564e5607a14dbf73a6bd534b00d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_district: {fileID: 0}
 --- !u!1 &897657594
 GameObject:
   m_ObjectHideFlags: 0

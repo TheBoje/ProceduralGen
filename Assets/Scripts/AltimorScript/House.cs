@@ -117,7 +117,7 @@ public class House : MonoBehaviour
 
         foreach (GameObject room in m_rooms)
         {
-            Vector3 roomPos = room.transform.position;
+            Vector3 roomPos = room.transform.localPosition;
             Vector3 roomScale = room.transform.localScale;
 
             // On calcule les maximums et minimums atteint par la maison
@@ -134,9 +134,9 @@ public class House : MonoBehaviour
         //m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
 
         // calcul d'un terrain carré (pour simplifier) 
-        m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
+        m_field.x = Mathf.Abs(max_x - min_x);
         m_field.y = transform.position.y;
-        m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
+        m_field.z = Mathf.Abs(max_z - min_z);
 
         GameObject field = GameObject.CreatePrimitive(PrimitiveType.Cube);
         field.transform.parent = transform;
@@ -150,7 +150,7 @@ public class House : MonoBehaviour
             );
 
         field.transform.localScale = m_field; //- new Vector3(OFFSET_FIELD, 0f, OFFSET_FIELD);
-        field.transform.position = fieldPos;
+        field.transform.position = transform.parent.position;
         field.name = "House Field";
         field.GetComponent<MeshRenderer>().enabled = false;
 
