@@ -49,13 +49,13 @@ public class IntersectionMaker : MonoBehaviour
                         {
                             if(!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
                             {
-                                m_poissonGrid[x, y].AddNeighbour(x + i, y + j);
+                                m_poissonGrid[x, y].AddNeighbour(x + i, y + j, m_poissonGrid[x + i, y + j].position);
                             }
                             
                             // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
                             if (!m_poissonGrid[x + i, y + j].ContainsIntersection(m_poissonGrid[x, y]))
                             {
-                                m_poissonGrid[x + i, y + j].AddNeighbour(x, y);
+                                m_poissonGrid[x + i, y + j].AddNeighbour(x, y, m_poissonGrid[x, y].position);
                             }
                                 
                         }
@@ -138,12 +138,15 @@ public class IntersectionMaker : MonoBehaviour
                     for (int n = 0; n < m_poissonGrid[i, j].Neighbours.Count; n++)
                     {
                         Vector2Int coords = m_poissonGrid[i, j].Neighbours[n].coords;
+
                         if (!(m_poissonGrid[i, j].Neighbours[n].joined) && !(m_poissonGrid[coords.x, coords.y].IsJoined(m_poissonGrid[i, j])))
                         {
                             m_poissonGrid[i, j].SetJoined(m_poissonGrid[coords.x, coords.y], true);
                             m_poissonGrid[coords.x, coords.y].SetJoined(m_poissonGrid[i, j], true);
 
-                            GenerateRoad((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[coords.x, coords.y].position);
+                            int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
+
+                            GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
 
                         }
                     }

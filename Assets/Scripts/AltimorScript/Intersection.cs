@@ -13,6 +13,7 @@ public class Intersection
     {
         public bool joined;         // Booléen vérifiant si l'intersection est liée à ce voisin
         public Vector2Int coords;   // Coordonnées dans le tableau d'intersections
+        public Vector3 positionOnIntersection;
     }
 
     private List<Neighbour> m_neighbours;   // Liste des voisins des l'intersection
@@ -28,12 +29,36 @@ public class Intersection
         m_neighbours = new List<Neighbour>();
     }
 
+    // Calcul les côté de l'intersection sur lequel le voisin viendra se ranger
+    private Vector3 ComputeIntersectionSide(Vector3 neighbourPos)
+    {
+        Vector3 Vect = neighbourPos - this.m_position;
+        float multiplier = 1f;
+
+        if(Mathf.Abs(Vect.x) > Mathf.Abs(Vect.z))
+        {
+            if (Vect.x < 0)
+                return this.m_position + Vector3.left * multiplier; 
+            else
+                return this.m_position + Vector3.right * multiplier;
+        }
+        else
+        {
+            if (Vect.z < 0)
+                return this.m_position + Vector3.back * multiplier;
+            else
+                return this.m_position + Vector3.forward * multiplier;
+        }        
+    }
+
     // Ajoute un voisin à l'intersection en prenant ses coordonnées dans le tableau en paramètre
-    public void AddNeighbour(int i, int j)
+    public void AddNeighbour(int i, int j, Vector3 neighbourPos)
     {
         Neighbour n;
+
         n.joined = false;
         n.coords = new Vector2Int(i, j);
+        n.positionOnIntersection = ComputeIntersectionSide(neighbourPos);
 
         m_neighbours.Add(n);
     }
