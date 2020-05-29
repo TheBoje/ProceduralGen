@@ -39,7 +39,7 @@ public class House : MonoBehaviour
         m_maxRooms = Random.Range(3, MAX_ROOMS);
 
         CreateHouse();
-        ComputeField();
+        //ComputeField();
     }
 
     // Ajoute une pièce à la maison à l'étage passé en paramètre TODO -> Gérer les étages
@@ -150,7 +150,7 @@ public class House : MonoBehaviour
             );
 
         field.transform.localScale = m_field; //- new Vector3(OFFSET_FIELD, 0f, OFFSET_FIELD);
-        field.transform.position = transform.parent.position;
+        field.transform.position = fieldPos;
         field.name = "House Field";
         field.GetComponent<MeshRenderer>().enabled = false;
 

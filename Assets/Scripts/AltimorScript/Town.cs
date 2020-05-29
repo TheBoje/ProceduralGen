@@ -9,10 +9,28 @@ public class Town : MonoBehaviour
 
     private void InstantiateDistrict(GameObject road)
     {
-        float mult = 5f;
+        float mult = 30f;
 
-        Instantiate(m_district, road.transform.position + Vector3.left * mult, Quaternion.identity);
-        Instantiate(m_district, road.transform.position + Vector3.right * mult, Quaternion.identity);
+        GameObject district1 = Instantiate(m_district, road.transform.position, road.transform.rotation);
+        //GameObject district2 = Instantiate(m_district);
+
+        
+
+        //district1.transform.localPosition += (Vector3.right * mult);
+
+        district1.transform.parent = road.transform;
+
+        //district1.GetComponent<District>().Init();
+        //district2.transform.parent = road.transform;
+
+        //district1.transform.Rotate(road.transform.eulerAngles.x * (-1f), 0f, road.transform.eulerAngles.z * (-1f));
+        district1.transform.Rotate(Vector3.zero);
+        //district2.transform.Rotate(0f, road.transform.eulerAngles.y, 0f);
+
+
+        district1.transform.localPosition += Vector3.left * mult;
+       //district2.transform.position = road.transform.position + Vector3.right * mult;*/
+
     }
 
     public void BuildTown()
