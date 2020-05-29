@@ -120,8 +120,6 @@ public class PoissonSampling : MonoBehaviour
         Vector3 newPos = new Vector3();
         // Point pioché dans la liste active
         Vector3 activePos = new Vector3();
-        // Point de comparaison avec newPos - si la distance est trop faible, on ne garde pas le point
-        Vector3? neighborPos = new Vector3();
 
 
         // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
@@ -169,44 +167,46 @@ public class PoissonSampling : MonoBehaviour
 
         while (active.Count > 0 || firstRun)
         {
-
+            // Permet de vérifier si le point n'a AUCUNE de place libre adjascentes
             bool isFound = false;
+            // Choix d'un point aléatoire dans la liste des points ayant possiblement des places adjascentes libres
             int randomIndex = randomRangeIntThreadSafe(0, active.Count);
             activePos = active[randomIndex];
             firstRun = false;
+            // Tentative de placement d'un point de position aléatoire (iterations-fois maximum) dans la proximitée de activePos 
             for (int n = 0; n < iterations; n++)
             {
+                // Vecteur aléatoire déterminant une direction 
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
 
                 float randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
-
+                // Multiplié par une magnitude
                 newPos = newPos * randomMagnitude;
+                // Auquel on ajoute le point cible (activePos)
                 newPos += (Vector3)activePos;
+                // Calcul de sa position dans la grille
                 newPosFloored = floorVector3((Vector3)newPos, cellSize);
-
+                // Vérification que newPos est dans [0, rangeX | 0, rangeY] et que la case dans la grille est libre
                 if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] == null)
                 {
                     bool isCorrectDistance = true;
-
+                    // Verification que tous les points dans les cases adjascentes de la grille sont a distance suffisante
                     for (int i = -1; i < 2; i++)
                     {
                         for (int j = -1; j < 2; j++)
                         {
-                            if (newPosFloored.x + i >= 0 && newPosFloored.x + i < colsSize && newPosFloored.z + j >= 0 && newPosFloored.z + j < rowsSize)
+                            if (newPosFloored.x + i >= 0 && newPosFloored.x + i < colsSize && newPosFloored.z + j >= 0 && newPosFloored.z + j < rowsSize && grid[newPosFloored.x + i, newPosFloored.z + j] != null)
                             {
-                                neighborPos = grid[newPosFloored.x + i, newPosFloored.z + j];
-                                if (neighborPos != null)
+                                float distance = Vector3.Distance(newPos, (Vector3)grid[newPosFloored.x + i, newPosFloored.z + j]);
+                                if (distance < 2 * rayonPoisson)
                                 {
-                                    float distance = Vector3.Distance(newPos, (Vector3)neighborPos);
-                                    if (distance < 2 * rayonPoisson)
-                                    {
-                                        isCorrectDistance = false;
-                                        break;
-                                    }
+                                    isCorrectDistance = false;
+                                    break;
                                 }
                             }
                         }
                     }
+                    // Si le point aléatoire newPos est correct, alors on le place dans la grille et on l'ajoute dans la liste des points actifs
                     if (isCorrectDistance)
                     {
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
@@ -218,15 +218,17 @@ public class PoissonSampling : MonoBehaviour
             }
             if (!isFound)
             {
+                // S'il n'y a pas de place a côté du point, on le retire des actifs
                 active.Remove(active[randomIndex]);
             }
         }
+        // Application d'un bruit de perlin
         if (scaleYEnable)
         {
             computePointsHeight();
         }
+        // Arret de la stopwatch
         stopwatchPoissonCompute.Stop();
-
 
         UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
 
