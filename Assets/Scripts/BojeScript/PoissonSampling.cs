@@ -127,30 +127,35 @@ public class PoissonSampling : MonoBehaviour
         // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
         randGiver = new System.Random(randomSeed);
 
-        // TODO I left here
+        // grid[,] est de taille [rowsSize, colsSize], et chaque cellule est de taille cellSize
         float cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
 
-
+        // Initialisation de la grille 
         grid = new Vector3?[colsSize, rowsSize];
         for (int i = 0; i < colsSize; i++)
         {
             for (int j = 0; j < rowsSize; j++)
             {
+                // La grille est initialisée avec null sur chaque case
                 grid[i, j] = null;
             }
         }
 
-
+        // Initialisation du nombre de points calculés
         pointPoissonCount = 0;
+        // Initialisation de la stopwatch de la fonction 
         Stopwatch stopwatchPoissonCompute = new Stopwatch();
+        // true = premier passage, false = passages suivants
         bool firstRun = true;
-        int iterationsDebug = 0;
 
+        // Premier point placé aléatoirement sur la grille
         newPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
+        // On utilise la position par rapport a cellSize pour placer le point dans la grille
         Vector3Int newPosFloored = floorVector3(newPos, cellSize);
         grid[newPosFloored.x, newPosFloored.z] = newPos;
+        // On ajoute le point a la liste des points dont des cases adjascentes sont potentiellement libres
         active.Add(newPos);
 
 
@@ -158,18 +163,17 @@ public class PoissonSampling : MonoBehaviour
         //          Actual algorithm                        //
         //==================================================//
 
+        // Depart de la stopwatch
         stopwatchPoissonCompute.Start();
 
 
-        //for (int l = 0; l < precision; l++) 
         while (active.Count > 0 || firstRun)
         {
-            //if (active.Count <= 0 && l != 0) { break; } // Safety check
+
             bool isFound = false;
             int randomIndex = randomRangeIntThreadSafe(0, active.Count);
             activePos = active[randomIndex];
             firstRun = false;
-            iterationsDebug += 1;
             for (int n = 0; n < iterations; n++)
             {
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
@@ -194,7 +198,6 @@ public class PoissonSampling : MonoBehaviour
                                 if (neighborPos != null)
                                 {
                                     float distance = Vector3.Distance(newPos, (Vector3)neighborPos);
-
                                     if (distance < 2 * rayonPoisson)
                                     {
                                         isCorrectDistance = false;
@@ -207,6 +210,7 @@ public class PoissonSampling : MonoBehaviour
                     if (isCorrectDistance)
                     {
                         grid[newPosFloored.x, newPosFloored.z] = newPos;
+                        isFound = true;
                         active.Add(newPos);
                         pointPoissonCount += 1;
                     }
