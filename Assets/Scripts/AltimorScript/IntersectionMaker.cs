@@ -146,6 +146,7 @@ public class IntersectionMaker : MonoBehaviour
 
                             int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
 
+                            // Relie les routes entre les bordures de l'intersection
                             GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
 
                         }

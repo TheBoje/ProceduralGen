@@ -33,7 +33,7 @@ public class Intersection
     private Vector3 ComputeIntersectionSide(Vector3 neighbourPos)
     {
         Vector3 Vect = neighbourPos - this.m_position;
-        float multiplier = 1f;
+        float multiplier = 0.5f;
 
         if(Mathf.Abs(Vect.x) > Mathf.Abs(Vect.z))
         {
