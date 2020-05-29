@@ -234,33 +234,34 @@ public class PoissonSampling : MonoBehaviour
 
     }
 
-
+    /// <summary>Lance la fonction computePoints() dans un thread different en mode background</summary>
     public IEnumerator threadedComputePoints()
     {
 
-        UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
-
-
+        // Supprime les points déjà instanciés (contenus dans la liste instanciatedPoints)
         deleteComputed();
+        // Initialisation du nouveau thread et mise en mode arrière plan
         threadComputePoints = new Thread(computePoints);
         threadComputePoints.IsBackground = true;
+        // Depart du thread
         threadComputePoints.Start();
-
+        UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
+        // IEnumerator stuff: reprend la corroutine juste après le yield a chaque frame, nécessaire
         while (threadComputePoints.IsAlive)
         {
             yield return null;
         }
-
+        // Affichage des points
         if (!threadComputePoints.IsAlive && instanciateEnable)
         {
             displayGrid();
         }
-
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
 
 
-
+    /// <summary>Float random [a, b[</summary>
+    // Remplace UnityEngine.Random.Range(a,b) car non accessible dans un thread alternatif
     private float randomRangeFloatThreadSafe(float a, float b)
     {
         float result;
@@ -268,7 +269,8 @@ public class PoissonSampling : MonoBehaviour
         return result;
     }
 
-
+    /// <summary>Int random [a, b]</summary>
+    // Remplace UnityEngine.Random.Range(a,b) car non accessible dans un thread alternatif
     private int randomRangeIntThreadSafe(int a, int b)
     {
         int result;
@@ -276,7 +278,7 @@ public class PoissonSampling : MonoBehaviour
         return result;
     }
 
-
+    /// <summary>Instancie tous les points présents dans grid en tant qu'enfant de GenManager</summary>
     public void displayGrid()
     {
         Stopwatch stopwatchDisplayGrid = new Stopwatch();
@@ -295,11 +297,10 @@ public class PoissonSampling : MonoBehaviour
         }
         stopwatchDisplayGrid.Stop();
 
-
         UnityEngine.Debug.Log("PoissonSampling::displayGrid - Placed " + pointPoissonCount + " points in  " + stopwatchDisplayGrid.ElapsedMilliseconds + " ms | " + (float)stopwatchDisplayGrid.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
     }
 
-
+    /// <summary>Instancie le point newPos en tant qu'enfant de GenManager</summary>
     private void displayPoint(Vector3 newPos)
     {
         if (instanciateEnable)
@@ -311,7 +312,7 @@ public class PoissonSampling : MonoBehaviour
         }
     }
 
-
+    /// <summary>Supprime l'ensemble des points instanciés contenus dans la liste instanciatedPoints</summary>
     public void deleteComputed()
     {
         if (instanciatedPoints.Count > 0)
@@ -326,10 +327,11 @@ public class PoissonSampling : MonoBehaviour
         }
     }
 
-
+    /// <summary>Applique a tous les points de grid[,] une hauteur provenant d'un bruit de Perlin
+    /// Parametrable depuis l'inspecteur dans GenManager</summary>
+    // Note: is thread friendly
     public void computePointsHeight()
     {
-        threadComputePoints.IsBackground = false;
         for (int i = 0; i < colsSize; i++)
         {
             for (int j = 0; j < rowsSize; j++)
@@ -337,15 +339,16 @@ public class PoissonSampling : MonoBehaviour
                 if (grid[i, j] != null)
                 {
                     Vector3 temp = (Vector3)grid[i, j];
+                    // Récupération de la valeur dans le bruit de Perlin par rapport a sa position (*scaleY)
                     temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
+                    // Remise dans la grid 
                     grid[i, j] = temp;
                 }
             }
         }
-        threadComputePoints.IsBackground = true;
     }
 
-
+    /// <summary>Calcule le vecteur de la position dans la grille (par rapport a cellSize) du point vec</summary>
     public Vector3Int floorVector3(Vector3 vec, float cellSize)
     {
         Vector3Int result;
@@ -353,11 +356,13 @@ public class PoissonSampling : MonoBehaviour
         return result;
     }
 
+    /// <summary>Calcule la valeur du point (x,y) dans un plan de taille (width, height)*scale</summary>
     private float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scale)
     {
         return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
     }
 
+    /// <summary>Getter de la grid contenant tous les points de PoissonDiskSampling (calculée dans computePoints)</summary>
     public Vector3?[,] poissonGrid
     {
         get { return grid; }

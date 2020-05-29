@@ -47,7 +47,7 @@ public class CameraScript : MonoBehaviour
             // Limitation du degré de liberté (pour ne pas pouvoir regarder parfaitement en haut et en bas)
             currentRotation.y = Mathf.Clamp(currentRotation.y, -maxYAngle, maxYAngle);
             // application de la rotation
-            Camera.main.transform.rotation = Quaternion.Euler(currentRotation.y, currentRotation.x, 0);
+            transform.rotation = Quaternion.Euler(currentRotation.y, currentRotation.x, 0);
         }
 
         // ELEVATION
@@ -56,7 +56,7 @@ public class CameraScript : MonoBehaviour
         if (mouseWhell != 0)
         {
             // Calcul de la nouvelle position de la camera (application d'un vecteur vertical)
-            Vector3 newPos = transform.position + Vector3.up * mouseWhell * 10f;
+            Vector3 newPos = transform.position + Vector3.up * mouseWhell * 10f * speed;
             transform.position = Vector3.Lerp(transform.position, newPos, lerpCoef);
         }
     }
