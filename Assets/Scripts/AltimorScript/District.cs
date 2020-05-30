@@ -14,10 +14,10 @@ public class District : MonoBehaviour
 
     [SerializeField] GameObject m_house = null;
 
-    public void Init()
+    public void Awake()
     {
         m_houses = new List<GameObject>();
-        m_nbHouses = 1; // Random.Range(MIN_HOUSES, MAX_HOUSES);
+        m_nbHouses = Random.Range(MIN_HOUSES, MAX_HOUSES);
         CreateDistrict();
     }
 
