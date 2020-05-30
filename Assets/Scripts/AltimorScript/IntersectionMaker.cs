@@ -9,6 +9,8 @@ public class IntersectionMaker : MonoBehaviour
     private PoissonSampling m_poissonScript;
     private Intersection[,] m_poissonGrid;
 
+
+    // Créer un tableau à deux dimensions d'intersections
     private void InitPoissonGrid()
     {
         m_poissonGrid = new Intersection[m_poissonScript.getRowSize, m_poissonScript.getColSize];
@@ -20,6 +22,7 @@ public class IntersectionMaker : MonoBehaviour
                 if (m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
+                    m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
                 }
                 else
                 {
@@ -46,18 +49,23 @@ public class IntersectionMaker : MonoBehaviour
                         {
                             if (!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
                             {
-                                m_poissonGrid[x, y].AddNeighbour(x + i, y + j);
+                                m_poissonGrid[x, y].AddNeighbour(x + i, y + j, m_poissonGrid[x + i, y + j].position);
                             }
 
                             // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
                             if (!m_poissonGrid[x + i, y + j].ContainsIntersection(m_poissonGrid[x, y]))
                             {
-                                m_poissonGrid[x + i, y + j].AddNeighbour(x, y);
+                                m_poissonGrid[x + i, y + j].AddNeighbour(x, y, m_poissonGrid[x, y].position);
                             }
 
                         }
                     }
+
+                    if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                        break;
                 }
+                if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                    break;
             }
             length++;
         }
@@ -97,7 +105,18 @@ public class IntersectionMaker : MonoBehaviour
         }
     }
 
-    // Génère les routes en fonctions des voisins
+    // Instancie une route entre les deux positions
+    private void GenerateRoad(Vector3 cr1, Vector3 cr2)
+    {
+        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        Road road = plane.AddComponent<Road>();
+        road.Init(cr1, cr2);
+        road.SetRoad();
+        plane.name = "Road";
+        plane.transform.parent = transform;
+    }
+
+    // Calcul les routes en fonctions des voisins
     public void ComputeRoad(bool delTriangles)
     {
         // va lancer la génération
@@ -119,16 +138,17 @@ public class IntersectionMaker : MonoBehaviour
                     for (int n = 0; n < m_poissonGrid[i, j].Neighbours.Count; n++)
                     {
                         Vector2Int coords = m_poissonGrid[i, j].Neighbours[n].coords;
+
                         if (!(m_poissonGrid[i, j].Neighbours[n].joined) && !(m_poissonGrid[coords.x, coords.y].IsJoined(m_poissonGrid[i, j])))
                         {
                             m_poissonGrid[i, j].SetJoined(m_poissonGrid[coords.x, coords.y], true);
                             m_poissonGrid[coords.x, coords.y].SetJoined(m_poissonGrid[i, j], true);
 
-                            GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                            Road road = plane.AddComponent<Road>();
-                            road.Init((Vector3)m_poissonGrid[i, j].position, (Vector3)m_poissonGrid[coords.x, coords.y].position);
-                            road.SetRoad();
-                            plane.transform.parent = transform;
+                            int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
+
+                            // Relie les routes entre les bordures de l'intersection
+                            GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
+
                         }
                     }
                 }
