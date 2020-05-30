@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Diagnostics;
 using UnityEngine;
 
 public class IntersectionMaker : MonoBehaviour
@@ -8,13 +10,16 @@ public class IntersectionMaker : MonoBehaviour
     private List<Intersection> m_intersections;
     private PoissonSampling m_poissonScript;
     private Intersection[,] m_poissonGrid;
+    private List<List<Vector3>> toGenerateRoad = new List<List<Vector3>>();
+    private Thread threadComputeRoad;
+    [SerializeField] bool delTriangles = false;
 
 
     // Créer un tableau à deux dimensions d'intersections
     private void InitPoissonGrid()
     {
         m_poissonGrid = new Intersection[m_poissonScript.getRowSize, m_poissonScript.getColSize];
-
+        toGenerateRoad.Clear();
         for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
             for (int j = 0; j < m_poissonScript.getColSize; j++)
@@ -81,7 +86,7 @@ public class IntersectionMaker : MonoBehaviour
             {
                 if (m_poissonGrid[x, y] != null)
                 {
-                    int nbNearPoints = UnityEngine.Random.Range(1, 3);
+                    int nbNearPoints = m_poissonScript.randomRangeIntThreadSafe(1, 3);
                     NearestPoint(x, y, nbNearPoints, rows, cols);
                 }
             }
@@ -105,26 +110,38 @@ public class IntersectionMaker : MonoBehaviour
         }
     }
 
-    // Instancie une route entre les deux positions
-    private void GenerateRoad(Vector3 cr1, Vector3 cr2)
+    // Instancie toutes les routes contenues dans la liste toGenerateRoad
+    private void GenerateRoad()
     {
-        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        Road road = plane.AddComponent<Road>();
-        road.Init(cr1, cr2);
-        road.SetRoad();
-        plane.name = "Road";
-        plane.transform.parent = transform;
+        Stopwatch stopwatchGenerateRoad = new Stopwatch();
+        int roadCount = 0;
+        stopwatchGenerateRoad.Start();
+
+        foreach (List<Vector3> coords in toGenerateRoad)
+        {
+            GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            Road road = plane.AddComponent<Road>();
+            road.Init(coords[0], coords[1]);
+            road.SetRoad();
+            plane.name = "Road";
+            plane.transform.parent = transform;
+            roadCount += 1;
+        }
+        stopwatchGenerateRoad.Stop();
+        UnityEngine.Debug.Log("IntersectionMaker::GenerateRoad - Placed " + roadCount + " roads in  " + stopwatchGenerateRoad.ElapsedMilliseconds + " ms | " + (float)stopwatchGenerateRoad.ElapsedMilliseconds / (float)roadCount + "ms / pt");
     }
 
     // Calcul les routes en fonctions des voisins
-    public void ComputeRoad(bool delTriangles)
+    public void ComputeRoad()
     {
-        // va lancer la génération
-        m_poissonScript = gameObject.GetComponent<PoissonSampling>();
-        InitPoissonGrid();
+        threadComputeRoad.IsBackground = true;
 
-        //m_poissonScript.threadedComputePoints();
+        int roadCount = 0;
+        Stopwatch stopwatchComputeRoad = new Stopwatch();
+        stopwatchComputeRoad.Start();
+
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
+
 
         if (delTriangles)
             this.DelTriangles();
@@ -147,17 +164,36 @@ public class IntersectionMaker : MonoBehaviour
                             int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
 
                             // Relie les routes entre les bordures de l'intersection
-                            GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
-
+                            List<Vector3> newRoad = new List<Vector3>();
+                            newRoad.Add((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection);
+                            newRoad.Add((Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
+                            toGenerateRoad.Add(newRoad);
+                            roadCount += 1;
                         }
                     }
                 }
             }
         }
+        stopwatchComputeRoad.Stop();
+        GenerateRoad();
+        UnityEngine.Debug.Log("IntersectionMaker::ComputeRoad - Computed " + roadCount + " roads in " + stopwatchComputeRoad.ElapsedMilliseconds + " ms | " + (float)stopwatchComputeRoad.ElapsedMilliseconds / (float)roadCount + "ms / pt");
     }
 
 
+    public IEnumerator threadedComputeRoad()
+    {
+        InitPoissonGrid();
+        threadComputeRoad = new Thread(ComputeRoad);
+        threadComputeRoad.Start();
+        threadComputeRoad.IsBackground = true;
+        UnityEngine.Debug.Log("IntersectionMaker::threadedComputeRoad - Starting");
 
+        while (threadComputeRoad.IsAlive)
+        {
+            yield return null;
+        }
+        UnityEngine.Debug.Log("IntersectionMaker::threadedComputePoints - Finished");
+    }
 
 
 
@@ -173,7 +209,6 @@ public class IntersectionMaker : MonoBehaviour
     private void Start()
     {
         m_intersections = new List<Intersection>();
-
-        //ComputeRoad();
+        m_poissonScript = gameObject.GetComponent<PoissonSampling>();
     }
 }

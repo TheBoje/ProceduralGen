@@ -225,6 +225,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Camera
       objectReference: {fileID: 0}
+    - target: {fileID: 466514474694801914, guid: e2209376bd8fbd24e80fe65a6bb049d4,
+        type: 3}
+      propertyPath: far clip plane
+      value: 2000
+      objectReference: {fileID: 0}
     - target: {fileID: 8903898002408214998, guid: e2209376bd8fbd24e80fe65a6bb049d4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -289,6 +294,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6801694240712611945, guid: c960157d8d0d8824ea064b3666127eb4,
+        type: 3}
+      propertyPath: delTriangles
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6801694240712611949, guid: c960157d8d0d8824ea064b3666127eb4,
         type: 3}
       propertyPath: m_Name

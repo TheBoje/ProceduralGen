@@ -242,9 +242,9 @@ public class PoissonSampling : MonoBehaviour
         deleteComputed();
         // Initialisation du nouveau thread et mise en mode arrière plan
         threadComputePoints = new Thread(computePoints);
-        threadComputePoints.IsBackground = true;
         // Depart du thread
         threadComputePoints.Start();
+        threadComputePoints.IsBackground = true;
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
         // IEnumerator stuff: reprend la corroutine juste après le yield a chaque frame, nécessaire
         while (threadComputePoints.IsAlive)
@@ -262,7 +262,7 @@ public class PoissonSampling : MonoBehaviour
 
     /// <summary>Float random [a, b[</summary>
     // Remplace UnityEngine.Random.Range(a,b) car non accessible dans un thread alternatif
-    private float randomRangeFloatThreadSafe(float a, float b)
+    public float randomRangeFloatThreadSafe(float a, float b)
     {
         float result;
         result = a + (float)randGiver.NextDouble() * (b - a);
@@ -271,7 +271,7 @@ public class PoissonSampling : MonoBehaviour
 
     /// <summary>Int random [a, b]</summary>
     // Remplace UnityEngine.Random.Range(a,b) car non accessible dans un thread alternatif
-    private int randomRangeIntThreadSafe(int a, int b)
+    public int randomRangeIntThreadSafe(int a, int b)
     {
         int result;
         result = randGiver.Next(a, b);

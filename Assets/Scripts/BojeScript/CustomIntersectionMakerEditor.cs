@@ -18,16 +18,14 @@ public class CustomIntersectionMakerEditor : Editor
         // Chaque condition dessine un bouton execute le code mis en <then>
         if (GUILayout.Button("Generate Roads"))
         {
-            //intersectionScript.ClearIntersections();
-            //poissonScript.deleteComputed();
-            //poissonScript.StartCoroutine(poissonScript.threadedComputePoints());
-            intersectionScript.ComputeRoad(false);
+            //intersectionScript.ComputeRoad();
+            intersectionScript.StartCoroutine(intersectionScript.threadedComputeRoad());
         }
 
         if (GUILayout.Button("Delete Triangles"))
         {
             intersectionScript.ClearIntersections();
-            intersectionScript.ComputeRoad(true);
+            intersectionScript.ComputeRoad();
         }
 
         if (GUILayout.Button("Delete Roads"))
