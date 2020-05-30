@@ -83,7 +83,6 @@ public class PoissonSampling : MonoBehaviour
 
     private System.Random randGiver; // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
     private Vector3?[,] grid;
-    private List<GameObject> instanciatedPoints = new List<GameObject>();
     private int rowsSize;
     private int colsSize;
     private int pointPoissonCount;
@@ -239,7 +238,7 @@ public class PoissonSampling : MonoBehaviour
     {
 
         // Supprime les points déjà instanciés (contenus dans la liste instanciatedPoints)
-        deleteComputed();
+        StartCoroutine(deleteComputed());
         // Initialisation du nouveau thread et mise en mode arrière plan
         threadComputePoints = new Thread(computePoints);
         // Depart du thread
@@ -254,7 +253,7 @@ public class PoissonSampling : MonoBehaviour
         // Affichage des points
         if (!threadComputePoints.IsAlive && instanciateEnable)
         {
-            displayGrid();
+            StartCoroutine(displayGrid());
         }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
@@ -279,9 +278,10 @@ public class PoissonSampling : MonoBehaviour
     }
 
     /// <summary>Instancie tous les points présents dans grid en tant qu'enfant de GenManager</summary>
-    public void displayGrid()
+    public IEnumerator displayGrid()
     {
         Stopwatch stopwatchDisplayGrid = new Stopwatch();
+        int internaldisplayGridCount = 0;
         stopwatchDisplayGrid.Start();
         for (int i = 0; i < colsSize; i++)
         {
@@ -290,8 +290,13 @@ public class PoissonSampling : MonoBehaviour
                 if (grid[i, j] != null)
                 {
                     GameObject resultInstance = Instantiate(objetInstance, (Vector3)grid[i, j], Quaternion.identity);
-                    resultInstance.transform.parent = gameObject.transform;
-                    instanciatedPoints.Add(resultInstance);
+                    resultInstance.transform.parent = gameObject.transform.Find("PoissonSampling").transform;
+                    internaldisplayGridCount += 1;
+                    if (internaldisplayGridCount > 100)
+                    {
+                        internaldisplayGridCount = 0;
+                        yield return null;
+                    }
                 }
             }
         }
@@ -308,22 +313,23 @@ public class PoissonSampling : MonoBehaviour
             Vector3 pt = newPos;
             GameObject resultInstance = Instantiate(objetInstance, pt, Quaternion.identity);
             resultInstance.transform.parent = gameObject.transform;
-            instanciatedPoints.Add(resultInstance);
         }
     }
 
     /// <summary>Supprime l'ensemble des points instanciés contenus dans la liste instanciatedPoints</summary>
-    public void deleteComputed()
+    public IEnumerator deleteComputed()
     {
-        if (instanciatedPoints.Count > 0)
+        int internalDeleteComputedCount = 0;
+        Transform intersectionTransform = transform.Find("PoissonSampling");
+        for (int i = intersectionTransform.childCount; i > 0; i--)
         {
-            foreach (GameObject item in instanciatedPoints)
+            Destroy(intersectionTransform.GetChild(i - 1).gameObject);
+            internalDeleteComputedCount += 1;
+            if (internalDeleteComputedCount > 100)
             {
-                Destroy(item);
+                internalDeleteComputedCount = 0;
+                yield return null;
             }
-            instanciatedPoints.Clear();
-
-            UnityEngine.Debug.Log("PoissonSampling::deleteComputed - Finished");
         }
     }
 

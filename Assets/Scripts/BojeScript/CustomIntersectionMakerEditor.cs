@@ -22,15 +22,9 @@ public class CustomIntersectionMakerEditor : Editor
             intersectionScript.StartCoroutine(intersectionScript.threadedComputeRoad());
         }
 
-        if (GUILayout.Button("Delete Triangles"))
-        {
-            intersectionScript.ClearIntersections();
-            intersectionScript.ComputeRoad();
-        }
-
         if (GUILayout.Button("Delete Roads"))
         {
-            intersectionScript.ClearIntersections();
+            intersectionScript.ClearInstanciated();
         }
     }
 }

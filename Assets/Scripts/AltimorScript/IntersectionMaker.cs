@@ -27,7 +27,7 @@ public class IntersectionMaker : MonoBehaviour
                 if (m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
-                    m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
+                    m_poissonGrid[i, j].GenerateIntersection(gameObject.transform.Find("Intersections").transform); // FIXME Trouver le bon gameObject
                 }
                 else
                 {
@@ -111,10 +111,11 @@ public class IntersectionMaker : MonoBehaviour
     }
 
     // Instancie toutes les routes contenues dans la liste toGenerateRoad
-    private void GenerateRoad()
+    private IEnumerator GenerateRoad()
     {
         Stopwatch stopwatchGenerateRoad = new Stopwatch();
         int roadCount = 0;
+        int internalGenerateRoadCount = 0;
         stopwatchGenerateRoad.Start();
 
         foreach (List<Vector3> coords in toGenerateRoad)
@@ -124,8 +125,14 @@ public class IntersectionMaker : MonoBehaviour
             road.Init(coords[0], coords[1]);
             road.SetRoad();
             plane.name = "Road";
-            plane.transform.parent = transform;
+            plane.transform.parent = gameObject.transform.Find("Roads").transform;
             roadCount += 1;
+            internalGenerateRoadCount += 1;
+            if (internalGenerateRoadCount > 100)
+            {
+                internalGenerateRoadCount = 0;
+                yield return null;
+            }
         }
         stopwatchGenerateRoad.Stop();
         UnityEngine.Debug.Log("IntersectionMaker::GenerateRoad - Placed " + roadCount + " roads in  " + stopwatchGenerateRoad.ElapsedMilliseconds + " ms | " + (float)stopwatchGenerateRoad.ElapsedMilliseconds / (float)roadCount + "ms / pt");
@@ -175,7 +182,6 @@ public class IntersectionMaker : MonoBehaviour
             }
         }
         stopwatchComputeRoad.Stop();
-        GenerateRoad();
         UnityEngine.Debug.Log("IntersectionMaker::ComputeRoad - Computed " + roadCount + " roads in " + stopwatchComputeRoad.ElapsedMilliseconds + " ms | " + (float)stopwatchComputeRoad.ElapsedMilliseconds / (float)roadCount + "ms / pt");
     }
 
@@ -193,16 +199,46 @@ public class IntersectionMaker : MonoBehaviour
             yield return null;
         }
         UnityEngine.Debug.Log("IntersectionMaker::threadedComputePoints - Finished");
+        StartCoroutine(GenerateRoad());
     }
 
 
 
-    public void ClearIntersections()
+    public void ClearInstanciated()
     {
-        m_intersections.Clear();
-        foreach (Transform children in transform)
+        StartCoroutine(ClearIntersection());
+    }
+
+    private IEnumerator ClearIntersection()
+    {
+        int internalClearIntersectionsCount = 0;
+        Transform intersectionTransform = transform.Find("Intersections");
+        for (int i = intersectionTransform.childCount; i > 0; i--)
         {
-            Destroy(children.gameObject);
+            Destroy(intersectionTransform.GetChild(i - 1).gameObject);
+            internalClearIntersectionsCount += 1;
+            if (internalClearIntersectionsCount > 100)
+            {
+                internalClearIntersectionsCount = 0;
+                yield return null;
+            }
+        }
+        yield return StartCoroutine(ClearRoads());
+    }
+
+    private IEnumerator ClearRoads()
+    {
+        int internalClearRoadsCount = 0;
+        Transform roadsTransform = transform.Find("Roads");
+        for (int i = roadsTransform.childCount; i > 0; i--)
+        {
+            Destroy(roadsTransform.GetChild(i - 1).gameObject);
+            internalClearRoadsCount += 1;
+            if (internalClearRoadsCount > 100)
+            {
+                internalClearRoadsCount = 0;
+                yield return null;
+            }
         }
     }
 

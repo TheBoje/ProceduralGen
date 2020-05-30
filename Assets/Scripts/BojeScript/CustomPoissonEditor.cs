@@ -23,12 +23,12 @@ public class CustomPoissonEditor : Editor
 
         if (GUILayout.Button("Delete Instanciated"))
         {
-            poissonScript.deleteComputed();
+            poissonScript.StartCoroutine(poissonScript.deleteComputed());
         }
 
         if (GUILayout.Button("Display Points"))
         {
-            poissonScript.displayGrid();
+            poissonScript.StartCoroutine(poissonScript.displayGrid());
         }
     }
 }
