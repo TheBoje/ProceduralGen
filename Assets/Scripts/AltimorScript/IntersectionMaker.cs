@@ -13,11 +13,11 @@ public class IntersectionMaker : MonoBehaviour
     {
         m_poissonGrid = new Intersection[m_poissonScript.getRowSize, m_poissonScript.getColSize];
 
-        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
-            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            for (int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(m_poissonScript.poissonGrid[i, j] != null)
+                if (m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
                 }
@@ -33,7 +33,7 @@ public class IntersectionMaker : MonoBehaviour
     private void NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
     {
         int length = 1;
-        
+
         while (m_poissonGrid[x, y].Neighbours.Count <= nbPointsSearched)
         {
             for (int i = -length; i <= length; i++)
@@ -44,17 +44,17 @@ public class IntersectionMaker : MonoBehaviour
                     {
                         if (m_poissonGrid[x + i, y + j] != null)
                         {
-                            if(!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
+                            if (!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
                             {
                                 m_poissonGrid[x, y].AddNeighbour(x + i, y + j);
                             }
-                            
+
                             // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
                             if (!m_poissonGrid[x + i, y + j].ContainsIntersection(m_poissonGrid[x, y]))
                             {
                                 m_poissonGrid[x + i, y + j].AddNeighbour(x, y);
                             }
-                                
+
                         }
                     }
                 }
@@ -85,11 +85,11 @@ public class IntersectionMaker : MonoBehaviour
     // Nettoie les routes en enlevant les triangles
     public void DelTriangles()
     {
-        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
-            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            for (int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(m_poissonGrid[i, j] != null)
+                if (m_poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j].DelTriangle(m_poissonGrid);
                 }
@@ -103,18 +103,18 @@ public class IntersectionMaker : MonoBehaviour
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
         InitPoissonGrid();
-        
+
         //m_poissonScript.threadedComputePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
 
         if (delTriangles)
             this.DelTriangles();
 
-        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
-            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            for (int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(m_poissonGrid[i, j] != null)
+                if (m_poissonGrid[i, j] != null)
                 {
                     for (int n = 0; n < m_poissonGrid[i, j].Neighbours.Count; n++)
                     {
