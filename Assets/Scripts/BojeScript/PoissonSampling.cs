@@ -57,6 +57,10 @@ public class PoissonSampling : MonoBehaviour
     [Header("Display Settings")]
 
     [SerializeField]
+    [Tooltip("Active la génération du terrain")]
+    private bool terrainGeneration = true;
+
+    [SerializeField]
     [Tooltip("Active l'instanciation")]
     private bool instanciateEnable = true;
 
@@ -86,9 +90,17 @@ public class PoissonSampling : MonoBehaviour
     private int rowsSize;
     private int colsSize;
     private int pointPoissonCount;
+    private TerrainGenerator terrainGeneratorScript;
+    private float[,] perlinMap;
+
+    private void Start()
+    {
+        terrainGeneratorScript = GameObject.Find("Terrain").GetComponent<TerrainGenerator>();
+        perlinMap = perlinNoiseUpdateArray(rangeX, rangeZ, scaleY);
+    }
 
 
-    void Update()
+    private void Update()
     {
         /*  
             Permet d'activer ou désactiver le logging dans la console 
@@ -120,6 +132,7 @@ public class PoissonSampling : MonoBehaviour
         // Point pioché dans la liste active
         Vector3 activePos = new Vector3();
 
+        perlinMap = perlinNoiseUpdateArray(rangeX, rangeZ, scaleY);
 
         // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
         randGiver = new System.Random(randomSeed);
@@ -255,6 +268,10 @@ public class PoissonSampling : MonoBehaviour
         {
             StartCoroutine(displayGrid());
         }
+        if (terrainGeneration)
+        {
+            terrainGeneratorScript.generateTerrain();
+        }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
 
@@ -368,6 +385,19 @@ public class PoissonSampling : MonoBehaviour
         return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
     }
 
+    private float[,] perlinNoiseUpdateArray(int width, int height, float scale)
+    {
+        float[,] result = new float[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                result[x, y] = Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
+            }
+        }
+        return result;
+    }
+
     /// <summary>Getter de la grid contenant tous les points de PoissonDiskSampling (calculée dans computePoints)</summary>
     public Vector3?[,] poissonGrid
     {
@@ -380,5 +410,9 @@ public class PoissonSampling : MonoBehaviour
     public int getColSize
     {
         get { return colsSize; }
+    }
+    public float[,] getPerlinMap
+    {
+        get { return perlinMap; }
     }
 }
