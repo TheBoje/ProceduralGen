@@ -96,7 +96,6 @@ public class PoissonSampling : MonoBehaviour
     private void Start()
     {
         terrainGeneratorScript = GameObject.Find("Terrain").GetComponent<TerrainGenerator>();
-        perlinMap = perlinNoiseUpdateArray(rangeX, rangeZ, scaleY);
     }
 
 
@@ -112,7 +111,7 @@ public class PoissonSampling : MonoBehaviour
         }
     }
 
-    /// <summary>Ajoute des points séparés de au moins 2*rayonPoisson dans grid[,]</summary>
+    /// <summary>Ajoute des points séparés d'au moins 2*rayonPoisson dans grid[,]</summary>
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
 
@@ -131,8 +130,6 @@ public class PoissonSampling : MonoBehaviour
         Vector3 newPos = new Vector3();
         // Point pioché dans la liste active
         Vector3 activePos = new Vector3();
-
-        perlinMap = perlinNoiseUpdateArray(rangeX, rangeZ, scaleY);
 
         // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
         randGiver = new System.Random(randomSeed);
@@ -363,7 +360,7 @@ public class PoissonSampling : MonoBehaviour
                 {
                     Vector3 temp = (Vector3)grid[i, j];
                     // Récupération de la valeur dans le bruit de Perlin par rapport a sa position (*scaleY)
-                    temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
+                    temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale, scaleY);
                     // Remise dans la grid 
                     grid[i, j] = temp;
                 }
@@ -380,19 +377,19 @@ public class PoissonSampling : MonoBehaviour
     }
 
     /// <summary>Calcule la valeur du point (x,y) dans un plan de taille (width, height)*scale</summary>
-    private float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scale)
+    private float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scalePerlin, float scaleY)
     {
-        return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
+        return Mathf.PerlinNoise((float)((x / width) * scalePerlin), (float)((y / height) * scalePerlin)) * scaleY;
     }
 
-    private float[,] perlinNoiseUpdateArray(int width, int height, float scale)
+    private float[,] perlinNoiseUpdateArray(int width, int height, float scalePerlin, float scaleY)
     {
         float[,] result = new float[width, height];
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                result[x, y] = Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
+                result[x, y] = Mathf.PerlinNoise((float)(x / width) * scalePerlin, (float)(y / height) * scalePerlin) * scaleY;
             }
         }
         return result;
