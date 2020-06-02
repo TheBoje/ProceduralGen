@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Principal;
 using UnityEngine;
 
 
@@ -8,6 +9,7 @@ public class CityHouses
     private const int MAX_HEIGHT = 5;
     private const int MIN_HEIGHT = 2;
 
+    private const int MAX_WIDTH = 5;
     private const int MIN_WIDTH = 2;
 
     private const int MIN_DEPTH = 1;
@@ -71,25 +73,36 @@ public class CityHouses
     }
    
     // Initialise une maison en donnant les paramètre // Les paramètres angle, maxWidth et maxDepth sont calculés en fonction de la route ainsi que du quartier
-    public CityHouse InitCityHouse(CityHouse previousHouse, int maxWidth, int maxDepth, float angle)
+    public CityHouse InitCityHouse(List<CityHouse> houses, int maxWidth, int maxDepth, float angle)
     {
         int height, width, depth, doorPos;
         bool leftWall, rightWall;
         float Angle;
 
-        // Les maisons seront créée de la gauche vers la droite
-        if(previousHouse.hIntereface.rightWall)
+        if(houses.Count > 0)
         {
-            leftWall = false;
-            height = Random.Range(MIN_HEIGHT, previousHouse.hIntereface.height);
-            depth = Random.Range(MIN_DEPTH, previousHouse.hIntereface.depth);
+            CityHouse previousHouse = houses[houses.Count - 1];
+
+            // Les maisons seront créée de la gauche vers la droite
+            if (previousHouse.hIntereface.rightWall)
+            {
+                leftWall = false;
+                height = Random.Range(MIN_HEIGHT, previousHouse.hIntereface.height);
+                depth = Random.Range(MIN_DEPTH, previousHouse.hIntereface.depth);
+            }
+            else
+            {
+                height = Random.Range(MIN_HEIGHT, MAX_HEIGHT);
+                depth = Random.Range(MIN_DEPTH, maxDepth);
+
+                leftWall = (height > previousHouse.hIntereface.height || depth > previousHouse.hIntereface.depth);
+            }
         }
         else
         {
             height = Random.Range(MIN_HEIGHT, MAX_HEIGHT);
             depth = Random.Range(MIN_DEPTH, maxDepth);
-
-            leftWall = (height > previousHouse.hIntereface.height || depth > previousHouse.hIntereface.depth);          
+            leftWall = true;
         }
 
         rightWall = (Random.value > 0.5f);
@@ -99,6 +112,32 @@ public class CityHouses
         doorPos = Random.Range(0, width); // La position varie entre 0 et width - 1 (on commence à compter à partir de 0)
 
         return DefCityHouse(height, width, depth, doorPos, leftWall, rightWall, angle);
+    }
+
+    // Calcul la profondeur que peut atteindre la maison
+    public int ComputeMaxDepth()
+    {
+        return 3;
+    }
+
+    // Créer les maisons (avec le type CityHouse) sur un côté d'une route
+    public void GenerateRoadHouses(float roadLen, float roadAngle)
+    {
+        List<CityHouse> houses = new List<CityHouse>();
+
+        int maxDepth = ComputeMaxDepth();
+
+        int spaceLeft = (int)roadLen;
+
+        while(spaceLeft > 0)
+        {
+            if(MAX_WIDTH > spaceLeft)
+                houses.Add(InitCityHouse(houses, spaceLeft, maxDepth, roadAngle));
+            else
+                houses.Add(InitCityHouse(houses, MAX_WIDTH, maxDepth, roadAngle));
+
+            spaceLeft -= houses[houses.Count - 1].hIntereface.width;
+        }
     }
     
 }
