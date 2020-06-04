@@ -26,12 +26,21 @@ public class DelaunayTriangulation
         public Circle circumscribed;
     }
 
+
     // Calcul le cercle circonscrit du triangle A, B, C
     private Circle ComputeCircumscribed(Vector3 a, Vector3 b, Vector3 c)
     {
         Circle circle;
 
-        circle.center = Vector3.zero;
+        Vector3 v_AB = new Vector3(b.x - a.x, b.y - a.y, b.z - a.z);
+        Vector3 v_BC = new Vector3(c.x - b.x, c.y - b.y, c.z - b.z);
+        Vector3 v_CA = new Vector3(a.x - c.x, a.y - c.y, a.z - c.z);
+
+        float tanA = Mathf.Tan(Vector3.Angle(v_AB, v_CA)); // Angle au sommet A
+        float tanB = Mathf.Tan(Vector3.Angle(v_AB, v_BC)); // Angle au sommet B
+        float tanC = Mathf.Tan(Vector3.Angle(v_BC, v_CA)); // Angle au sommet C
+
+        circle.center = (1 / (2 * (tanA + tanB + tanC))) * ((tanB + tanC) * a + (tanA + tanC) * b + (tanA + tanB) * c); // Formule de la position du point d'intersection des médiatrices
         circle.radius = (circle.center - a).magnitude;
 
         return circle;
