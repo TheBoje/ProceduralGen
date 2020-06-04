@@ -17,9 +17,10 @@ public class WingedEdgeMap : MonoBehaviour
                 new Vector3(0f, 0f, 0f),
                 new Vector3(1f, 0f, 0f),
                 new Vector3(0f, 1f, 0f),
-                new Vector3(1f, 1f, 0f)
+                new Vector3(1f, 1f, 0f),
+                new Vector3(1f, 2f, 0f)
             },
-            new Face[] { new Face(new int[] { 0, 1, 2, 1, 3, 2 } )
+            new Face[] { new Face(new int[] { 0, 1, 2, 1, 3, 2, 2, 3, 4 } )
         });
 
         quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, 4f);
@@ -28,12 +29,13 @@ public class WingedEdgeMap : MonoBehaviour
         quad.ToMesh();
         quad.GetComponent<MeshRenderer>().material = mat;
 
+
         List<WingedEdge> wList = WingedEdge.GetWingedEdges(quad);
 
         Debug.Log("Faces : " + quad.faceCount);
         Debug.Log("Edges : " + quad.edgeCount);
-
-        
     }
+
+
 
 }
