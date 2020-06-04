@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+// Algorithme provenant de https://yahiko.developpez.com/tutoriels/triangulation-delaunay-incrementale/
+
 public class DelaunayTriangulation
 {
     public struct Segment
@@ -20,7 +22,7 @@ public class DelaunayTriangulation
 
     public struct Triangle
     {
-        public Vector3[] vertices;
+        public List<Vector3> vertices;
         public Circle circumscribed;
     }
 
@@ -40,7 +42,7 @@ public class DelaunayTriangulation
     {
         Triangle tri;
 
-        tri.vertices = new Vector3[3];
+        tri.vertices = new List<Vector3>();
 
         tri.vertices[0] = a;
         tri.vertices[1] = b;
@@ -122,5 +124,70 @@ public class DelaunayTriangulation
         }
 
         return DeleteSameSegment(allSegments);
+    }
+
+    // Retourne une liste de triangles dans laquelle le point p se trouve dans le cercle circonscrit de chaques éléments de la liste de triangles
+    private List<Triangle> FindTrianglesContainers(Vector3 point, List<Triangle> triangles)
+    {
+        List<Triangle> triangleContainers = new List<Triangle>();
+
+        foreach(Triangle tri in triangles)
+        {
+            if(Mathf.Pow(point.x - tri.circumscribed.center.x, 2) + Mathf.Pow(point.z - tri.circumscribed.center.z, 2) < Mathf.Pow(tri.circumscribed.radius, 2))
+            {
+                triangleContainers.Add(tri);
+            }
+        }
+
+        return triangleContainers;
+    }
+
+    // Ajoute un point à l'ensemble des points existants
+    private List<Triangle> AddPoint(Vector3 point, List<Triangle> triangles)
+    {
+        // Suppression des triangles dont le cercle circonscrit contient p
+        List<Triangle> trianglesContainers = FindTrianglesContainers(point, triangles);
+
+
+        foreach(Triangle tri in trianglesContainers)
+        {
+            triangles.Remove(tri);
+        }
+
+        // Création de nouveaux triangles vérifiant la condition de Delaunay
+        List<Segment> segList = GetBorder(triangles);
+
+        foreach(Segment seg in segList)
+        {
+            triangles.Add(BuildTriangle(seg.A, seg.B, point));
+        }
+
+        return triangles;
+    }
+
+    public List<Triangle> Triangulate(List<Vector3> points)
+    {
+        Triangle initTriangle = ComputeFirstTriangle(points);
+
+        List<Triangle> triangles = new List<Triangle>();
+        triangles.Add(initTriangle);
+
+        foreach(Vector3 point in points)
+        {
+            triangles = AddPoint(point, triangles);
+        }
+
+        foreach(Vector3 vertex in initTriangle.vertices)
+        {
+            foreach(Triangle tri in triangles)
+            {
+                if(tri.vertices.Contains(vertex))
+                {
+                    triangles.Remove(tri);
+                }
+            }
+        }
+
+        return triangles;
     }
 }
