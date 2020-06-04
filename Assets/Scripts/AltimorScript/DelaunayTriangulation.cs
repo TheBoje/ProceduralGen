@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.AI;
 
 // Algorithme provenant de https://yahiko.developpez.com/tutoriels/triangulation-delaunay-incrementale/
 
@@ -51,12 +52,10 @@ public class DelaunayTriangulation
     {
         Triangle tri;
 
-        tri.vertices = new List<Vector3>();
+        tri.vertices = new List<Vector3> { a, b, c };
 
-        tri.vertices[0] = a;
-        tri.vertices[1] = b;
-        tri.vertices[2] = c;
 
+        
         tri.circumscribed = ComputeCircumscribed(a, b, c);
 
         return tri;
@@ -65,13 +64,15 @@ public class DelaunayTriangulation
     // Créer le premier triangle pour lancer la triangulisation
     private Triangle ComputeFirstTriangle(List<Vector3> points)
     {
+
+
         if(points.Count < 3)
         {
             throw new Exception("Not enought points for triangulation");
         }
         else
         {
-            return BuildTriangle(points[0], points[1], points[2]);
+            return BuildTriangle(new Vector3(-2.5f, -0.5f, 0f), new Vector3(5f, -0.5f, 0f), new Vector3(0.5f, 2.5f, 0f));
         }
     }
 
@@ -164,7 +165,7 @@ public class DelaunayTriangulation
         }
 
         // Création de nouveaux triangles vérifiant la condition de Delaunay
-        List<Segment> segList = GetBorder(triangles);
+        List<Segment> segList = GetBorder(trianglesContainers);
 
         foreach(Segment seg in segList)
         {
@@ -186,17 +187,26 @@ public class DelaunayTriangulation
             triangles = AddPoint(point, triangles);
         }
 
+        List<Triangle> toRemoved = new List<Triangle>();
+
         foreach(Vector3 vertex in initTriangle.vertices)
         {
             foreach(Triangle tri in triangles)
             {
                 if(tri.vertices.Contains(vertex))
                 {
-                    triangles.Remove(tri);
+                    toRemoved.Add(tri);
                 }
             }
         }
 
+        foreach(Triangle tri in toRemoved)
+        {
+            triangles.Remove(tri);
+        }
+        
         return triangles;
     }
+
+    
 }

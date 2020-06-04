@@ -12,7 +12,7 @@ public class WingedEdgeMap : MonoBehaviour
     private void Start()
     {
 
-        ProBuilderMesh quad = ProBuilderMesh.Create(
+        /*ProBuilderMesh quad = ProBuilderMesh.Create(
             new Vector3[] {
                 new Vector3(0f, 0f, 0f),
                 new Vector3(1f, 0f, 0f),
@@ -34,6 +34,20 @@ public class WingedEdgeMap : MonoBehaviour
 
         Debug.Log("Faces : " + quad.faceCount);
         Debug.Log("Edges : " + quad.edgeCount);
+    */
+
+        List<Vector3> points = new List<Vector3> {
+                                    new Vector3(0f, 0f, 0f),
+                                    new Vector3(1f, 0f, 0f),
+                                    new Vector3(0f, 1f, 0f),
+                                    new Vector3(1f, 1f, 0f),
+                                    new Vector3(1f, 2f, 0f)
+                                };
+
+        DelaunayTriangulation triangulation = new DelaunayTriangulation();
+
+        List<DelaunayTriangulation.Triangle> triangles = triangulation.Triangulate(points);
+        Debug.Log("finish");
     }
 
 
