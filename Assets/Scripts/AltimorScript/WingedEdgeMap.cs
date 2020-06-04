@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.ProBuilder.MeshOperations;
@@ -12,18 +13,24 @@ public class WingedEdgeMap : MonoBehaviour
     private void Start()
     {
 
-        /*ProBuilderMesh quad = ProBuilderMesh.Create(
-            new Vector3[] {
-                new Vector3(0f, 0f, 0f),
-                new Vector3(1f, 0f, 0f),
-                new Vector3(0f, 1f, 0f),
-                new Vector3(1f, 1f, 0f),
-                new Vector3(1f, 2f, 0f)
-            },
-            new Face[] { new Face(new int[] { 0, 1, 2, 1, 3, 2, 2, 3, 4 } )
+        Vector3[] points = new Vector3[] {
+                            new Vector3(0f, 0f, 0f),
+                            new Vector3(1f, 0f, 0f),
+                            new Vector3(0f, 0f, 1f),
+                            new Vector3(1f, 0f, 1f),
+                            new Vector3(1f, 0f, 2f)
+                        };
+
+        Triangulator triangulator = new Triangulator(points);
+
+        ProBuilderMesh quad = ProBuilderMesh.Create(points,
+            new Face[] { new Face(triangulator.Triangulate())
         });
 
-        quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, 4f);
+        
+
+        //quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, -4f);
+
         quad.Refresh();
 
         quad.ToMesh();
@@ -34,19 +41,7 @@ public class WingedEdgeMap : MonoBehaviour
 
         Debug.Log("Faces : " + quad.faceCount);
         Debug.Log("Edges : " + quad.edgeCount);
-    */
 
-        List<Vector3> points = new List<Vector3> {
-                                    new Vector3(0f, 0f, 0f),
-                                    new Vector3(1f, 0f, 0f),
-                                    new Vector3(0f, 1f, 0f),
-                                    new Vector3(1f, 1f, 0f),
-                                    new Vector3(1f, 2f, 0f)
-                                };
-
-        DelaunayTriangulation triangulation = new DelaunayTriangulation();
-
-        List<DelaunayTriangulation.Triangle> triangles = triangulation.Triangulate(points);
         Debug.Log("finish");
     }
 
