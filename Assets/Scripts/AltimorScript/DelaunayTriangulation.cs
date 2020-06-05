@@ -33,13 +33,13 @@ public class DelaunayTriangulation
     {
         Circle circle;
 
-        Vector3 v_AB = new Vector3(b.x - a.x, b.y - a.y, b.z - a.z);
-        Vector3 v_BC = new Vector3(c.x - b.x, c.y - b.y, c.z - b.z);
-        Vector3 v_CA = new Vector3(a.x - c.x, a.y - c.y, a.z - c.z);
+        Vector3 v_AB = b - a;
+        Vector3 v_BC = c - b;
+        Vector3 v_CA = a - c;
 
-        float tanA = Mathf.Tan(Vector3.Angle(v_AB, v_CA)); // Angle au sommet A
-        float tanB = Mathf.Tan(Vector3.Angle(v_AB, v_BC)); // Angle au sommet B
-        float tanC = Mathf.Tan(Vector3.Angle(v_BC, v_CA)); // Angle au sommet C
+        float tanA = Mathf.Tan(Vector3.AngleBetween(v_AB, v_CA * (-1f))); // Angle au sommet A
+        float tanB = Mathf.Tan(Vector3.AngleBetween(v_AB * (-1f), v_BC)); // Angle au sommet B
+        float tanC = Mathf.Tan(Vector3.AngleBetween(v_BC * (-1f), v_CA)); // Angle au sommet C
 
         circle.center = (1 / (2 * (tanA + tanB + tanC))) * ((tanB + tanC) * a + (tanA + tanC) * b + (tanA + tanB) * c); // Formule de la position du point d'intersection des médiatrices
         circle.radius = (circle.center - a).magnitude;
@@ -72,7 +72,7 @@ public class DelaunayTriangulation
         }
         else
         {
-            return BuildTriangle(new Vector3(-1000f, 0f, -1000f), new Vector3(0f, 0f, 1000f), new Vector3(1000f, 0f, -1000f));
+            return BuildTriangle(new Vector3(-2.5f, 0f, -0.5f), new Vector3(0.5f, 0f, 2.5f), new Vector3(5f, 0f, -0.5f));
         }
     }
 
@@ -105,7 +105,7 @@ public class DelaunayTriangulation
             {
                 if(i != j)
                 {
-                    if(S[i].A == S[j].A && S[i].B == S[j].B || S[i].B == S[j].A && S[i].A == S[j].B)
+                    if((S[i].A == S[j].A && S[i].B == S[j].B) || (S[i].B == S[j].A && S[i].A == S[j].B))
                     {
                         isTwice = true;
                         break;
@@ -153,9 +153,9 @@ public class DelaunayTriangulation
     }
 
     // Ajoute un point à l'ensemble des points existants
-    private List<Triangle> AddPoint(Vector3 point, List<Triangle> triangles)
+    private void AddPoint(Vector3 point, List<Triangle> triangles)
     {
-        Debug.Log("Avant L'ajout de point : " + triangles.Count);
+        //Debug.Log("Avant L'ajout de point : " + triangles.Count);
         // Suppression des triangles dont le cercle circonscrit contient p
         List<Triangle> trianglesContainers = FindTrianglesContainers(point, triangles);
 
@@ -170,10 +170,11 @@ public class DelaunayTriangulation
 
         foreach(Segment seg in segList)
         {
-            triangles.Add(BuildTriangle(seg.A, seg.B, point));
+            Triangle tri = BuildTriangle(seg.A, seg.B, point);
+            triangles.Add(tri);
         }
-        Debug.Log("Apres L'ajout de point : " + triangles.Count);
-        return triangles;
+        //Debug.Log("Apres L'ajout de point : " + triangles.Count);
+        //return triangles;
     }
 
     public List<Triangle> Triangulate(List<Vector3> points)
@@ -185,11 +186,11 @@ public class DelaunayTriangulation
 
         foreach(Vector3 point in points)
         {
-            triangles = AddPoint(point, triangles);
+            AddPoint(point, triangles);
         }
 
         List<Triangle> toRemoved = new List<Triangle>();
-
+        
         foreach(Vector3 vertex in initTriangle.vertices)
         {
             foreach(Triangle tri in triangles)
@@ -211,6 +212,10 @@ public class DelaunayTriangulation
 
     
 }
+
+/// <summary>
+/// http://wiki.unity3d.com/index.php?title=Triangulator&_ga=2.172830115.1260159605.1591280256-872917778.1591280256
+/// </summary>
 
 public class Triangulator
 {
@@ -274,7 +279,7 @@ public class Triangulator
             }
         }
 
-        indices.Reverse();
+        //indices.Reverse();
         return indices.ToArray();
     }
 
