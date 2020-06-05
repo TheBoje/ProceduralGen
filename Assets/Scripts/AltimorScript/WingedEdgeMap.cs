@@ -61,18 +61,6 @@ public class WingedEdgeMap : MonoBehaviour
         });
         
         
-        /*
-        Triangulator triangulator = new Triangulator(points);
-        int[] index2 = triangulator.Triangulate().Reverse().ToArray();
-        PrintArray(index2);
-        
-        ProBuilderMesh quad2 = ProBuilderMesh.Create(points,
-            new Face[] { new Face(triangulator.Triangulate().Reverse())
-        });
-
-        quad2.transform.position += Vector3.forward * 2;
-        */
-
         //quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, -4f);
 
 
