@@ -192,30 +192,26 @@ public class DelaunayTriangulation
         List<Triangle> triangles = new List<Triangle>();
         triangles.Add(initTriangle);
 
+        // On insère chaque points
         foreach(Vector3 point in points)
         {
             AddPoint(point, triangles);
         }
 
-        List<Triangle> toRemoved = new List<Triangle>();
+        List<Triangle> toRemoved = new List<Triangle>(triangles);
         
-        
+        // On retire les triangles qui ont un sommet en commum avec le super triangle 
         foreach(Vector3 vertex in initTriangle.vertices)
         {
-            foreach(Triangle tri in triangles)
+            foreach(Triangle tri in toRemoved)
             {
                 if(tri.vertices.Contains(vertex))
                 {
-                    toRemoved.Add(tri);
+                    triangles.Remove(tri);
                 }
             }
         }
 
-        foreach(Triangle tri in toRemoved)
-        {
-            triangles.Remove(tri);
-        }
-        
         return triangles;
     }
 }
