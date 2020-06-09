@@ -27,6 +27,25 @@ public class DelaunayTriangulation
         public Circle circumscribed;
     }
 
+    private float ComputeDeterminent(Vector3 u, Vector3 v)
+    {
+        return u.x * v.z - u.z * v.x;
+    }
+
+    // Vérifie si le point est dans le triangle (soit P un point et ABC un triangle, P est dans ABC si det(PA, PB), det(PB, PC) et det(PC, PA) sont du même signe (on ignore la composante en Y)
+    private bool IsInTriangle(Triangle triangle, Vector3 point)
+    {
+        Vector3 PA = triangle.vertices[0] - point;
+        Vector3 PB = triangle.vertices[1] - point;
+        Vector3 PC = triangle.vertices[2] - point;
+
+        float detPAPB = ComputeDeterminent(PA, PB);
+        float detPBPC = ComputeDeterminent(PB, PC);
+        float detPCPA = ComputeDeterminent(PC, PA);
+
+        return (detPAPB >= 0 && detPBPC >= 0 && detPCPA >= 0) || (detPAPB < 0 && detPBPC < 0 && detPCPA < 0);
+    }
+
 
     // Calcul le cercle circonscrit du triangle A, B, C
     private Circle ComputeCircumscribed(Vector3 a, Vector3 b, Vector3 c)
@@ -64,16 +83,7 @@ public class DelaunayTriangulation
     // Créer le premier triangle pour lancer la triangulisation
     private Triangle ComputeFirstTriangle(List<Vector3> points)
     {
-
-
-        if(points.Count < 3)
-        {
-            throw new Exception("Not enought points for triangulation");
-        }
-        else
-        {
-            return BuildTriangle(new Vector3(-2.5f, 0f, -0.5f), new Vector3(0.5f, 0f, 2.5f), new Vector3(5f, 0f, -0.5f));
-        }
+        return BuildTriangle(new Vector3(-2.5f, 0f, -0.5f), new Vector3(0.5f, 0f, 2.5f), new Vector3(5f, 0f, -0.5f)); // 
     }
 
     // Retourne un tableau des segments du triangle
@@ -188,6 +198,7 @@ public class DelaunayTriangulation
         }
 
         List<Triangle> toRemoved = new List<Triangle>();
+        
         
         foreach(Vector3 vertex in initTriangle.vertices)
         {

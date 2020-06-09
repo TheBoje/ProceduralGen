@@ -40,7 +40,7 @@ public class WingedEdgeMap : MonoBehaviour
     private void Start()
     {
         Vector3[] points = new Vector3[] {
-                            new Vector3(0f, 0f, 0f),
+                            new Vector3(0f, 0f, 0f), // 0
                             new Vector3(1f, 0f, 0f),
                             new Vector3(0f, 0f, 1f),
                             new Vector3(1f, 0f, 1f),
@@ -61,10 +61,10 @@ public class WingedEdgeMap : MonoBehaviour
         });
         
         
-        //quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, -4f);
+        quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, 4f);
 
 
-        /*
+        
         quad.Refresh();
 
         quad.ToMesh();
@@ -75,7 +75,7 @@ public class WingedEdgeMap : MonoBehaviour
 
         Debug.Log("Faces : " + quad.faceCount);
         Debug.Log("Edges : " + quad.edgeCount);
-        */
+        
         Debug.Log("finish");
     }
 
