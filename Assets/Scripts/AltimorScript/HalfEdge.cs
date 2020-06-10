@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class HalfEdge
 {
+    private int m_index;        // Index de la demi arête 
     private int m_next;         // Index de la demi arête suivante
     private int m_previous;     // Index de la demi arête précédente
     private int m_opposite;     // Index de la demi arête opposée
@@ -11,20 +12,33 @@ public class HalfEdge
     // Constructeurs
     public HalfEdge(int index, int indexPosition)
     {
+        m_index = index;
         m_next = index;
         m_previous = index;
         m_opposite = index;
         m_position = indexPosition;
     }
 
-    public HalfEdge(int next, int previous, int opposite, int indexPosition)
+    public HalfEdge(int index, int next, int previous, int opposite, int indexPosition)
     {
+        m_index = index;
         m_next = next;
         m_previous = previous;
         m_opposite = opposite;
         m_position = indexPosition;
     }
 
+    // Lie de demi-arêtes
+    public void LinkHalfEdgeToNext(int halfEdgeIndex)
+    {
+        m_next = halfEdgeIndex;
+
+        if (m_index == m_previous)
+            m_previous = halfEdgeIndex;
+    }
+
+
+    // PROPRIETES
     public int Next
     {
         get { return m_next; }
