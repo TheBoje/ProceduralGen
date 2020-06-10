@@ -3,5 +3,6 @@
     "files.exclude": {
         "**/*.cs.meta": true,
         "**/*.meta": true
-    }
+    },
+    "python.pythonPath": "C:\\Users\\Louis\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
 }
