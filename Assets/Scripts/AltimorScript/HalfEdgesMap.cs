@@ -9,7 +9,20 @@ public class HalfEdgesMap
     private List<HalfEdge> m_halfEdges;
     private List<Vector3> m_positions;
 
-    public void LinkTwoStrand(int indexStrand1, int indexStrand2)
+    private void AddIsolatedStrand(int indexPosition)
+    {
+        HalfEdge strand = new HalfEdge(m_halfEdges.Count, indexPosition);
+        m_halfEdges.Append(strand);
+    }
+
+    public void AddPoint(Vector3 position)
+    {
+        AddIsolatedStrand(m_positions.Count);
+        m_positions.Append(position);
+    }
+
+    // Cas précis où on ne relie que deux brins -- Faire une fonction plus générale pour l'ajout de brins
+    private void LinkTwoStrand(int indexStrand1, int indexStrand2)
     {
         m_halfEdges[indexStrand1].LinkStrandToNext(indexStrand2);
         m_halfEdges[indexStrand2].LinkStrandToPrevious(indexStrand1);
