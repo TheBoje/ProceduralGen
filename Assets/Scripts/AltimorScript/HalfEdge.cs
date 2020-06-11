@@ -29,14 +29,29 @@ public class HalfEdge
     }
 
     // Lie de demi-arêtes
-    public void LinkHalfEdgeToNext(int halfEdgeIndex)
+    public void LinkStrandToNext(int strandIndex)
     {
-        m_next = halfEdgeIndex;
+        m_next = strandIndex;
 
         if (m_index == m_previous)
-            m_previous = halfEdgeIndex;
+            m_previous = strandIndex;
     }
 
+    public void LinkStrandToPrevious(int strandIndex)
+    {
+        m_previous = strandIndex;
+
+        if (m_index == m_next)
+            m_next = strandIndex;
+    }
+
+    // Ecrase les attributs
+    public void SetHalfEdge(int next, int previous, int opposite)
+    {
+        m_next = next;
+        m_previous = previous;
+        m_opposite = opposite;
+    }
 
     // PROPRIETES
     public int Next
