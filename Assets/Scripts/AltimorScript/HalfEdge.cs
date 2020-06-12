@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class HalfEdge
 {
-    private int m_index;        // Index de la demi arête 
     private int m_next;         // Index de la demi arête suivante
     private int m_previous;     // Index de la demi arête précédente
     private int m_opposite;     // Index de la demi arête opposée
@@ -12,38 +11,20 @@ public class HalfEdge
     // Constructeurs
     public HalfEdge(int index, int indexPosition)
     {
-        m_index = index;
         m_next = index;
         m_previous = index;
         m_opposite = index;
         m_position = indexPosition;
     }
 
-    public HalfEdge(int index, int next, int previous, int opposite, int indexPosition)
+    public HalfEdge(int next, int previous, int opposite, int indexPosition)
     {
-        m_index = index;
         m_next = next;
         m_previous = previous;
         m_opposite = opposite;
         m_position = indexPosition;
     }
 
-    // Lie de demi-arêtes
-    public void LinkStrandToNext(int strandIndex)
-    {
-        m_next = strandIndex;
-
-        if (m_index == m_previous)
-            m_previous = strandIndex;
-    }
-
-    public void LinkStrandToPrevious(int strandIndex)
-    {
-        m_previous = strandIndex;
-
-        if (m_index == m_next)
-            m_next = strandIndex;
-    }
 
     // Ecrase les attributs
     public void SetHalfEdge(int next, int previous, int opposite)
@@ -53,12 +34,6 @@ public class HalfEdge
         m_opposite = opposite;
     }
 
-    // PROPRIETES
-    public int Index
-    {
-        get { return m_index; }
-        set { m_index = value; }
-    }
 
     public int Next
     {
