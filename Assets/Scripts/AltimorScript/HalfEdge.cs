@@ -54,6 +54,12 @@ public class HalfEdge
     }
 
     // PROPRIETES
+    public int Index
+    {
+        get { return m_index; }
+        set { m_index = value; }
+    }
+
     public int Next
     {
         get { return m_next; }

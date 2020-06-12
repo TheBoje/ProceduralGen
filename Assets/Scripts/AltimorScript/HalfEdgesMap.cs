@@ -9,10 +9,20 @@ public class HalfEdgesMap
     private List<HalfEdge> m_halfEdges;
     private List<Vector3> m_positions;
 
+    public void Init()
+    {
+        m_halfEdges = new List<HalfEdge>();
+        m_positions = new List<Vector3>();
+    }
     private void AddIsolatedStrand(int indexPosition)
     {
         HalfEdge strand = new HalfEdge(m_halfEdges.Count, indexPosition);
+        HalfEdge opposite = new HalfEdge(m_halfEdges.Count + 1, indexPosition);
+        opposite.Opposite = strand.Index;
+        strand.Opposite = opposite.Index;
         m_halfEdges.Add(strand);
+        m_halfEdges.Add(opposite);
+        
     }
 
     public void AddPoint(Vector3 position)
@@ -28,23 +38,13 @@ public class HalfEdgesMap
         m_halfEdges[indexStrand1].LinkStrandToNext(indexStrand2);
         m_halfEdges[indexStrand2].LinkStrandToPrevious(indexStrand1);
 
-        // On créer le brin opposé du brin 1
-        int oppositeStrandIndex1 = m_halfEdges.Count;
-        HalfEdge oppositeStrand1 = new HalfEdge(oppositeStrandIndex1, m_halfEdges[indexStrand2].Position);
-        m_halfEdges.Add(oppositeStrand1);
-
-        // On créer le brin opposé du brin 2
-        int oppositeStrandIndex2 = m_halfEdges.Count;
-        HalfEdge oppositeStrand2 = new HalfEdge(oppositeStrandIndex2, m_halfEdges[indexStrand1].Position);
-        m_halfEdges.Add(oppositeStrand2);
-
         // On insère les brins opposés dans les bons brins
-        m_halfEdges[indexStrand1].Opposite = oppositeStrandIndex1;
-        m_halfEdges[indexStrand2].Opposite = oppositeStrandIndex2;
+        int oppositeStrandIndex1 = m_halfEdges[indexStrand1].Opposite;
+        int oppositeStrandIndex2 = m_halfEdges[indexStrand2].Opposite;
 
         //                                              l'opposé du brin suivant du brin opposé             l'opposé du brin précédent du brin opposé                   le brin opposé
-        m_halfEdges[oppositeStrandIndex1].SetHalfEdge(m_halfEdges[m_halfEdges[indexStrand1].Next].Opposite, m_halfEdges[m_halfEdges[indexStrand1].Previous].Opposite, indexStrand1);
-        m_halfEdges[oppositeStrandIndex2].SetHalfEdge(m_halfEdges[m_halfEdges[indexStrand2].Next].Opposite, m_halfEdges[m_halfEdges[indexStrand2].Previous].Opposite, indexStrand2);
+        m_halfEdges[oppositeStrandIndex1].SetHalfEdge(oppositeStrandIndex2, oppositeStrandIndex2, indexStrand1);
+        m_halfEdges[oppositeStrandIndex2].SetHalfEdge(oppositeStrandIndex1, oppositeStrandIndex1, indexStrand2);
     }
 
     private void LinkThreeStrands(int indexMotherStrand, int nextStrand, int previousStrand)
