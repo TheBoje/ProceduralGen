@@ -53,6 +53,12 @@ public class HalfEdgesMap : MonoBehaviour
         m_halfEdges[oppNext].Next = oppIndex;
     }
 
+    // Relie deux brins isolés
+    public void LinkTwoDarts(int dart1, int dart2)
+    {
+        LinkDart(dart1, dart2, dart2);
+    }
+
 
 
 
