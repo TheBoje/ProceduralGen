@@ -30,11 +30,37 @@ public class HalfEdgesMap : MonoBehaviour
         
     }
 
+    // Ajoute un point à la carte (isolé dans la carte)
     public void AddPoint(Vector3 position)
     {
         AddIsolatedDart(m_positions.Count);
         m_positions.Add(position);
     }
+
+    // Relie un brin à deux autres
+    public void LinkDart(int index, int next, int previous)
+    {
+        int oppIndex = m_halfEdges[index].Opposite;
+        int oppNext = m_halfEdges[next].Opposite;
+        int oppPrevious = m_halfEdges[previous].Opposite;
+
+        m_halfEdges[index].SetHalfEdge(next, previous, oppIndex);
+
+        m_halfEdges[previous].Next = index;
+        m_halfEdges[oppPrevious].Previous = oppIndex;
+
+        m_halfEdges[next].Previous = index;
+        m_halfEdges[oppNext].Next = oppIndex;
+    }
+
+
+
+
+
+
+
+
+
 
     // Dessine une face à l'aide d'un Line renderer
     private List<int> ComputePointsFace(int firstEdge, List<HalfEdge> printList)
@@ -54,6 +80,7 @@ public class HalfEdgesMap : MonoBehaviour
         return indexPoints;
     }
 
+    // Dessine la carte
     public void DrawMap()
     {
         LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -62,7 +89,7 @@ public class HalfEdgesMap : MonoBehaviour
         lineRenderer.positionCount = m_halfEdges.Count;
 
         List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
-        List<List<int>> facesList = new List<List<int>>();
+        List<List<int>> facesList = new List<List<int>>(); // Liste des faces
 
         while(copy.Count > 0)
         {
@@ -128,51 +155,4 @@ public class HalfEdgesMap : MonoBehaviour
     {
         Demo();
     }
-
-    /*
-    // Cas précis où on ne relie que deux brins -- Faire une fonction plus générale pour l'ajout de brins
-    private void LinkTwoStrands(int indexStrand1, int indexStrand2) // Couture -> sew
-    {
-        m_halfEdges[indexStrand1].LinkStrandToNext(indexStrand2);
-        m_halfEdges[indexStrand2].LinkStrandToPrevious(indexStrand1);
-
-        // On insère les brins opposés dans les bons brins
-        int oppositeStrandIndex1 = m_halfEdges[indexStrand1].Opposite;
-        int oppositeStrandIndex2 = m_halfEdges[indexStrand2].Opposite;
-
-        //                                              l'opposé du brin suivant du brin opposé             l'opposé du brin précédent du brin opposé                   le brin opposé
-        m_halfEdges[oppositeStrandIndex1].SetHalfEdge(oppositeStrandIndex2, oppositeStrandIndex2, indexStrand1);
-        m_halfEdges[oppositeStrandIndex2].SetHalfEdge(oppositeStrandIndex1, oppositeStrandIndex1, indexStrand2);
-    }
-
-    private void LinkThreeStrands(int indexMotherStrand, int nextStrand, int previousStrand)
-    {
-        m_halfEdges[indexMotherStrand].LinkStrandToNext(nextStrand);
-        m_halfEdges[indexMotherStrand].LinkStrandToPrevious(previousStrand);
-
-        m_halfEdges[nextStrand].LinkStrandToPrevious(indexMotherStrand);
-        m_halfEdges[previousStrand].LinkStrandToNext(indexMotherStrand);
-
-        int oppositeNextStrandIndex = m_halfEdges.Count;
-        HalfEdge oppositeNextStrand = new HalfEdge(oppositeNextStrandIndex, 
-            m_halfEdges[previousStrand].Opposite, 
-            m_halfEdges[nextStrand].Opposite,
-            nextStrand, 
-            m_halfEdges[nextStrand].Position);
-
-        m_halfEdges.Add(oppositeNextStrand);
-
-        m_halfEdges[m_halfEdges[nextStrand].Opposite].Next = oppositeNextStrandIndex;
-        m_halfEdges[m_halfEdges[previousStrand].Opposite].Previous = oppositeNextStrandIndex;
-    }
-
-    // lie trois brins les uns aux autres
-    public void linkStrand(int indexStrandToLink, int nextStrand, int previousStrand)
-    {
-        if (nextStrand == previousStrand)
-            LinkTwoStrands(indexStrandToLink, nextStrand);
-        else
-            LinkThreeStrands(indexStrandToLink, nextStrand, previousStrand);
-    }
-    */
 }
