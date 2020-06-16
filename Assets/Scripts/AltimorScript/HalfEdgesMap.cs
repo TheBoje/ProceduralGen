@@ -102,7 +102,7 @@ public class HalfEdgesMap : MonoBehaviour
             previous = maxAngleIndex;
         }
 
-        return previous;
+        return m_halfEdges[previous].Previous;
     }
 
 
@@ -226,31 +226,33 @@ public class HalfEdgesMap : MonoBehaviour
         m_positions.Add(new Vector3(20f, 0f, 0f));
 
         // Face 1
-        HalfEdge dart1 = new HalfEdge(1, 2, 3, 0); // 0
+        HalfEdge dart0 = new HalfEdge(1, 3, 4, 0);
+        m_halfEdges.Add(dart0);
+
+        HalfEdge dart1 = new HalfEdge(2, 0, 5, 1);
         m_halfEdges.Add(dart1);
-        HalfEdge dart2 = new HalfEdge(2, 0, 4, 1); // 1
+
+        HalfEdge dart2 = new HalfEdge(3, 1, 6, 2);
         m_halfEdges.Add(dart2);
-        HalfEdge dart3 = new HalfEdge(0, 1, 5, 2); // 2
+
+        HalfEdge dart3 = new HalfEdge(0, 2, 7, 3);
         m_halfEdges.Add(dart3);
 
-        HalfEdge opp1 = new HalfEdge(9, 4, 0, 1);  // 3
-        m_halfEdges.Add(opp1);
-        HalfEdge opp2 = new HalfEdge(3, 8, 1, 2);  // 4
-        m_halfEdges.Add(opp2);
-        HalfEdge opp3 = new HalfEdge(6, 7, 2, 0);  // 5
-        m_halfEdges.Add(opp3);
+        HalfEdge dart4 = new HalfEdge(7, 5, 0, 1);
+        m_halfEdges.Add(dart4);
 
-        // Face 2
-        HalfEdge dart12 = new HalfEdge(7, 5, 8, 2); // 6
-        m_halfEdges.Add(dart12);
-        HalfEdge dart22 = new HalfEdge(5, 6, 9, 3); // 7
-        m_halfEdges.Add(dart22);
+        HalfEdge dart5 = new HalfEdge(4, 6, 1, 2);
+        m_halfEdges.Add(dart5);
 
-        HalfEdge opp12 = new HalfEdge(4, 9, 6, 3);  // 8
-        m_halfEdges.Add(opp12);
-        HalfEdge opp22 = new HalfEdge(8, 3, 7, 0);  // 9
-        m_halfEdges.Add(opp22);
+        HalfEdge dart6 = new HalfEdge(5, 7, 2, 3);
+        m_halfEdges.Add(dart6);
 
+        HalfEdge dart7 = new HalfEdge(6, 4, 3, 0);
+        m_halfEdges.Add(dart7);
+
+        Debug.Log(m_halfEdges.Count);
+        LinkTwoPoints(2, 0);
+        Debug.Log(m_halfEdges.Count);
 
         //DrawMap();
     }
