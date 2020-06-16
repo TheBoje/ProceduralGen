@@ -34,6 +34,11 @@ public class HalfEdge
         m_opposite = opposite;
     }
 
+    // Retourne vrai si le brin est dégénéré
+    public bool IsDegenerated(int index)
+    {
+        return (m_next == index && index == m_previous);
+    }
 
     public int Next
     {
@@ -58,4 +63,5 @@ public class HalfEdge
         get { return m_position; }
         set { m_position = value; }
     }
+
 }

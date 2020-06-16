@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
 using UnityEngine;
@@ -37,28 +38,102 @@ public class HalfEdgesMap : MonoBehaviour
         m_positions.Add(position);
     }
 
+    // Retourne l'index d'un brin lié au point passé en paramètre
+    private int IndexOfDartByPoint(int pointIndex)
+    {
+        for(int i = 0; i < m_halfEdges.Count; i++)
+        {
+            if (m_halfEdges[i].Position == pointIndex)
+                return i;
+        }
+
+        return -1;
+    }
+
+    // Retourne le brin du point suivant
+    public int NextDartOnPoint(int dart)
+    {
+        return m_halfEdges[m_halfEdges[dart].Opposite].Next;
+    }
+
+    // Calcul l'angle sur l'axe des Y : retourne l'angle en degré
+    private float ComputeAngle(Vector3 from, Vector3 to)
+    {
+        return Vector3.Angle(new Vector3(from.x, 0f, from.z), new Vector3(to.x, 0f, to.z));
+    }
+
+    // Calcul les angles par rapport à l'horizontal pour trouver entre quel et quel brin nous devons mettre le nouveau brin : retourne le futur suivant (de pos1 vers pos2)
+    private int ComputePreviousDart(int pos1, int pos2)
+    {
+        int previous = IndexOfDartByPoint(pos1); // Index du brin qui précèdera le prin allant de pos1 à pos2
+        int maxAngleIndex = previous; // Index du brin formant l'angle maximum par rapport à l'horizontal
+        int currentIndex = previous; // Index étant en train d'être étudié
+        int firstIndex = previous; // premier index étudié
+
+        // On calcul l'angle du vecteur par rapport à l'horizontal pour pouvoir le classer par rapport aux autres brins issus du point pos1
+        float angle = ComputeAngle(m_positions[pos2] - m_positions[pos1], Vector3.forward);
+        float maxAngle = angle;
+        float minAngle = angle;
+
+        while(firstIndex != currentIndex)
+        {
+            float currentAngle = ComputeAngle(m_positions[m_halfEdges[m_halfEdges[currentIndex].Opposite].Position] - m_positions[m_halfEdges[currentIndex].Position], Vector3.forward);
+            if (angle > currentAngle)
+            {
+                previous = currentIndex;
+            }
+
+            if(maxAngle < currentAngle)
+            {
+                maxAngle = currentAngle;
+                maxAngleIndex = currentIndex;
+            }
+
+            if (minAngle > currentAngle)
+            {
+                minAngle = currentAngle;
+            }
+        }
+
+        if (minAngle == angle)
+        {
+            previous = maxAngleIndex;
+        }
+
+        return previous;
+    }
+
+
+
     // Relie un brin à deux autres
-    public void LinkDart(int index, int next, int previous)
+    private void LinkDart(int previousA, int previousB, int A, int B)
     {
-        int oppIndex = m_halfEdges[index].Opposite;
-        int oppNext = m_halfEdges[next].Opposite;
-        int oppPrevious = m_halfEdges[previous].Opposite;
+        int indexAB = m_halfEdges.Count;
+        int indexBA = m_halfEdges.Count + 1;
 
-        m_halfEdges[index].SetHalfEdge(next, previous, oppIndex);
+        // de A vers B
+        HalfEdge AB = new HalfEdge(m_halfEdges[previousB].Next, previousA, indexBA, A);
+        m_halfEdges.Add(AB);
 
-        m_halfEdges[previous].Next = index;
-        m_halfEdges[oppPrevious].Previous = oppIndex;
+        // De B vers A
+        HalfEdge BA = new HalfEdge(m_halfEdges[previousA].Next, previousB, indexAB, B);
+        m_halfEdges.Add(BA);
 
-        m_halfEdges[next].Previous = index;
-        m_halfEdges[oppNext].Next = oppIndex;
+        m_halfEdges[m_halfEdges[previousA].Next].Previous = indexBA;
+        m_halfEdges[m_halfEdges[previousB].Next].Previous = indexAB;
+
+        m_halfEdges[previousA].Next = indexAB;
+        m_halfEdges[previousB].Next = indexBA;        
     }
 
-    // Relie deux brins isolés
-    public void LinkTwoDarts(int dart1, int dart2)
+    // Relie deux points en prenant leurs position en paramètre
+    private void LinkTwoPoints(int A, int B)
     {
-        LinkDart(dart1, dart2, dart2);
-    }
+        int previousA = ComputePreviousDart(A, B);
+        int previousB = ComputePreviousDart(B, A);
 
+        LinkDart(previousA, previousB, A, B);
+    }
 
 
 
