@@ -200,13 +200,14 @@ public class HalfEdgesMap : MonoBehaviour
             facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
         }
 
-        GL.Begin(GL.LINE_STRIP);
+        GL.Begin(GL.LINES);
 
-        foreach(List<int> faces in facesList)
+        for(int i = 0; i < facesList.Count; i++)
         {
-            foreach(int point in faces)
+            for(int j = 1; j < facesList[i].Count; j++)
             {
-                GL.Vertex3(m_positions[point].x, m_positions[point].y, m_positions[point].z);
+                GL.Vertex3(m_positions[facesList[i][j - 1]].x, m_positions[facesList[i][j - 1]].y, m_positions[facesList[i][j - 1]].z);
+                GL.Vertex3(m_positions[facesList[i][j]].x, m_positions[facesList[i][j]].y, m_positions[facesList[i][j]].z);
             }
         }
 
@@ -251,7 +252,7 @@ public class HalfEdgesMap : MonoBehaviour
         m_halfEdges.Add(opp22);
 
 
-        DrawMap();
+        //DrawMap();
     }
 
     private void Start()
