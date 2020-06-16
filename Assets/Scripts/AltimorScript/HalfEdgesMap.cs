@@ -13,6 +13,8 @@ public class HalfEdgesMap : MonoBehaviour
 {
     private List<HalfEdge> m_halfEdges;
     private List<Vector3> m_positions;
+    static Material lineMaterial; // utilisé pour afficher le debug
+
 
     public void Init()
     {
@@ -161,13 +163,34 @@ public class HalfEdgesMap : MonoBehaviour
         return indexPoints;
     }
 
-    // Dessine la carte
-    public void DrawMap()
+
+
+    static void CreateLineMaterial()
     {
-        LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.widthMultiplier = 0.2f;
-        lineRenderer.positionCount = m_halfEdges.Count;
+        if (!lineMaterial)
+        {
+            // Unity has a built-in shader that is useful for drawing
+            // simple colored things.
+            Shader shader = Shader.Find("Hidden/Internal-Colored");
+            lineMaterial = new Material(shader);
+            lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+            // Turn on alpha blending
+            lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            // Turn backface culling off
+            lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            // Turn off depth writes
+            lineMaterial.SetInt("_ZWrite", 0);
+        }
+    }
+
+    // Dessine la carte
+    public void OnRenderObject()
+    {
+        CreateLineMaterial();
+        lineMaterial.SetPass(0);
+        GL.PushMatrix();
+        GL.MultMatrix(transform.localToWorldMatrix);
 
         List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
         List<List<int>> facesList = new List<List<int>>(); // Liste des faces
@@ -177,19 +200,18 @@ public class HalfEdgesMap : MonoBehaviour
             facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
         }
 
-        int i = 0;
-        int face = 0;
+        GL.Begin(GL.LINE_STRIP);
 
-        while (i < lineRenderer.positionCount)
+        foreach(List<int> faces in facesList)
         {
-            for (int vertex = 0; vertex < facesList[face].Count; vertex++)
+            foreach(int point in faces)
             {
-                lineRenderer.SetPosition(i, m_positions[facesList[face][vertex]]);
-                i++;
+                GL.Vertex3(m_positions[point].x, m_positions[point].y, m_positions[point].z);
             }
-            face++;
         }
-        
+
+        GL.End();
+        GL.PopMatrix();
 
     }
 
