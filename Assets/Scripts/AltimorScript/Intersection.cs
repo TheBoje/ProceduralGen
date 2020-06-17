@@ -19,6 +19,7 @@ public class Intersection
     private List<Neighbour> m_neighbours;   // Liste des voisins des l'intersection
     private Vector3 m_position;             // Position dans l'espace de l'intersection 
     private Vector2Int m_coordonates;       // Coordonnées dans le tableau
+    private int m_indexInMap;
 
     // CONSTRUCTEUR 
     public Intersection(Vector3 position, Vector2Int coords)
@@ -183,5 +184,11 @@ public class Intersection
     {
         get { return m_coordonates; }
         set { m_coordonates = value; }
+    }
+
+    public int IndexInMap
+    {
+        get { return m_indexInMap; }
+        set { m_indexInMap = value; }
     }
 }
