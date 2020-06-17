@@ -220,8 +220,18 @@ public class HalfEdgesMap : MonoBehaviour
         }
     }
 
+
+
+
+
+
+
+
+
+
+
     // Dessine une face à l'aide d'un Line renderer
-    private List<int> ComputePointsFace(int firstEdge, List<HalfEdge> printList)
+    private List<int> ComputePointsFace(int firstEdge, List<HalfEdge> halfEdges)
     {
         int currentIndex = firstEdge;
         List<int> indexPoints = new List<int>();
@@ -232,7 +242,7 @@ public class HalfEdgesMap : MonoBehaviour
         {
             currentIndex = m_halfEdges[currentIndex].Next;
             indexPoints.Add(m_halfEdges[currentIndex].Position);
-            printList.Remove(m_halfEdges[currentIndex]);
+            halfEdges.Remove(m_halfEdges[currentIndex]);
         } while (currentIndex != firstEdge);
 
         return indexPoints;
@@ -295,14 +305,14 @@ public class HalfEdgesMap : MonoBehaviour
     {
         Init();
 
-        m_positions.Add(new Vector3(0f, 0f, 0f));
-        m_positions.Add(new Vector3(0f, 0f, 10f));
+        m_positions.Add(new Vector3(0f, 3f, 0f));
+        m_positions.Add(new Vector3(0f, 7f, 10f));
         m_positions.Add(new Vector3(10f, 0f, 5f));
         m_positions.Add(new Vector3(20f, 0f, 0f));
-        m_positions.Add(new Vector3(20f, 0f, 10f));
+        m_positions.Add(new Vector3(20f, 4f, 10f));
         m_positions.Add(new Vector3(15f, 0f, 10f));
         m_positions.Add(new Vector3(5f, 0f, 10f));
-        m_positions.Add(new Vector3(10f, 0f, 10f));
+        m_positions.Add(new Vector3(10f, 9f, 10f));
         
 
         // Face 1
@@ -352,7 +362,6 @@ public class HalfEdgesMap : MonoBehaviour
         Debug.Log("Avant LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
         LinkTwoPoints(6, 7);
         Debug.Log("Apres LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
-
 
 
         //DrawMap();

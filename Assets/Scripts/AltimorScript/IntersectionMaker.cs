@@ -8,6 +8,7 @@ public class IntersectionMaker : MonoBehaviour
     private List<Intersection> m_intersections;
     private PoissonSampling m_poissonScript;
     private Intersection[,] m_poissonGrid;
+    private HalfEdgesMap m_halfEdgeMap;
 
 
     // Créer un tableau à deux dimensions d'intersections
