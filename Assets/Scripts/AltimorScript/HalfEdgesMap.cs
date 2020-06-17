@@ -22,6 +22,18 @@ public class HalfEdgesMap : MonoBehaviour
         m_positions = new List<Vector3>();
     }
 
+    // Ajoute une positions
+    public void AddPosition(Vector3 position)
+    {
+        m_positions.Add(position);
+    }
+
+    // Nombre de positions
+    public int PositionsCount()
+    {
+        return m_positions.Count;
+    }
+
     //  
     private void AddIsolatedDart(int indexPosition)
     {
@@ -178,7 +190,7 @@ public class HalfEdgesMap : MonoBehaviour
     }
 
     // Relie deux points en prenant leurs position en paramètre
-    private void LinkTwoPoints(int A, int B)
+    public void LinkTwoPoints(int A, int B)
     {
         int firstPreviousA = IndexOfDartByPoint(A);
         int firstPreviousB = IndexOfDartByPoint(B);
@@ -220,7 +232,11 @@ public class HalfEdgesMap : MonoBehaviour
         }
     }
 
-
+    // Extrude un point
+    private void ExtrudeEdge(int point, float height)
+    {
+        
+    }
 
 
 
@@ -270,7 +286,7 @@ public class HalfEdgesMap : MonoBehaviour
     }
 
     // Dessine la carte
-    public void OnRenderObject()
+    private void OnRenderObject()
     {
         CreateLineMaterial();
         lineMaterial.SetPass(0);
@@ -369,6 +385,6 @@ public class HalfEdgesMap : MonoBehaviour
 
     private void Start()
     {
-        Demo();
+
     }
 }
