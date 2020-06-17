@@ -299,6 +299,11 @@ public class HalfEdgesMap : MonoBehaviour
         m_positions.Add(new Vector3(0f, 0f, 10f));
         m_positions.Add(new Vector3(10f, 0f, 5f));
         m_positions.Add(new Vector3(20f, 0f, 0f));
+        m_positions.Add(new Vector3(20f, 0f, 10f));
+        m_positions.Add(new Vector3(15f, 0f, 10f));
+        m_positions.Add(new Vector3(5f, 0f, 10f));
+        m_positions.Add(new Vector3(10f, 0f, 10f));
+        
 
         // Face 1
         HalfEdge dart0 = new HalfEdge(1, 3, 4, 0);
@@ -325,9 +330,30 @@ public class HalfEdgesMap : MonoBehaviour
         HalfEdge dart7 = new HalfEdge(6, 4, 3, 0);
         m_halfEdges.Add(dart7);
 
-        Debug.Log(m_halfEdges.Count);
+        // dégénéré
+        HalfEdge dart8 = new HalfEdge(8, 8, 9, 5);
+        m_halfEdges.Add(dart8);
+
+        HalfEdge dart9 = new HalfEdge(9, 9, 8, 5);
+        m_halfEdges.Add(dart9);
+
+        Debug.Log("Avant LinkTwoPoints(2, 0); : " + m_halfEdges.Count);
         LinkTwoPoints(2, 0);
-        Debug.Log(m_halfEdges.Count);
+        Debug.Log("Apres LinkTwoPoints(2, 0); : " + m_halfEdges.Count);
+
+        Debug.Log("Avant LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
+        LinkTwoPoints(3, 4);
+        Debug.Log("Apres LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
+
+        Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
+        LinkTwoPoints(5, 2);
+        Debug.Log("Apres LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
+
+        Debug.Log("Avant LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
+        LinkTwoPoints(6, 7);
+        Debug.Log("Apres LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
+
+
 
         //DrawMap();
     }
