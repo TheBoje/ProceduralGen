@@ -34,6 +34,11 @@ public class HalfEdgesMap : MonoBehaviour
         return m_positions.Count;
     }
 
+    public int HalfEdgeCount()
+    {
+        return m_halfEdges.Count;
+    }
+
     //  
     private void AddIsolatedDart(int indexPosition)
     {
@@ -48,7 +53,7 @@ public class HalfEdgesMap : MonoBehaviour
     // Ajoute un point à la carte (isolé dans la carte)
     public void AddPoint(Vector3 position)
     {
-        AddIsolatedDart(m_positions.Count);
+        //AddIsolatedDart(m_positions.Count);
         m_positions.Add(position);
     }
 
@@ -194,13 +199,14 @@ public class HalfEdgesMap : MonoBehaviour
     {
         int firstPreviousA = IndexOfDartByPoint(A);
         int firstPreviousB = IndexOfDartByPoint(B);
+        Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
         
-        if(firstPreviousA > 0 && firstPreviousB < 0) // si le point B n'a pas de brins
+        if(firstPreviousA >= 0 && firstPreviousB < 0) // si le point B n'a pas de brins
         {
             int previousA = ComputePreviousDart(firstPreviousA, A, B);
             LinkPointToDart(previousA, B);
         }
-        else if(firstPreviousA < 0 && firstPreviousB > 0) // si le point A n'a pas de brins
+        else if(firstPreviousA < 0 && firstPreviousB >= 0) // si le point A n'a pas de brins
         {
             int previousB = ComputePreviousDart(firstPreviousB, B, A);
             LinkPointToDart(previousB, A);
