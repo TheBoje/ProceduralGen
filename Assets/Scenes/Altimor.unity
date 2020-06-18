@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomSeed: 2
-  rayonPoisson: 20
+  rayonPoisson: 10
   iterations: 100
   dimension: 2
   rangeX: 100
@@ -399,7 +399,7 @@ GameObject:
   - component: {fileID: 1453131263}
   - component: {fileID: 1453131262}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: HalfEdge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

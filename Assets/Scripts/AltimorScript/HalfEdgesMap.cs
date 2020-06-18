@@ -238,19 +238,6 @@ public class HalfEdgesMap : MonoBehaviour
         }
     }
 
-    // Extrude un point
-    private void ExtrudeEdge(int point, float height)
-    {
-        
-    }
-
-
-
-
-
-
-
-
 
     // Dessine une face à l'aide d'un Line renderer
     private List<int> ComputePointsFace(int firstEdge, List<HalfEdge> halfEdges)

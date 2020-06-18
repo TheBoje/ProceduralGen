@@ -63,11 +63,11 @@ public class IntersectionMaker : MonoBehaviour
                         }
                     }
 
-                    if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
-                        break;
+                    /*if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                        break;*/
                 }
-                if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
-                    break;
+                /*if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                    break;*/
             }
             length++;
         }
@@ -171,7 +171,7 @@ public class IntersectionMaker : MonoBehaviour
                             m_halfEdgeMap.LinkTwoPoints(m_poissonGrid[i, j].IndexInMap, m_poissonGrid[coords.x, coords.y].IndexInMap);
 
                             // Relie les routes entre les bordures de l'intersection
-                            //GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
+                            GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
 
                         }
                     }
