@@ -7,11 +7,11 @@ using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.ProBuilder.MeshOperations;
 
-public class WingedEdgeMap : MonoBehaviour
+public class WingedEdgeMap
 {
     public Material mat;
 
-    private int[] GetIndexesInOrder(List<DelaunayTriangulation.Triangle> triangles, List<Vector3> points)
+    public int[] GetIndexesInOrder(List<DelaunayTriangulation.Triangle> triangles, List<Vector3> points)
     {
         List<int> indexes = new List<int>();
 
@@ -37,7 +37,7 @@ public class WingedEdgeMap : MonoBehaviour
     }
 
 
-    private void Start()
+    /*private void Start()
     {
         Vector3[] points = new Vector3[] {
                             new Vector3(0f, 0f, 0f), // 0
@@ -77,7 +77,7 @@ public class WingedEdgeMap : MonoBehaviour
         Debug.Log("Edges : " + quad.edgeCount);
         
         Debug.Log("finish");
-    }
+    }*/
 
 
 

@@ -6,32 +6,21 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 
 // Créer un triangle isolé
 
 public class HalfEdgesMap : MonoBehaviour
 {
     private List<HalfEdge> m_halfEdges;
-    private List<Vector3> m_positions;
     static Material lineMaterial; // utilisé pour afficher le debug
+    public Material mat;
+
 
 
     public void Init()
     {
         m_halfEdges = new List<HalfEdge>();
-        m_positions = new List<Vector3>();
-    }
-
-    // Ajoute une positions
-    public void AddPosition(Vector3 position)
-    {
-        m_positions.Add(position);
-    }
-
-    // Nombre de positions
-    public int PositionsCount()
-    {
-        return m_positions.Count;
     }
 
     public int HalfEdgeCount()
@@ -42,11 +31,7 @@ public class HalfEdgesMap : MonoBehaviour
     //  
     private void AddIsolatedDart(int indexPosition)
     {
-        // TODO Le créer directement opposés
-        HalfEdge dart = new HalfEdge(m_halfEdges.Count, m_halfEdges.Count, m_halfEdges.Count + 1, indexPosition);
-        m_halfEdges.Add(dart);
-        HalfEdge opposite = new HalfEdge(m_halfEdges.Count, m_halfEdges.Count, m_halfEdges.Count - 1, indexPosition);
-        m_halfEdges.Add(opposite);
+        
         
     }
 
@@ -199,7 +184,7 @@ public class HalfEdgesMap : MonoBehaviour
     {
         int firstPreviousA = IndexOfDartByPoint(A);
         int firstPreviousB = IndexOfDartByPoint(B);
-        Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
+        //Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
         
         if(firstPreviousA >= 0 && firstPreviousB < 0) // si le point B n'a pas de brins
         {
@@ -258,6 +243,81 @@ public class HalfEdgesMap : MonoBehaviour
     }
 
 
+    public int[] GetIndexesInOrder(List<DelaunayTriangulation.Triangle> triangles, List<Vector3> points)
+    {
+        List<int> indexes = new List<int>();
+
+        foreach (DelaunayTriangulation.Triangle tri in triangles)
+        {
+            foreach (Vector3 point in tri.vertices)
+            {
+                indexes.Add(points.IndexOf(point));
+            }
+        }
+
+        return indexes.ToArray();
+    }
+
+    // Extrusion
+    private void ExtrudeFace(List<Vector3> points, float height)
+    {
+        DelaunayTriangulation delaunayTriangulation = new DelaunayTriangulation();
+        List<DelaunayTriangulation.Triangle> triangles = delaunayTriangulation.Triangulate(points);
+        Debug.Log(triangles.Count);
+        int[] index = GetIndexesInOrder(triangles, points);
+
+
+        //Debug.Log(GetIndexesInOrder(triangles, points.ToList()));
+
+        ProBuilderMesh quad = ProBuilderMesh.Create(points.ToArray(),
+            new Face[] { new Face(index)
+        });
+
+        quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, 4f);
+
+
+
+        quad.Refresh();
+
+        quad.ToMesh();
+        quad.GetComponent<MeshRenderer>().material = mat;
+    }
+
+    // Extrusion de toutes les faces
+    public void ExtrudeFaces(List<List<int>> facesList)
+    {
+        foreach(List<int> face in facesList)
+        {
+            List<Vector3> points = new List<Vector3>();
+            foreach(int i in face)
+            {
+                points.Add(new Vector3(m_positions[i].x, 0f, m_positions[i].z));
+            }
+            ExtrudeFace(points, Random.Range(2f, 5f));
+        }
+    }
+
+    // 
+    public void GlobalExtrusion()
+    {
+        List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
+        List<List<int>> facesList = new List<List<int>>(); // Liste des faces
+
+        while (copy.Count > 0)
+        {
+            facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
+        }
+
+        Debug.Log("NB Faces : " + facesList.Count);
+        //ExtrudeFaces(facesList);
+    }
+
+
+
+
+
+
+
 
     static void CreateLineMaterial()
     {
@@ -293,6 +353,8 @@ public class HalfEdgesMap : MonoBehaviour
         {
             facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
         }
+
+        Debug.Log("NB Faces : " + facesList.Count);
 
         GL.Begin(GL.LINES);
 
@@ -350,34 +412,31 @@ public class HalfEdgesMap : MonoBehaviour
         m_halfEdges.Add(dart7);
 
         // dégénéré
-        HalfEdge dart8 = new HalfEdge(8, 8, 9, 5);
+        /*HalfEdge dart8 = new HalfEdge(8, 8, 9, 5);
         m_halfEdges.Add(dart8);
 
         HalfEdge dart9 = new HalfEdge(9, 9, 8, 5);
-        m_halfEdges.Add(dart9);
+        m_halfEdges.Add(dart9);*/
 
+        
         Debug.Log("Avant LinkTwoPoints(2, 0); : " + m_halfEdges.Count);
         LinkTwoPoints(2, 0);
         Debug.Log("Apres LinkTwoPoints(2, 0); : " + m_halfEdges.Count);
 
-        Debug.Log("Avant LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
+        /*Debug.Log("Avant LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
         LinkTwoPoints(3, 4);
         Debug.Log("Apres LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
 
-        Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
+        /*Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         LinkTwoPoints(5, 2);
         Debug.Log("Apres LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
+        */
 
-        Debug.Log("Avant LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
-        LinkTwoPoints(6, 7);
-        Debug.Log("Apres LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
-
-
-        //DrawMap();
     }
 
     private void Start()
     {
 
+        Demo();
     }
 }

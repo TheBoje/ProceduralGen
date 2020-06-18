@@ -1,15 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class HalfEdge
 {
-    private int m_next;         // Index de la demi arête suivante
-    private int m_previous;     // Index de la demi arête précédente
-    private int m_opposite;     // Index de la demi arête opposée
-    private int m_position;     // Index du plongement correspondant à la position (Vector3)
+    private HalfEdge m_next;         // Index de la demi arête suivante
+    private HalfEdge m_previous;     // Index de la demi arête précédente
+    private HalfEdge m_opposite;     // Index de la demi arête opposée
+    private Vector3 m_position;     // Index du plongement correspondant à la position (Vector3)
 
     // Constructeurs
-    public HalfEdge(int next, int previous, int opposite, int indexPosition)
+    public HalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, Vector3 indexPosition)
     {
         m_next = next;
         m_previous = previous;
@@ -19,7 +20,7 @@ public class HalfEdge
 
 
     // Ecrase les attributs
-    public void SetHalfEdge(int next, int previous, int opposite)
+    public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite)
     {
         m_next = next;
         m_previous = previous;
@@ -27,30 +28,30 @@ public class HalfEdge
     }
 
     // Retourne vrai si le brin est dégénéré
-    public bool IsDegenerated(int index)
+    public bool IsDegenerated(HalfEdge index)
     {
         return (m_next == index && index == m_previous);
     }
 
-    public int Next
+    public HalfEdge Next
     {
         get { return m_next; }
         set { m_next = value; }
     }
 
-    public int Previous
+    public HalfEdge Previous
     {
         get { return m_previous; }
         set { m_previous = value; }
     }
 
-    public int Opposite
+    public HalfEdge Opposite
     {
         get { return m_opposite; }
         set { m_opposite = value; }
     }
 
-    public int Position
+    public Vector3 Position
     {
         get { return m_position; }
         set { m_position = value; }

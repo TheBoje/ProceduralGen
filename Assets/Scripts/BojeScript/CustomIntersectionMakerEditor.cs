@@ -15,6 +15,7 @@ public class CustomIntersectionMakerEditor : Editor
         // Recuperation des differents scripts 
         PoissonSampling poissonScript = (PoissonSampling)GameObject.Find("GenManager").GetComponent<PoissonSampling>();
         Town townScript = (Town)GameObject.Find("GenManager").GetComponent<Town>();
+        HalfEdgesMap halfEdgesMap = (HalfEdgesMap)GameObject.Find("HalfEdge").GetComponent<HalfEdgesMap>();
         IntersectionMaker intersectionScript = (IntersectionMaker)target;
         // Chaque condition dessine un bouton execute le code mis en <then>
         if (GUILayout.Button("Generate Roads"))
@@ -39,6 +40,11 @@ public class CustomIntersectionMakerEditor : Editor
         if(GUILayout.Button("Add Houses"))
         {
             townScript.BuildTown();
+        }
+
+        if(GUILayout.Button("Extrude Houses"))
+        {
+            halfEdgesMap.GlobalExtrusion();
         }
     }
 }

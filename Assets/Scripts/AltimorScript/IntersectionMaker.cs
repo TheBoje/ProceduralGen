@@ -134,20 +134,6 @@ public class IntersectionMaker : MonoBehaviour
         if (delTriangles)
             this.DelTriangles();
 
-        for (int i = 0; i < m_poissonScript.getRowSize; i++)
-        {
-            for (int j = 0; j < m_poissonScript.getColSize; j++)
-            {
-                if (m_poissonGrid[i, j] != null)
-                {
-                    m_poissonGrid[i, j].IndexInMap = m_halfEdgeMap.PositionsCount();
-                    m_halfEdgeMap.AddPoint(m_poissonGrid[i, j].position);     
-                }
-            }
-        }
-
-        Debug.Log("Position Count : " + m_halfEdgeMap.PositionsCount());
-        Debug.Log("HalfEdges Count : " + m_halfEdgeMap.HalfEdgeCount());
 
         for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
@@ -167,8 +153,7 @@ public class IntersectionMaker : MonoBehaviour
                             // Pour passer à la grille en 1 dimension -> j * maxI + i
 
                             int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
-                            Debug.Log("HalfEdges ind : " + m_poissonGrid[i, j].IndexInMap);
-                            m_halfEdgeMap.LinkTwoPoints(m_poissonGrid[i, j].IndexInMap, m_poissonGrid[coords.x, coords.y].IndexInMap);
+                            //Debug.Log("HalfEdges ind : " + m_poissonGrid[i, j].IndexInMap);
 
                             // Relie les routes entre les bordures de l'intersection
                             GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
