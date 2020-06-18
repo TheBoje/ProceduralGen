@@ -20,7 +20,7 @@ public class PoissonSampling : MonoBehaviour
     // Git master is working aswell ? 
     [SerializeField]
     [Tooltip("Nombre d'essais par nouveau point")]
-    private int iterations = 100;
+    private int maxIteration = 10;
 
     [SerializeField]
     [Range(2, 2)]
@@ -53,6 +53,17 @@ public class PoissonSampling : MonoBehaviour
     [Range(0f, 10f)]
     [Tooltip("Taille du masque de bruit de Perlin")]
     public float perlinScale = 2f;
+
+    [Header("Domaine Settings")]
+
+    [SerializeField]
+    [Tooltip("Active le domaine")]
+    private bool domaineEnable = true;
+
+    [SerializeField]
+    [Tooltip("Rayon du cercle incluant les points")]
+    private float domaineSize = 100f;
+
 
     [Header("Display Settings")]
 
@@ -130,6 +141,8 @@ public class PoissonSampling : MonoBehaviour
         Vector3 newPos = new Vector3();
         // Point pioché dans la liste active
         Vector3 activePos = new Vector3();
+        // Point représentant le milieu de la zone de Poisson, centre du cercle du domaine
+        Vector3 middlePoint = new Vector3(rangeX / 2, 0, rangeZ / 2);
 
         // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
         randGiver = new System.Random(randomSeed);
@@ -157,8 +170,8 @@ public class PoissonSampling : MonoBehaviour
         // true = premier passage, false = passages suivants
         bool firstRun = true;
 
-        // Premier point placé aléatoirement sur la grille
-        newPos = new Vector3(randomRangeFloatThreadSafe(0.0f, (float)rangeX), 0f, randomRangeFloatThreadSafe(0.0f, (float)rangeZ));
+        // Premier point placé au milieu du terrain
+        newPos = new Vector3(rangeX / 2, 0, rangeZ / 2);
         // On utilise la position par rapport a cellSize pour placer le point dans la grille
         Vector3Int newPosFloored = floorVector3(newPos, cellSize);
         grid[newPosFloored.x, newPosFloored.z] = newPos;
@@ -182,8 +195,10 @@ public class PoissonSampling : MonoBehaviour
             int randomIndex = randomRangeIntThreadSafe(0, active.Count);
             activePos = active[randomIndex];
             firstRun = false;
+
+            int iterationCount = 0;
             // Tentative de placement d'un point de position aléatoire (iterations-fois maximum) dans la proximitée de activePos 
-            for (int n = 0; n < iterations; n++)
+            while (iterationCount < maxIteration)
             {
                 // Vecteur aléatoire déterminant une direction 
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
@@ -199,6 +214,12 @@ public class PoissonSampling : MonoBehaviour
                 if (0 <= newPos.x && newPos.x < rangeX && 0 <= newPos.z && newPos.z < rangeZ && 0 <= newPosFloored.x && newPosFloored.x < colsSize && 0 <= newPosFloored.z && newPosFloored.z < rowsSize && grid[newPosFloored.x, newPosFloored.z] == null)
                 {
                     bool isCorrectDistance = true;
+                    iterationCount += 1;
+
+                    if (domaineEnable && Vector3.Distance(newPos, middlePoint) > domaineSize)
+                    {
+                        isCorrectDistance = false;
+                    }
                     // Verification que tous les points dans les cases adjascentes de la grille sont a distance suffisante
                     for (int i = -1; i < 2; i++)
                     {
@@ -206,8 +227,8 @@ public class PoissonSampling : MonoBehaviour
                         {
                             if (newPosFloored.x + i >= 0 && newPosFloored.x + i < colsSize && newPosFloored.z + j >= 0 && newPosFloored.z + j < rowsSize && grid[newPosFloored.x + i, newPosFloored.z + j] != null)
                             {
-                                float distance = Vector3.Distance(newPos, (Vector3)grid[newPosFloored.x + i, newPosFloored.z + j]);
-                                if (distance < 2 * rayonPoisson)
+                                float distanceVoisin = Vector3.Distance(newPos, (Vector3)grid[newPosFloored.x + i, newPosFloored.z + j]);
+                                if (distanceVoisin < 2 * rayonPoisson || !isCorrectDistance)
                                 {
                                     isCorrectDistance = false;
                                     break;
@@ -222,6 +243,7 @@ public class PoissonSampling : MonoBehaviour
                         isFound = true;
                         active.Add(newPos);
                         pointPoissonCount += 1;
+                        iterationCount = 0;
                     }
                 }
             }
@@ -316,7 +338,7 @@ public class PoissonSampling : MonoBehaviour
         }
         stopwatchDisplayGrid.Stop();
 
-        UnityEngine.Debug.Log("PoissonSampling::displayGrid - Placed " + pointPoissonCount + " points in  " + stopwatchDisplayGrid.ElapsedMilliseconds + " ms | " + (float)stopwatchDisplayGrid.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
+        UnityEngine.Debug.Log("PoissonSampling::displayGrid - Placed " + pointPoissonCount + " points in " + stopwatchDisplayGrid.ElapsedMilliseconds + " ms | " + (float)stopwatchDisplayGrid.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
     }
 
     /// <summary>Instancie le point newPos en tant qu'enfant de GenManager</summary>
