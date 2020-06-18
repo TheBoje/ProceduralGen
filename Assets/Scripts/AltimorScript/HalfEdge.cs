@@ -10,12 +10,20 @@ public class HalfEdge
     private Vector3 m_position;     // Index du plongement correspondant à la position (Vector3)
 
     // Constructeurs
-    public HalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, Vector3 indexPosition)
+    public HalfEdge(Vector3 position)
+    {
+        m_next = this;
+        m_previous = this;
+        m_opposite = this;
+        m_position = position;
+    }
+
+    public HalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, Vector3 position)
     {
         m_next = next;
         m_previous = previous;
         m_opposite = opposite;
-        m_position = indexPosition;
+        m_position = position;
     }
 
 
