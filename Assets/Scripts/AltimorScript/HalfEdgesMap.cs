@@ -34,15 +34,15 @@ public class HalfEdgesMap : MonoBehaviour
     }
 
     // Retourne l'index d'un brin lié au point passé en paramètre
-    private int IndexOfDartByPoint(Vector3 pointIndex)
+    private HalfEdge FirstDartByPoint(Vector3 pointIndex)
     {
         for(int i = 0; i < m_halfEdges.Count; i++)
         {
             if (m_halfEdges[i].Position == pointIndex)
-                return i;
+                return m_halfEdges[i];
         }
 
-        return -1;
+        return null;
     }
 
     // Retourne le brin du point suivant
@@ -148,45 +148,33 @@ public class HalfEdgesMap : MonoBehaviour
     // Relie deux points en prenant leurs position en paramètre
     public void LinkTwoPoints(Vector3 A, Vector3 B)
     {
-        int firstPreviousA = IndexOfDartByPoint(A);
-        int firstPreviousB = IndexOfDartByPoint(B);
+        HalfEdge firstPreviousA = FirstDartByPoint(A);
+        HalfEdge firstPreviousB = FirstDartByPoint(B);
         //Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
         
-        if(firstPreviousA >= 0 && firstPreviousB < 0) // si le point B n'a pas de brins
+       
+        if (!firstPreviousA.IsDegenerated() && !firstPreviousB.IsDegenerated()) // si aucuns des points ne sont dégénérés
         {
-            int previousA = ComputePreviousDart(firstPreviousA, A, B);
-            LinkPointToDart(previousA, B);
+            HalfEdge previousA = ComputePreviousDart(firstPreviousA, A, B);
+            HalfEdge previousB = ComputePreviousDart(firstPreviousB, B, A);
+
+            AddEdge(previousA, previousB, A, B);
         }
-        else if(firstPreviousA < 0 && firstPreviousB >= 0) // si le point A n'a pas de brins
+        else if (!firstPreviousA.IsDegenerated() && firstPreviousB.IsDegenerated()) // si le point B est dégénéré
         {
-            int previousB = ComputePreviousDart(firstPreviousB, B, A);
-            LinkPointToDart(previousB, A);
+            HalfEdge previousA = ComputePreviousDart(firstPreviousA, A, B);
+            LinkDegeneratedDart(previousA, firstPreviousB);
         }
-        else if(firstPreviousA < 0 && firstPreviousB < 0) // si les deux points n'ont pas de brins
+        else if (firstPreviousA.IsDegenerated() && !firstPreviousB.IsDegenerated()) // si le point A est dégénéré
         {
-            LinkTwoIsolatedPoints(A, B);
+            HalfEdge previousB = ComputePreviousDart(firstPreviousB, B, A);
+            LinkDegeneratedDart(previousB, firstPreviousA);
         }
         else
         {
-            if (!m_halfEdges[firstPreviousA].IsDegenerated(firstPreviousA) && !m_halfEdges[firstPreviousB].IsDegenerated(firstPreviousB)) // si aucuns des points ne sont dégénérés
-            {
-                int previousA = ComputePreviousDart(firstPreviousA, A, B);
-                int previousB = ComputePreviousDart(firstPreviousB, B, A);
-
-                LinkDart(previousA, previousB, A, B);
-            }
-            else if (!m_halfEdges[firstPreviousA].IsDegenerated(firstPreviousA) && m_halfEdges[firstPreviousB].IsDegenerated(firstPreviousB)) // si le point B est dégénéré
-            {
-                int previousA = ComputePreviousDart(firstPreviousA, A, B);
-                LinkDegeneratedDart(previousA, firstPreviousB, A);
-            }
-            else if (m_halfEdges[firstPreviousA].IsDegenerated(firstPreviousA) && !m_halfEdges[firstPreviousB].IsDegenerated(firstPreviousB)) // si le point A est dégénéré
-            {
-                int previousB = ComputePreviousDart(firstPreviousB, B, A);
-                LinkDegeneratedDart(previousB, firstPreviousA, B);
-            }
-            // TODO - faire la condition des deux points dégénérés
+            LinkTwoDegeneratedDarts(firstPreviousA, firstPreviousB);
         }
+            // TODO - faire la condition des deux points dégénérés
     }
 
 

@@ -36,9 +36,9 @@ public class HalfEdge
     }
 
     // Retourne vrai si le brin est dégénéré
-    public bool IsDegenerated(HalfEdge index)
+    public bool IsDegenerated()
     {
-        return (m_next == index && index == m_previous);
+        return (m_next == this && this == m_previous);
     }
 
     public HalfEdge Next
