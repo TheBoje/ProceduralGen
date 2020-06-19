@@ -9,7 +9,6 @@ public class IntersectionMaker : MonoBehaviour
     private PoissonSampling m_poissonScript;
     private Intersection[,] m_poissonGrid;
     private HalfEdgesMap m_halfEdgeMap;
-    private List<Vector3?> m_positions;
 
 
     // Créer un tableau à deux dimensions d'intersections
@@ -24,7 +23,8 @@ public class IntersectionMaker : MonoBehaviour
                 if(m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
-                    m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
+                    //m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
+                    m_halfEdgeMap.AddIsolatedDart((Vector3)m_poissonScript.poissonGrid[i, j]);
                 }
                 else
                 {
@@ -134,7 +134,6 @@ public class IntersectionMaker : MonoBehaviour
         if (delTriangles)
             this.DelTriangles();
 
-
         for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
             for(int j = 0; j < m_poissonScript.getColSize; j++)
@@ -155,8 +154,10 @@ public class IntersectionMaker : MonoBehaviour
                             int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
                             //Debug.Log("HalfEdges ind : " + m_poissonGrid[i, j].IndexInMap);
 
+                            m_halfEdgeMap.LinkTwoPoints((Vector3)m_poissonScript.poissonGrid[i, j], (Vector3)m_poissonScript.poissonGrid[coords.x, coords.y]);
+
                             // Relie les routes entre les bordures de l'intersection
-                            GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
+                            //GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
 
                         }
                     }

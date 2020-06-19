@@ -28,7 +28,7 @@ public class HalfEdgesMap : MonoBehaviour
         return m_halfEdges.Count;
     }
 
-    private void AddIsolatedDart(Vector3 position)
+    public void AddIsolatedDart(Vector3 position)
     {
         m_halfEdges.Add(new HalfEdge(position)); 
     }
