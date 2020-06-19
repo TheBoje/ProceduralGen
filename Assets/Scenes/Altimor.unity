@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomSeed: 2
-  rayonPoisson: 10
+  rayonPoisson: 30
   iterations: 100
   dimension: 2
   rangeX: 100
@@ -417,6 +417,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 609142ed51239a24c946d0517a9bd528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mat: {fileID: 0}
 --- !u!4 &1453131263
 Transform:
   m_ObjectHideFlags: 0
