@@ -196,83 +196,6 @@ public class HalfEdgesMap : MonoBehaviour
         return points;
     }
 
-
-    public int[] GetIndexesInOrder(List<DelaunayTriangulation.Triangle> triangles, List<Vector3> points)
-    {
-        List<int> indexes = new List<int>();
-
-        foreach (DelaunayTriangulation.Triangle tri in triangles)
-        {
-            foreach (Vector3 point in tri.vertices)
-            {
-                indexes.Add(points.IndexOf(point));
-            }
-        }
-
-        return indexes.ToArray();
-    }
-
-    // Extrusion
-    private void ExtrudeFace(List<Vector3> points, float height)
-    {
-        DelaunayTriangulation delaunayTriangulation = new DelaunayTriangulation();
-        List<DelaunayTriangulation.Triangle> triangles = delaunayTriangulation.Triangulate(points);
-        Debug.Log(triangles.Count);
-        int[] index = GetIndexesInOrder(triangles, points);
-
-
-        //Debug.Log(GetIndexesInOrder(triangles, points.ToList()));
-
-        ProBuilderMesh quad = ProBuilderMesh.Create(points.ToArray(),
-            new Face[] { new Face(index)
-        });
-
-        quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, 4f);
-
-
-
-        quad.Refresh();
-
-        quad.ToMesh();
-        quad.GetComponent<MeshRenderer>().material = mat;
-    }
-
-    // Extrusion de toutes les faces
-    public void ExtrudeFaces(List<List<int>> facesList)
-    {
-        foreach(List<int> face in facesList)
-        {
-            List<Vector3> points = new List<Vector3>();
-            foreach(int i in face)
-            {
-                points.Add(new Vector3(m_positions[i].x, 0f, m_positions[i].z));
-            }
-            ExtrudeFace(points, Random.Range(2f, 5f));
-        }
-    }
-
-    // 
-    public void GlobalExtrusion()
-    {
-        List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
-        List<List<int>> facesList = new List<List<int>>(); // Liste des faces
-
-        while (copy.Count > 0)
-        {
-            facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
-        }
-
-        Debug.Log("NB Faces : " + facesList.Count);
-        //ExtrudeFaces(facesList);
-    }
-
-
-
-
-
-
-
-
     static void CreateLineMaterial()
     {
         if (!lineMaterial)
@@ -301,11 +224,11 @@ public class HalfEdgesMap : MonoBehaviour
         GL.MultMatrix(transform.localToWorldMatrix);
 
         List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
-        List<List<int>> facesList = new List<List<int>>(); // Liste des faces
+        List<List<Vector3>> facesList = new List<List<Vector3>>(); // Liste des faces
 
         while(copy.Count > 0)
         {
-            facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
+            facesList.Add(ComputePointsFace(copy[0], copy));
         }
 
         Debug.Log("NB Faces : " + facesList.Count);
@@ -316,8 +239,8 @@ public class HalfEdgesMap : MonoBehaviour
         {
             for(int j = 1; j < facesList[i].Count; j++)
             {
-                GL.Vertex3(m_positions[facesList[i][j - 1]].x, m_positions[facesList[i][j - 1]].y, m_positions[facesList[i][j - 1]].z);
-                GL.Vertex3(m_positions[facesList[i][j]].x, m_positions[facesList[i][j]].y, m_positions[facesList[i][j]].z);
+                GL.Vertex3(facesList[i][j - 1].x, facesList[i][j - 1].y, facesList[i][j - 1].z);
+                GL.Vertex3(facesList[i][j].x, facesList[i][j].y, facesList[i][j].z);
             }
         }
 
