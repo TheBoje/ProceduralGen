@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Road : MonoBehaviour
 {
@@ -8,7 +6,6 @@ public class Road : MonoBehaviour
     private Vector3 m_crossroad2;
     private Vector3 m_vectRoad;
     private Vector3 m_normal;
-
 
     // Initialise les deux variables correspondant aux deux intersections
     public void Init(Vector3 cr1, Vector3 cr2)
@@ -32,12 +29,10 @@ public class Road : MonoBehaviour
     // Calcul le vecteur directeur de la route
     private void ComputeVectRoad()
     {
-
         ComputeMiddle(m_crossroad1, m_crossroad2);
 
         m_vectRoad = m_crossroad2 - m_crossroad1;
         //Debug.Log("Vect : " + m_vectRoad);
-
     }
 
     // Calcul l'orientation de la route
@@ -76,5 +71,4 @@ public class Road : MonoBehaviour
     {
         get { return m_normal; }
     }
-
 }

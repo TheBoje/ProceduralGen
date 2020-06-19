@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-
     [SerializeField] private List<Transform> m_anchorsPoints = null; // Liste des points d'ancrage
     private int m_nbAnchorsPoints;                          // Nombre de points d'ancrage
-
 
     public void InitRoom()
     {
@@ -41,8 +38,6 @@ public class Room : MonoBehaviour
         //Debug.Log("gameObject's Parent: " + gameObject.transform.parent.name);
     }
 
-
-
     // Ajoute une pièce sur le n-ième point d'ancrage (passé en paramètre)
     public GameObject AddRoom(int indOrigin, int indAdding, GameObject room)
     {
@@ -54,14 +49,12 @@ public class Room : MonoBehaviour
         }
         else
         {
-
             GameObject addedRoom = Instantiate(room, m_anchorsPoints[indOrigin].position, transform.rotation); //Euler(transform.rotation.x, transform.rotation.y - 90, transform.rotation.z)
 
             //addedRoom.GetComponent<Room>().Start();
             Vector3 rotation = addedRoom.GetComponent<Room>().AnchorsPoints[indAdding].GetComponent<AnchorPoint>().RotateRoom(m_anchorsPoints[indOrigin].GetComponent<AnchorPoint>().AnchorSide);
             addedRoom.transform.Rotate(rotation);
             addedRoom.name += " <- " + gameObject.name;
-
 
             foreach (Transform anchorPoint in addedRoom.GetComponent<Room>().AnchorsPoints)
             {
@@ -83,7 +76,6 @@ public class Room : MonoBehaviour
             //Destroy(addedRoom.GetComponent<Room>().AnchorsPoints[indAdding]);
 
             return addedRoom;
-
         }
     }
 
@@ -109,7 +101,6 @@ public class Room : MonoBehaviour
         }
     }
 
-
     // GETTER
     public List<Transform> AnchorsPoints
     {
@@ -120,5 +111,4 @@ public class Room : MonoBehaviour
     {
         get { return m_nbAnchorsPoints; }
     }
-
 }

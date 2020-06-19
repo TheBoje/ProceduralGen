@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Intersection
 {
-
     //private List<Intersection> m_neighbours;
     //private List<bool> m_joined;
 
@@ -17,11 +15,11 @@ public class Intersection
     }
 
     private List<Neighbour> m_neighbours;   // Liste des voisins des l'intersection
-    private Vector3 m_position;             // Position dans l'espace de l'intersection 
+    private Vector3 m_position;             // Position dans l'espace de l'intersection
     private Vector2Int m_coordonates;       // Coordonnées dans le tableau
     private int m_indexInMap;
 
-    // CONSTRUCTEUR 
+    // CONSTRUCTEUR
     public Intersection(Vector3 position, Vector2Int coords)
     {
         m_position = position;
@@ -36,10 +34,10 @@ public class Intersection
         Vector3 Vect = neighbourPos - this.m_position;
         float multiplier = 0.5f;
 
-        if(Mathf.Abs(Vect.x) > Mathf.Abs(Vect.z))
+        if (Mathf.Abs(Vect.x) > Mathf.Abs(Vect.z))
         {
             if (Vect.x < 0)
-                return this.m_position + Vector3.left * multiplier; 
+                return this.m_position + Vector3.left * multiplier;
             else
                 return this.m_position + Vector3.right * multiplier;
         }
@@ -49,7 +47,7 @@ public class Intersection
                 return this.m_position + Vector3.back * multiplier;
             else
                 return this.m_position + Vector3.forward * multiplier;
-        }        
+        }
     }
 
     // Ajoute un voisin à l'intersection en prenant ses coordonnées dans le tableau en paramètre
@@ -99,7 +97,7 @@ public class Intersection
                 Neighbour n = m_neighbours[i];
                 n.joined = true;
                 m_neighbours[i] = n;
-                return ;
+                return;
             }
         }
         Debug.Log("Intersection not in neighbours list");
@@ -126,7 +124,7 @@ public class Intersection
         else
         {
             // Parcours les voisins du voisin passé en paramètre
-            foreach(Neighbour n in neighbour.Neighbours)
+            foreach (Neighbour n in neighbour.Neighbours)
             {
                 if (IsTriangle(nbEdge - 1, intersections[n.coords.x, n.coords.y], intersections))
                     return true;
@@ -140,9 +138,9 @@ public class Intersection
     {
         List<Neighbour> copy = new List<Neighbour>(m_neighbours);
 
-        foreach(Neighbour n in copy)
+        foreach (Neighbour n in copy)
         {
-            if(IsTriangle(2, intersections[n.coords.x, n.coords.y], intersections))
+            if (IsTriangle(2, intersections[n.coords.x, n.coords.y], intersections))
             {
                 int indexInter = m_neighbours.IndexOf(n);
                 int indexNeig = intersections[n.coords.x, n.coords.y].IndexOfInter(this);
@@ -162,9 +160,6 @@ public class Intersection
         plane.name = "Intersection";
         plane.transform.parent = parent;
     }
-    
-
-
 
     // GETTER ---- SETTER
 

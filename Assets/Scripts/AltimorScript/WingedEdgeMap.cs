@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.ProBuilder;
-using UnityEngine.ProBuilder.MeshOperations;
 
 public class WingedEdgeMap
 {
@@ -15,9 +9,9 @@ public class WingedEdgeMap
     {
         List<int> indexes = new List<int>();
 
-        foreach(DelaunayTriangulation.Triangle tri in triangles)
+        foreach (DelaunayTriangulation.Triangle tri in triangles)
         {
-            foreach(Vector3 point in tri.vertices)
+            foreach (Vector3 point in tri.vertices)
             {
                 indexes.Add(points.IndexOf(point));
             }
@@ -29,13 +23,12 @@ public class WingedEdgeMap
     private void PrintArray(int[] arr)
     {
         string str = "";
-        foreach(int i in arr)
+        foreach (int i in arr)
         {
             str += " " + i;
         }
         Debug.Log(str);
     }
-
 
     /*private void Start()
     {
@@ -51,7 +44,7 @@ public class WingedEdgeMap
         List<DelaunayTriangulation.Triangle> triangles = delaunayTriangulation.Triangulate(points.ToList());
         Debug.Log(triangles.Count);
         int[] index = GetIndexesInOrder(triangles, points.ToList());
-        
+
         PrintArray(index);
 
         //Debug.Log(GetIndexesInOrder(triangles, points.ToList()));
@@ -59,26 +52,19 @@ public class WingedEdgeMap
         ProBuilderMesh quad = ProBuilderMesh.Create(points,
             new Face[] { new Face(index)
         });
-        
-        
+
         quad.Extrude(quad.faces, ExtrudeMethod.FaceNormal, 4f);
 
-
-        
         quad.Refresh();
 
         quad.ToMesh();
         quad.GetComponent<MeshRenderer>().material = mat;
 
-
         List<WingedEdge> wList = WingedEdge.GetWingedEdges(quad);
 
         Debug.Log("Faces : " + quad.faceCount);
         Debug.Log("Edges : " + quad.edgeCount);
-        
+
         Debug.Log("finish");
     }*/
-
-
-
 }

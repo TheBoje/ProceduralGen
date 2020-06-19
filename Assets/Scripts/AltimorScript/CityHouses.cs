@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Security.Principal;
+﻿using System.Collections.Generic;
 using UnityEngine;
-
 
 public class CityHouses
 {
@@ -19,6 +16,7 @@ public class CityHouses
     {
         // Nombres de composants en hauteur, largeur et profondeur
         public int height;
+
         public int width;
         public int depth;
 
@@ -26,6 +24,7 @@ public class CityHouses
 
         // Présence ou non du mur de gauche et/ou droite
         public bool leftWall;
+
         public bool rightWall;
 
         // Rotation de la façade (sur l'axe des y)
@@ -38,13 +37,12 @@ public class CityHouses
         // Demander à Agnès pour dev une SD pratique et opti
     }
 
-    // Structure d'une maison en ville 
+    // Structure d'une maison en ville
     public struct CityHouse
     {
         public HouseInterface hIntereface;
         public HouseComponents hComponents;
     }
-
 
     // Définie un type structuré CityHouse
     public CityHouse DefCityHouse(int height, int width, int depth, int doorPos, bool leftWall, bool rightWall, float angle)
@@ -71,7 +69,7 @@ public class CityHouses
 
         return c;
     }
-   
+
     // Initialise une maison en donnant les paramètre // Les paramètres angle, maxWidth et maxDepth sont calculés en fonction de la route ainsi que du quartier
     public CityHouse InitCityHouse(List<CityHouse> houses, int maxWidth, int maxDepth, float angle)
     {
@@ -79,7 +77,7 @@ public class CityHouses
         bool leftWall, rightWall;
         float Angle;
 
-        if(houses.Count > 0)
+        if (houses.Count > 0)
         {
             CityHouse previousHouse = houses[houses.Count - 1];
 
@@ -129,9 +127,9 @@ public class CityHouses
 
         int spaceLeft = (int)roadLen;
 
-        while(spaceLeft > 0)
+        while (spaceLeft > 0)
         {
-            if(MAX_WIDTH > spaceLeft)
+            if (MAX_WIDTH > spaceLeft)
                 houses.Add(InitCityHouse(houses, spaceLeft, maxDepth, roadAngle));
             else
                 houses.Add(InitCityHouse(houses, MAX_WIDTH, maxDepth, roadAngle));
@@ -139,5 +137,4 @@ public class CityHouses
             spaceLeft -= houses[houses.Count - 1].hIntereface.width;
         }
     }
-    
 }
