@@ -1,22 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.InteropServices.WindowsRuntime;
-using UnityEditor;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.ProBuilder;
-using UnityEngine.ProBuilder.MeshOperations;
 
 // Créer un triangle isolé
 
 public class HalfEdgesMap : MonoBehaviour
 {
     private List<HalfEdge> m_halfEdges;
-    static Material lineMaterial; // utilisé pour afficher le debug
+    private static Material lineMaterial; // utilisé pour afficher le debug
     public Material mat;
-
-
 
     public void Init()
     {
@@ -30,13 +21,13 @@ public class HalfEdgesMap : MonoBehaviour
 
     public void AddIsolatedDart(Vector3 position)
     {
-        m_halfEdges.Add(new HalfEdge(position)); 
+        m_halfEdges.Add(new HalfEdge(position));
     }
 
     // Retourne l'index d'un brin lié au point passé en paramètre
     private HalfEdge FirstDartByPoint(Vector3 pointIndex)
     {
-        for(int i = 0; i < m_halfEdges.Count; i++)
+        for (int i = 0; i < m_halfEdges.Count; i++)
         {
             if (m_halfEdges[i].Position == pointIndex)
                 return m_halfEdges[i];
@@ -70,7 +61,7 @@ public class HalfEdgesMap : MonoBehaviour
         float maxAngle = angle;
         float minAngle = angle;
 
-        while(firstIndex != currentIndex)
+        while (firstIndex != currentIndex)
         {
             float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, Vector3.forward);
             if (angle > currentAngle)
@@ -78,7 +69,7 @@ public class HalfEdgesMap : MonoBehaviour
                 previous = currentIndex;
             }
 
-            if(maxAngle < currentAngle)
+            if (maxAngle < currentAngle)
             {
                 maxAngle = currentAngle;
                 maxAngleIndex = currentIndex;
@@ -98,12 +89,9 @@ public class HalfEdgesMap : MonoBehaviour
         return previous.Previous;
     }
 
-
-
     // Relie un brin à deux autres
     private void AddEdge(HalfEdge previousA, HalfEdge previousB, Vector3 A, Vector3 B)
     {
-
         // de A vers B
         HalfEdge AB = new HalfEdge(A);
 
@@ -137,7 +125,6 @@ public class HalfEdgesMap : MonoBehaviour
         previousDart.Next = opposite;
     }
 
-
     // Relie de points pour former une arête
     private void LinkTwoDegeneratedDarts(HalfEdge dart1, HalfEdge dart2)
     {
@@ -151,8 +138,7 @@ public class HalfEdgesMap : MonoBehaviour
         HalfEdge firstPreviousA = FirstDartByPoint(A);
         HalfEdge firstPreviousB = FirstDartByPoint(B);
         //Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
-        
-       
+
         if (!firstPreviousA.IsDegenerated() && !firstPreviousB.IsDegenerated()) // si aucuns des points ne sont dégénérés
         {
             HalfEdge previousA = ComputePreviousDart(firstPreviousA, A, B);
@@ -174,9 +160,8 @@ public class HalfEdgesMap : MonoBehaviour
         {
             LinkTwoDegeneratedDarts(firstPreviousA, firstPreviousB);
         }
-            // TODO - faire la condition des deux points dégénérés
+        // TODO - faire la condition des deux points dégénérés
     }
-
 
     // Dessine une face à l'aide d'un Line renderer
     private List<Vector3> ComputePointsFace(HalfEdge firstEdge, List<HalfEdge> halfEdges)
@@ -196,7 +181,7 @@ public class HalfEdgesMap : MonoBehaviour
         return points;
     }
 
-    static void CreateLineMaterial()
+    private static void CreateLineMaterial()
     {
         if (!lineMaterial)
         {
@@ -226,7 +211,7 @@ public class HalfEdgesMap : MonoBehaviour
         List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
         List<List<Vector3>> facesList = new List<List<Vector3>>(); // Liste des faces
 
-        while(copy.Count > 0)
+        while (copy.Count > 0)
         {
             facesList.Add(ComputePointsFace(copy[0], copy));
         }
@@ -235,9 +220,9 @@ public class HalfEdgesMap : MonoBehaviour
 
         GL.Begin(GL.LINES);
 
-        for(int i = 0; i < facesList.Count; i++)
+        for (int i = 0; i < facesList.Count; i++)
         {
-            for(int j = 1; j < facesList[i].Count; j++)
+            for (int j = 1; j < facesList[i].Count; j++)
             {
                 GL.Vertex3(facesList[i][j - 1].x, facesList[i][j - 1].y, facesList[i][j - 1].z);
                 GL.Vertex3(facesList[i][j].x, facesList[i][j].y, facesList[i][j].z);
@@ -246,7 +231,6 @@ public class HalfEdgesMap : MonoBehaviour
 
         GL.End();
         GL.PopMatrix();
-
     }
 
     public void Demo()
@@ -266,9 +250,6 @@ public class HalfEdgesMap : MonoBehaviour
         HalfEdge dart3 = new HalfEdge(new Vector3(10f, 0f, 10f));
         m_halfEdges.Add(dart3);
 
-
-
-        
         Debug.Log("Avant  : " + m_halfEdges.Count);
         LinkTwoPoints(new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 10f));
         Debug.Log("Apres  : " + m_halfEdges.Count);
@@ -289,18 +270,14 @@ public class HalfEdgesMap : MonoBehaviour
         LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 10f));
         Debug.Log("Apres  : " + m_halfEdges.Count);
 
-
-
         /*Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         LinkTwoPoints(5, 2);
         Debug.Log("Apres LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         */
-
     }
 
     private void Start()
     {
-
         Demo();
     }
 }

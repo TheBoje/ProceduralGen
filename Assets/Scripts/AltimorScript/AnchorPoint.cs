@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AnchorPoint : MonoBehaviour
 {
-
     public enum side { NORTH, EAST, SOUTH, WEST }
 
-    [SerializeField] side m_anchorSide; // à automatiser par la suite en fonction de la position
+    [SerializeField] private side m_anchorSide; // à automatiser par la suite en fonction de la position
 
     // Tourne le parent ou non (Room) en fonction de la face qui lui est présenté WIP : ajouter le haut et le bas
     public Vector3 RotateRoom(side otherAnchors)

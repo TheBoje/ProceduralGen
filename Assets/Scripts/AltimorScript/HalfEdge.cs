@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class HalfEdge
 {
@@ -25,7 +23,6 @@ public class HalfEdge
         m_opposite = opposite;
         m_position = position;
     }
-
 
     // Ecrase les attributs
     public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite)
@@ -64,5 +61,4 @@ public class HalfEdge
         get { return m_position; }
         set { m_position = value; }
     }
-
 }
