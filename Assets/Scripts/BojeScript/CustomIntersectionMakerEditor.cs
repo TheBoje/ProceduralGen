@@ -41,10 +41,5 @@ public class CustomIntersectionMakerEditor : Editor
         {
             townScript.BuildTown();
         }
-
-        if(GUILayout.Button("Extrude Houses"))
-        {
-            halfEdgesMap.GlobalExtrusion();
-        }
     }
 }
