@@ -54,13 +54,14 @@ public class HalfEdgesMap : MonoBehaviour
     // Calcul l'angle sur l'axe des Y : retourne l'angle en degré
     private float ComputeAngle(Vector3 from, Vector3 to)
     {
-        return Vector3.Angle(new Vector3(from.x, 0f, from.z), new Vector3(to.x, 0f, to.z));
+        float angle = Vector3.SignedAngle(new Vector3(from.x, 0f, from.z), new Vector3(to.x, 0f, to.z), Vector3.up);
+        return (360f + angle) % 360;
     }
 
     // Calcul les angles par rapport à l'horizontal pour trouver entre quel et quel brin nous devons mettre le nouveau brin : retourne le futur précédent (de pos1 vers pos2)
     private HalfEdge ComputePreviousDart(HalfEdge firstPrevious, Vector3 pos1, Vector3 pos2)
     {
-        HalfEdge previous = firstPrevious; // Index du brin qui précèdera le prin allant de pos1 à pos2
+        HalfEdge previous = NextDartOnPoint(firstPrevious); // Index du brin qui précèdera le prin allant de pos1 à pos2
         HalfEdge maxAngleIndex = previous; // Index du brin formant l'angle maximum par rapport à l'horizontal
         HalfEdge currentIndex = previous; // Index étant en train d'être étudié
         HalfEdge firstIndex = previous; // premier index étudié
@@ -69,33 +70,39 @@ public class HalfEdgesMap : MonoBehaviour
         float angle = ComputeAngle(pos2 - pos1, Vector3.forward);
         float maxAngle = angle;
         float minAngle = angle;
-
+        Debug.Log("haallo");
         do
         {
-            float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, Vector3.forward);
-            if (angle > currentAngle)
+            if((firstIndex != currentIndex))
             {
-                previous = currentIndex;
-            }
+                float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, Vector3.forward);
+                Debug.Log("Tronçon : " + currentIndex.Position + " vers " + currentIndex.Opposite.Position + " | Current angle : " + currentAngle + " angle : " + angle);
+                if (angle > currentAngle)
+                {
+                    previous = currentIndex;
+                }
 
-            if (maxAngle < currentAngle)
-            {
-                maxAngle = currentAngle;
-                maxAngleIndex = currentIndex;
-            }
+                if (maxAngle < currentAngle)
+                {
+                    maxAngle = currentAngle;
+                    maxAngleIndex = currentIndex;
+                }
 
-            if (minAngle > currentAngle)
-            {
-                minAngle = currentAngle;
+                if (minAngle > currentAngle)
+                {
+                    minAngle = currentAngle;
+                }
             }
+            currentIndex = NextDartOnPoint(currentIndex);
         } while (firstIndex != currentIndex);
 
         if (minAngle == angle)
         {
             previous = maxAngleIndex;
         }
-
-        return previous.Previous;
+        Debug.Log("Tronçon prefinal : " + previous.Position + " vers " + previous.Opposite.Position);
+        Debug.Log("Tronçon Final : " + previous.Opposite.Position + " vers " + previous.Position);
+        return previous.Opposite;
     }
 
 
@@ -269,26 +276,16 @@ public class HalfEdgesMap : MonoBehaviour
 
 
 
-        
-        Debug.Log("Avant  : " + m_halfEdges.Count);
+        Debug.Log("1");
         LinkTwoPoints(new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 10f));
-        Debug.Log("Apres  : " + m_halfEdges.Count);
-
-        Debug.Log("Avant  : " + m_halfEdges.Count);
+        Debug.Log("2");
         LinkTwoPoints(new Vector3(0f, 0f, 10f), new Vector3(10f, 0f, 10f));
-        Debug.Log("Apres  : " + m_halfEdges.Count);
-
-        Debug.Log("Avant  : " + m_halfEdges.Count);
+        Debug.Log("3");
         LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(10f, 0f, 0f));
-        Debug.Log("Apres  : " + m_halfEdges.Count);
-
-        Debug.Log("Avant  : " + m_halfEdges.Count);
+        Debug.Log("4");
         LinkTwoPoints(new Vector3(10f, 0f, 0f), new Vector3(0f, 0f, 0f));
-        Debug.Log("Apres  : " + m_halfEdges.Count);
-        
-        Debug.Log("Avant  : " + m_halfEdges.Count);
+        Debug.Log("5");
         LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 0f));
-        Debug.Log("Apres  : " + m_halfEdges.Count);
 
 
 
