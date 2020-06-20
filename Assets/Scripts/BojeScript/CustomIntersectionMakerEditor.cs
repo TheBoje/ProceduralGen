@@ -20,12 +20,12 @@ public class CustomIntersectionMakerEditor : Editor
         if (GUILayout.Button("Generate Roads"))
         {
             //intersectionScript.ComputeRoad();
-            intersectionScript.StartCoroutine(intersectionScript.threadedComputeRoad());
+            //intersectionScript.StartCoroutine(intersectionScript.threadedComputeRoad());
         }
 
         if (GUILayout.Button("Delete Roads"))
         {
-            intersectionScript.ClearInstanciated();
+            //intersectionScript.ClearInstanciated();
         }
 
         if(GUILayout.Button("Add Houses"))

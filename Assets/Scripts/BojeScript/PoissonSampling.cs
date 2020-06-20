@@ -79,13 +79,6 @@ public class PoissonSampling : MonoBehaviour
     [Tooltip("Objet instancié a chaque point calculé")]
     private GameObject objetInstance = null;
 
-    /*
-    * [Header("Activity Settings")]
-
-    * [SerializeField] private bool activityEnable = true;
-    * [SerializeField] private int activityConcentration;
-    */
-
     [Header("Debug Settings")]
 
     [SerializeField]
@@ -102,7 +95,7 @@ public class PoissonSampling : MonoBehaviour
     private int colsSize;
     private int pointPoissonCount;
     private TerrainGenerator terrainGeneratorScript;
-    private float[,] perlinMap;
+    private bool isDonePoisson;
 
     private void Start()
     {
@@ -152,6 +145,8 @@ public class PoissonSampling : MonoBehaviour
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
 
+        isDonePoisson = false;
+
         // Initialisation de la grille 
         grid = new Vector3?[colsSize, rowsSize];
         for (int i = 0; i < colsSize; i++)
@@ -174,7 +169,7 @@ public class PoissonSampling : MonoBehaviour
         newPos = new Vector3(rangeX / 2, 0, rangeZ / 2);
         // On utilise la position par rapport a cellSize pour placer le point dans la grille
         Vector3Int newPosFloored = floorVector3(newPos, cellSize);
-        grid[newPosFloored.x, newPosFloored.z] = newPos;
+        grid[newPosFloored.x, newPosFloored.z] = newPos; //FIXME OutOfBounds error
         // On ajoute le point a la liste des points dont des cases adjascentes sont potentiellement libres
         active.Add(newPos);
 
@@ -253,14 +248,10 @@ public class PoissonSampling : MonoBehaviour
                 active.Remove(active[randomIndex]);
             }
         }
-        // Application d'un bruit de perlin
-        if (scaleYEnable)
-        {
-            computePointsHeight();
-        }
+       
         // Arret de la stopwatch
         stopwatchPoissonCompute.Stop();
-
+        isDonePoisson = true;
         UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
 
     }
@@ -287,13 +278,34 @@ public class PoissonSampling : MonoBehaviour
         {
             StartCoroutine(displayGrid());
         }
-        if (terrainGeneration)
+        if (!threadComputePoints.IsAlive && terrainGeneration)
         {
             terrainGeneratorScript.generateTerrain();
+        }
+        if (!threadComputePoints.IsAlive && scaleYEnable)
+        {
+            computePointsHeight();
         }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
 
+
+    public void startPoisson()
+    {
+        StartCoroutine(threadedComputePoints());
+        if (isDonePoisson && instanciateEnable)
+        {
+            StartCoroutine(displayGrid());
+        }
+        if (isDonePoisson && terrainGeneration)
+        {
+            terrainGeneratorScript.generateTerrain();
+        }
+        if (isDonePoisson && scaleYEnable)
+        {
+            computePointsHeight();
+        }
+    }
 
     /// <summary>Float random [a, b[</summary>
     // Remplace UnityEngine.Random.Range(a,b) car non accessible dans un thread alternatif
@@ -382,7 +394,8 @@ public class PoissonSampling : MonoBehaviour
                 {
                     Vector3 temp = (Vector3)grid[i, j];
                     // Récupération de la valeur dans le bruit de Perlin par rapport a sa position (*scaleY)
-                    temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale, scaleY);
+                    // temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale, scaleY);
+                    temp.y = terrainGeneratorScript.getTerrainLocalHeight(temp);
                     // Remise dans la grid 
                     grid[i, j] = temp;
                 }
@@ -429,9 +442,5 @@ public class PoissonSampling : MonoBehaviour
     public int getColSize
     {
         get { return colsSize; }
-    }
-    public float[,] getPerlinMap
-    {
-        get { return perlinMap; }
     }
 }
