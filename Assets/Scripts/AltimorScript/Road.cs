@@ -7,6 +7,7 @@ public class Road : MonoBehaviour
     private Vector3 m_crossroad1;
     private Vector3 m_crossroad2;
     private Vector3 m_vectRoad;
+    private Vector3 m_normal;
 
 
     // Initialise les deux variables correspondant aux deux intersections
@@ -48,8 +49,32 @@ public class Road : MonoBehaviour
     public void SetRoad()
     {
         ComputeVectRoad();
+        ComputeNormal();
         ComputeAngleRoad();
         transform.localScale = new Vector3(0.1f, 0.1f, m_vectRoad.magnitude / 10f); // Transforme la route pour que sa longueur soit la norme du vecteur directeur
+    }
+
+    // Calcul la normal au vecteur directeur de la route sur les x
+    public void ComputeNormal()
+    {
+        GameObject point = new GameObject("point");
+        point.transform.parent = transform;
+        point.transform.localPosition = Vector3.zero + Vector3.right * 5f;
+
+        m_normal = point.transform.position - transform.position;
+        m_normal = m_normal.normalized;
+
+        Destroy(point);
+    }
+
+    public Vector3 Vector
+    {
+        get { return m_vectRoad; }
+    }
+
+    public Vector3 NormalVect
+    {
+        get { return m_normal; }
     }
 
 }

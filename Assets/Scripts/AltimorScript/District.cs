@@ -5,7 +5,7 @@ using UnityEngine;
 public class District : MonoBehaviour
 {
 
-    private const int MAX_HOUSES = 7;
+    private const int MAX_HOUSES = 3;
     private const int MIN_HOUSES = 3;
 
     private int m_nbHouses;
@@ -14,7 +14,7 @@ public class District : MonoBehaviour
 
     [SerializeField] GameObject m_house = null;
 
-    public void Start()
+    public void Awake()
     {
         m_houses = new List<GameObject>();
         m_nbHouses = Random.Range(MIN_HOUSES, MAX_HOUSES);
