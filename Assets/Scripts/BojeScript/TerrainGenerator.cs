@@ -12,6 +12,8 @@ public class TerrainGenerator : MonoBehaviour
     private Terrain terrainComponent;
     private PoissonSampling poissonSamplingScript;
 
+    public bool isDoneTerrain = false;
+
     private void Start()
     {
         terrainComponent = GetComponent<Terrain>();
@@ -20,11 +22,13 @@ public class TerrainGenerator : MonoBehaviour
 
     public void generateTerrain()
     {
+        isDoneTerrain = false;
         terrainWidth = poissonSamplingScript.rangeX;
         terrainLength = poissonSamplingScript.rangeZ;
         terrainHeight = poissonSamplingScript.scaleY;
         noiseScale = poissonSamplingScript.perlinScale;
         terrainComponent.terrainData = generateTerrainData(terrainComponent.terrainData);
+        isDoneTerrain = true;
     }
 
     private TerrainData generateTerrainData(TerrainData oldTerrainData)

@@ -394,7 +394,7 @@ PrefabInstance:
     - target: {fileID: 6801694240712611948, guid: c960157d8d0d8824ea064b3666127eb4,
         type: 3}
       propertyPath: perlinScale
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6801694240712611948, guid: c960157d8d0d8824ea064b3666127eb4,
         type: 3}
@@ -404,7 +404,7 @@ PrefabInstance:
     - target: {fileID: 6801694240712611948, guid: c960157d8d0d8824ea064b3666127eb4,
         type: 3}
       propertyPath: maxIteration
-      value: 70
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 6801694240712611948, guid: c960157d8d0d8824ea064b3666127eb4,
         type: 3}

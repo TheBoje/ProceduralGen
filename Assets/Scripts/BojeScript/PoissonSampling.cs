@@ -268,23 +268,26 @@ public class PoissonSampling : MonoBehaviour
         threadComputePoints.Start();
         threadComputePoints.IsBackground = true;
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
-        // IEnumerator stuff: reprend la corroutine juste après le yield a chaque frame, nécessaire
+        // IEnumerator stuff: reprend la corroutine juste après le yield a chaque frame
         while (threadComputePoints.IsAlive)
         {
             yield return null;
         }
         // Affichage des points
+        if (isDonePoisson && terrainGeneration)
+        {
+            terrainGeneratorScript.generateTerrain();
+            yield return null;
+        }
+        if (terrainGeneratorScript.isDoneTerrain && scaleYEnable)
+        {
+            computePointsHeight();
+            yield return null;
+        }
         if (!threadComputePoints.IsAlive && instanciateEnable)
         {
             StartCoroutine(displayGrid());
-        }
-        if (!threadComputePoints.IsAlive && terrainGeneration)
-        {
-            terrainGeneratorScript.generateTerrain();
-        }
-        if (!threadComputePoints.IsAlive && scaleYEnable)
-        {
-            computePointsHeight();
+            yield return null;
         }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
@@ -293,18 +296,6 @@ public class PoissonSampling : MonoBehaviour
     public void startPoisson()
     {
         StartCoroutine(threadedComputePoints());
-        if (isDonePoisson && instanciateEnable)
-        {
-            StartCoroutine(displayGrid());
-        }
-        if (isDonePoisson && terrainGeneration)
-        {
-            terrainGeneratorScript.generateTerrain();
-        }
-        if (isDonePoisson && scaleYEnable)
-        {
-            computePointsHeight();
-        }
     }
 
     /// <summary>Float random [a, b[</summary>
