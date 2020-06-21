@@ -28,12 +28,12 @@ public class PoissonSampling : MonoBehaviour
     private int dimension = 2;
 
     [SerializeField]
-    [Range(0f, 2000f)]
+    [Range(0f, 4096f)]
     [Tooltip("Taille sur X")]
     public int rangeX = 500;
 
     [SerializeField]
-    [Range(0f, 2000f)]
+    [Range(0f, 4096f)]
     [Tooltip("Taille sur Z")]
     public int rangeZ = 500;
 

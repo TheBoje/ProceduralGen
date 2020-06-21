@@ -36,7 +36,6 @@ public class TerrainGenerator : MonoBehaviour
         TerrainData terrainData = oldTerrainData;
         terrainData.heightmapResolution = Mathf.Max(terrainWidth, terrainLength) + 1;
         terrainData.size = new Vector3(nextPowerOfTwo(terrainWidth) + 1, terrainHeight, nextPowerOfTwo(terrainLength) + 1);
-        UnityEngine.Debug.Log(terrainData.size);
         terrainData.SetHeights(0, 0, generateHeights());
         return terrainData;
     }
