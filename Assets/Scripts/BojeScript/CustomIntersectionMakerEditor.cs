@@ -17,7 +17,7 @@ public class CustomIntersectionMakerEditor : Editor
         // Chaque condition dessine un bouton execute le code mis en <then>
         if (GUILayout.Button("Generate Roads"))
         {
-            //intersectionScript.ComputeRoad();
+            intersectionScript.ComputeRoad(false);
             //intersectionScript.StartCoroutine(intersectionScript.threadedComputeRoad());
         }
 
