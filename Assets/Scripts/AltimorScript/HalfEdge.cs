@@ -2,27 +2,40 @@
 
 public class HalfEdge
 {
+    public enum TypeFace
+    {
+        BUILDING,
+        PARK,
+        ROAD,
+        NONE
+    }
+
     private HalfEdge m_next;         // Index de la demi arête suivante
     private HalfEdge m_previous;     // Index de la demi arête précédente
     private HalfEdge m_opposite;     // Index de la demi arête opposée
     private Vector3 m_position;     // Index du plongement correspondant à la position (Vector3)
+    private TypeFace m_type;
 
     // Constructeurs
-    public HalfEdge(Vector3 position)
+    public HalfEdge(Vector3 position, TypeFace type = TypeFace.NONE)
     {
         m_next = this;
         m_previous = this;
         m_opposite = this;
         m_position = position;
+        m_type = type;
     }
 
-    public HalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, Vector3 position)
+    public HalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, Vector3 position, TypeFace type = TypeFace.NONE)
     {
         m_next = next;
         m_previous = previous;
         m_opposite = opposite;
         m_position = position;
+        m_type = type;
     }
+
+
 
     // Ecrase les attributs
     public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite)
@@ -65,5 +78,11 @@ public class HalfEdge
     {
         get { return m_position; }
         set { m_position = value; }
+    }
+
+    public TypeFace Type
+    {
+        get { return m_type; }
+        set { m_type = value; }
     }
 }
