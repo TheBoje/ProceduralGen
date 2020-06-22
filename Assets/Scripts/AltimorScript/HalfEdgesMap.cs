@@ -263,13 +263,16 @@ public class HalfEdgesMap : MonoBehaviour
             Array.Reverse(triangles);
 
         WingedEdgeMap.PrintArray(triangles);
-        ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) } );
+        ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) });
 
-        
+
 
         poly.Extrude(poly.faces, ExtrudeMethod.FaceNormal, height);
         poly.ToMesh();
-        poly.GetComponent<MeshRenderer>().material = mat;
+        MeshRenderer mr = poly.GetComponent<MeshRenderer>();
+
+        mr.material = mat;
+        poly.Refresh();
     }
 
     // Retourne la list de brins d'une face
