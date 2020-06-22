@@ -260,7 +260,7 @@ public class HalfEdgesMap : MonoBehaviour
         ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) } );
 
         poly.Extrude(poly.faces, ExtrudeMethod.FaceNormal, 4f);
-        poly.Refresh();
+        poly.ToMesh();
         poly.GetComponent<MeshRenderer>().material = mat;
     }
 
