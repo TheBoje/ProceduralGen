@@ -166,7 +166,7 @@ public class HalfEdgesMap : MonoBehaviour
     }
 
 
-    // Dessine une face à l'aide d'un Line renderer
+    // retourne la liste de points d'une face
     private List<Vector3> ComputePointsFace(HalfEdge firstEdge, List<HalfEdge> halfEdges)
     {
         HalfEdge currentIndex = firstEdge;
@@ -184,6 +184,90 @@ public class HalfEdgesMap : MonoBehaviour
         Debug.Log(face);
         return points;
     }
+
+    // Calcul le point d'une face où se trouve le plus grand angle : retourne son brin
+    private HalfEdge ComputeMaxAngle(HalfEdge start)
+    {
+        float maxAngle = 0f;
+        HalfEdge currentDart = start;
+        HalfEdge maxAngleDart = start;
+
+        do
+        {
+            float currentAngle = ComputeAngle(currentDart.Next.Position - currentDart.Position, currentDart.Previous.Position - currentDart.Position);
+            if (maxAngle < currentAngle)
+            {
+                maxAngle = currentAngle;
+                maxAngleDart = currentDart;
+            }
+        } while (start != currentDart);
+
+        return maxAngleDart;
+    }
+
+    // Triangule en utilisant la méthode des oreilles : retourne une liste d'entiers correspondant à la triangulation
+    private int[] Triangulate(List<HalfEdge> face)
+    {
+        List<int> triangulation = new List<int>();
+
+        HalfEdge hub = ComputeMaxAngle(face[0]);
+        int indexHub = face.IndexOf(hub);
+
+        foreach(HalfEdge dart in face)
+        {
+            if(dart.Next != hub && dart != hub)
+            {
+                triangulation.Add(indexHub);
+                triangulation.Add(face.IndexOf(dart));
+                triangulation.Add(face.IndexOf(dart.Next));
+            }
+        }
+
+        return triangulation.ToArray();
+    }
+
+    // Retourne le tableau de position des points la face
+    private Vector3[] PointsPositionInFaces(List<HalfEdge> face, bool isHorizontal)
+    {
+        Vector3[] points = new Vector3[face.Count];
+
+        for(int i = 0; i < face.Count; i++)
+            if(isHorizontal)
+                points[i] = new Vector3(face[i].Position.x, 0f, face[i].Position.z);
+
+        return points;
+    }
+
+    // Extrude en utilisant le probuilder mesh
+    public void Extrude(List<HalfEdge> face)
+    {
+        Vector3[] facePoints = PointsPositionInFaces(face, true);
+        int[] triangles = Triangulate(face);
+
+        WingedEdgeMap.PrintArray(triangles);
+
+        ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) } );
+
+        poly.Extrude(poly.faces, ExtrudeMethod.FaceNormal, 4f);
+        poly.Refresh();
+        poly.GetComponent<MeshRenderer>().material = mat;
+    }
+
+    // Retourne la list de brins d'une face
+    private List<HalfEdge> ComputeFace(HalfEdge firstDart)
+    {
+        List<HalfEdge> face = new List<HalfEdge>();
+        HalfEdge current = firstDart;
+
+        do
+        {
+            face.Add(current);
+            current = current.Next;
+        } while (current != firstDart);
+
+        return face;
+    }
+
 
     static void CreateLineMaterial()
     {
@@ -268,7 +352,7 @@ public class HalfEdgesMap : MonoBehaviour
         Debug.Log("5");
         LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 0f));
 
-
+        Extrude(ComputeFace(m_halfEdges[8]));
 
         /*Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         LinkTwoPoints(5, 2);

@@ -20,7 +20,7 @@ public class WingedEdgeMap
         return indexes.ToArray();
     }
 
-    private void PrintArray(int[] arr)
+    public static void PrintArray(int[] arr)
     {
         string str = "";
         foreach (int i in arr)

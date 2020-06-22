@@ -274,6 +274,7 @@ public class DelaunayTriangulation
         return triangles;
     }
 
+    // Récupère l'index des points d'une face dans l'ordre pour pouvoir l'afficher en utilisant probuilder
     public int[] GetIndexesInOrder(List<Triangle> triangles, List<Vector3> points)
     {
         List<int> indexes = new List<int>();
