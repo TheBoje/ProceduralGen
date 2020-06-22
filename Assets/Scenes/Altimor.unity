@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomSeed: 2
-  rayonPoisson: 30
+  rayonPoisson: 20
   iterations: 100
   dimension: 2
   rangeX: 100

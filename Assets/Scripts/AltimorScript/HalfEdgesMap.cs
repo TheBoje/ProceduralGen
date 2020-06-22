@@ -61,47 +61,28 @@ public class HalfEdgesMap : MonoBehaviour
     // Calcul les angles par rapport à l'horizontal pour trouver entre quel et quel brin nous devons mettre le nouveau brin : retourne le futur précédent (de pos1 vers pos2)
     private HalfEdge ComputePreviousDart(HalfEdge firstPrevious, Vector3 pos1, Vector3 pos2)
     {
-        HalfEdge previous = NextDartOnPoint(firstPrevious); // Index du brin qui précèdera le prin allant de pos1 à pos2
-        HalfEdge maxAngleIndex = previous; // Index du brin formant l'angle maximum par rapport à l'horizontal
+        HalfEdge previous = firstPrevious; // Index du brin qui précèdera le prin allant de pos1 à pos2
         HalfEdge currentIndex = previous; // Index étant en train d'être étudié
         HalfEdge firstIndex = previous; // premier index étudié
 
         // On calcul l'angle du vecteur par rapport à l'horizontal pour pouvoir le classer par rapport aux autres brins issus du point pos1
-        float angle = ComputeAngle(pos2 - pos1, Vector3.forward);
-        float maxAngle = angle;
-        float minAngle = angle;
+        float minAngle = 360;
         Debug.Log("haallo");
         do
         {
-            if((firstIndex != currentIndex))
+            float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, pos2 - pos1);
+
+            if(minAngle > currentAngle)
             {
-                float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, Vector3.forward);
-                Debug.Log("Tronçon : " + currentIndex.Position + " vers " + currentIndex.Opposite.Position + " | Current angle : " + currentAngle + " angle : " + angle);
-                if (angle > currentAngle)
-                {
-                    previous = currentIndex;
-                }
-
-                if (maxAngle < currentAngle)
-                {
-                    maxAngle = currentAngle;
-                    maxAngleIndex = currentIndex;
-                }
-
-                if (minAngle > currentAngle)
-                {
-                    minAngle = currentAngle;
-                }
+                minAngle = currentAngle;
+                previous = currentIndex;
             }
+
             currentIndex = NextDartOnPoint(currentIndex);
         } while (firstIndex != currentIndex);
 
-        if (minAngle == angle)
-        {
-            previous = maxAngleIndex;
-        }
-        Debug.Log("Tronçon prefinal : " + previous.Position + " vers " + previous.Opposite.Position);
-        Debug.Log("Tronçon Final : " + previous.Opposite.Position + " vers " + previous.Position);
+        //Debug.Log("Tronçon prefinal : " + previous.Position + " vers " + previous.Opposite.Position);
+        //Debug.Log("Tronçon Final : " + previous.Opposite.ToString());
         return previous.Opposite;
     }
 
@@ -198,7 +179,7 @@ public class HalfEdgesMap : MonoBehaviour
             currentIndex = currentIndex.Next;
             points.Add(currentIndex.Position);
             halfEdges.Remove(currentIndex);
-            face += currentIndex.Position.ToString() + " ";
+            face += currentIndex.ToString() + " ";
         } while (currentIndex != firstEdge);
         Debug.Log(face);
         return points;

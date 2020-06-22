@@ -38,6 +38,11 @@ public class HalfEdge
         return (m_next == this && this == m_previous);
     }
 
+    public override string ToString()
+    {
+        return "De " + m_position + " vers " + m_next.Position;
+    }
+
     public HalfEdge Next
     {
         get { return m_next; }
