@@ -273,4 +273,21 @@ public class DelaunayTriangulation
 
         return triangles;
     }
+
+    public int[] GetIndexesInOrder(List<Triangle> triangles, List<Vector3> points)
+    {
+        List<int> indexes = new List<int>();
+
+        foreach (Triangle tri in triangles)
+        {
+            foreach (Vector3 point in tri.vertices)
+            {
+                indexes.Add(points.IndexOf(point));
+            }
+        }
+
+        return indexes.ToArray();
+    }
+
+
 }
