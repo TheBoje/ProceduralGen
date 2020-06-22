@@ -231,6 +231,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbc575388b980b64db145c2b521a2118, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  octaveCount: 4
+  frequency: 1.3
+  amplitude: 0.6
+  isDoneTerrain: 0
 --- !u!1001 &5053901023578139495
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -238,6 +242,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1582457493980157562, guid: b03e3aafe174f00408ec66dff9f0c9f7,
+        type: 3}
+      propertyPath: m_DetailObjectDistance
+      value: 250
+      objectReference: {fileID: 0}
     - target: {fileID: 2166284445618205614, guid: b03e3aafe174f00408ec66dff9f0c9f7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -298,6 +307,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Terrain
       objectReference: {fileID: 0}
+    - target: {fileID: 9176615996502991975, guid: b03e3aafe174f00408ec66dff9f0c9f7,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 8ba7d3ffdc57b8842bb70aee41f475ce,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b03e3aafe174f00408ec66dff9f0c9f7, type: 3}
 --- !u!1001 &6704132421795053479
