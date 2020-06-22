@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class IntersectionMaker : MonoBehaviour
@@ -9,22 +7,21 @@ public class IntersectionMaker : MonoBehaviour
     private PoissonSampling m_poissonScript;
     private Intersection[,] m_poissonGrid;
     private HalfEdgesMap m_halfEdgeMap;
-    private List<Vector3?> m_positions;
-
 
     // Créer un tableau à deux dimensions d'intersections
     private void InitPoissonGrid()
     {
         m_poissonGrid = new Intersection[m_poissonScript.getRowSize, m_poissonScript.getColSize];
 
-        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
-            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            for (int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(m_poissonScript.poissonGrid[i, j] != null)
+                if (m_poissonScript.poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j] = new Intersection((Vector3)m_poissonScript.poissonGrid[i, j], new Vector2Int(i, j));
-                    m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
+                    //m_poissonGrid[i, j].GenerateIntersection(gameObject.transform);
+                    m_halfEdgeMap.AddIsolatedDart((Vector3)m_poissonScript.poissonGrid[i, j]);
                 }
                 else
                 {
@@ -38,7 +35,7 @@ public class IntersectionMaker : MonoBehaviour
     private void NearestPoint(int x, int y, int nbPointsSearched, int rows, int cols) //
     {
         int length = 1;
-        
+
         while (m_poissonGrid[x, y].Neighbours.Count <= nbPointsSearched)
         {
             for (int i = -length; i <= length; i++)
@@ -49,31 +46,28 @@ public class IntersectionMaker : MonoBehaviour
                     {
                         if (m_poissonGrid[x + i, y + j] != null)
                         {
-                            if(!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
+                            if (!m_poissonGrid[x, y].ContainsIntersection(m_poissonGrid[x + i, y + j]))
                             {
                                 m_poissonGrid[x, y].AddNeighbour(x + i, y + j, m_poissonGrid[x + i, y + j].position);
                             }
-                            
+
                             // Vérifie si l'intersection n'est pas déjà dans la liste et le rajoute
                             if (!m_poissonGrid[x + i, y + j].ContainsIntersection(m_poissonGrid[x, y]))
                             {
                                 m_poissonGrid[x + i, y + j].AddNeighbour(x, y, m_poissonGrid[x, y].position);
                             }
-                                
                         }
                     }
 
-                    if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
-                        break;
+                    /*if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                        break;*/
                 }
-                if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
-                    break;
+                /*if (m_poissonGrid[x, y].Neighbours.Count > nbPointsSearched)
+                    break;*/
             }
             length++;
         }
     }
-
-
 
     private void ComputeNearestPoint(int rows, int cols)
     {
@@ -90,16 +84,14 @@ public class IntersectionMaker : MonoBehaviour
         }
     }
 
-
-
     // Nettoie les routes en enlevant les triangles
     public void DelTriangles()
     {
-        for(int i = 0; i < m_poissonScript.getRowSize; i++)
+        for (int i = 0; i < m_poissonScript.getRowSize; i++)
         {
-            for(int j = 0; j < m_poissonScript.getColSize; j++)
+            for (int j = 0; j < m_poissonScript.getColSize; j++)
             {
-                if(m_poissonGrid[i, j] != null)
+                if (m_poissonGrid[i, j] != null)
                 {
                     m_poissonGrid[i, j].DelTriangle(m_poissonGrid);
                 }
@@ -127,7 +119,7 @@ public class IntersectionMaker : MonoBehaviour
         // va lancer la génération
         m_poissonScript = gameObject.GetComponent<PoissonSampling>();
         InitPoissonGrid();
-        
+
         //m_poissonScript.threadedComputePoints();
         ComputeNearestPoint(m_poissonScript.getRowSize, m_poissonScript.getColSize); // TODO get des lignes et colonnes
 
@@ -140,21 +132,6 @@ public class IntersectionMaker : MonoBehaviour
             {
                 if (m_poissonGrid[i, j] != null)
                 {
-                    m_poissonGrid[i, j].IndexInMap = m_halfEdgeMap.PositionsCount();
-                    m_halfEdgeMap.AddPoint(m_poissonGrid[i, j].position);     
-                }
-            }
-        }
-
-        Debug.Log("Position Count : " + m_halfEdgeMap.PositionsCount());
-        Debug.Log("HalfEdges Count : " + m_halfEdgeMap.HalfEdgeCount());
-
-        for (int i = 0; i < m_poissonScript.getRowSize; i++)
-        {
-            for(int j = 0; j < m_poissonScript.getColSize; j++)
-            {
-                if(m_poissonGrid[i, j] != null)
-                {
                     for (int n = 0; n < m_poissonGrid[i, j].Neighbours.Count; n++)
                     {
                         Vector2Int coords = m_poissonGrid[i, j].Neighbours[n].coords;
@@ -163,27 +140,22 @@ public class IntersectionMaker : MonoBehaviour
                         {
                             m_poissonGrid[i, j].SetJoined(m_poissonGrid[coords.x, coords.y], true);
                             m_poissonGrid[coords.x, coords.y].SetJoined(m_poissonGrid[i, j], true);
-                            
+
                             // Pour passer à la grille en 1 dimension -> j * maxI + i
 
                             int index = m_poissonGrid[coords.x, coords.y].IndexOfInter(m_poissonGrid[i, j]);
-                            Debug.Log("HalfEdges ind : " + m_poissonGrid[i, j].IndexInMap);
-                            m_halfEdgeMap.LinkTwoPoints(m_poissonGrid[i, j].IndexInMap, m_poissonGrid[coords.x, coords.y].IndexInMap);
+                            //Debug.Log("HalfEdges ind : " + m_poissonGrid[i, j].IndexInMap);
+
+                            m_halfEdgeMap.LinkTwoPoints((Vector3)m_poissonScript.poissonGrid[i, j], (Vector3)m_poissonScript.poissonGrid[coords.x, coords.y]);
 
                             // Relie les routes entre les bordures de l'intersection
                             //GenerateRoad((Vector3)m_poissonGrid[i, j].Neighbours[n].positionOnIntersection, (Vector3)m_poissonGrid[coords.x, coords.y].Neighbours[index].positionOnIntersection);
-
                         }
                     }
                 }
             }
         }
     }
-
-
-
-
-
 
     public void ClearIntersections()
     {

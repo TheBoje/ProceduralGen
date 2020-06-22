@@ -6,32 +6,21 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 
 // Créer un triangle isolé
 
 public class HalfEdgesMap : MonoBehaviour
 {
     private List<HalfEdge> m_halfEdges;
-    private List<Vector3> m_positions;
     static Material lineMaterial; // utilisé pour afficher le debug
+    public Material mat;
+
 
 
     public void Init()
     {
         m_halfEdges = new List<HalfEdge>();
-        m_positions = new List<Vector3>();
-    }
-
-    // Ajoute une positions
-    public void AddPosition(Vector3 position)
-    {
-        m_positions.Add(position);
-    }
-
-    // Nombre de positions
-    public int PositionsCount()
-    {
-        return m_positions.Count;
     }
 
     public int HalfEdgeCount()
@@ -39,238 +28,162 @@ public class HalfEdgesMap : MonoBehaviour
         return m_halfEdges.Count;
     }
 
-    //  
-    private void AddIsolatedDart(int indexPosition)
+    public void AddIsolatedDart(Vector3 position)
     {
-        // TODO Le créer directement opposés
-        HalfEdge dart = new HalfEdge(m_halfEdges.Count, m_halfEdges.Count, m_halfEdges.Count + 1, indexPosition);
-        m_halfEdges.Add(dart);
-        HalfEdge opposite = new HalfEdge(m_halfEdges.Count, m_halfEdges.Count, m_halfEdges.Count - 1, indexPosition);
-        m_halfEdges.Add(opposite);
-        
-    }
-
-    // Ajoute un point à la carte (isolé dans la carte)
-    public void AddPoint(Vector3 position)
-    {
-        //AddIsolatedDart(m_positions.Count);
-        m_positions.Add(position);
+        m_halfEdges.Add(new HalfEdge(position)); 
     }
 
     // Retourne l'index d'un brin lié au point passé en paramètre
-    private int IndexOfDartByPoint(int pointIndex)
+    private HalfEdge FirstDartByPoint(Vector3 pointIndex)
     {
         for(int i = 0; i < m_halfEdges.Count; i++)
         {
             if (m_halfEdges[i].Position == pointIndex)
-                return i;
+                return m_halfEdges[i];
         }
 
-        return -1;
+        return null;
     }
 
     // Retourne le brin du point suivant
-    public int NextDartOnPoint(int dart)
+    public HalfEdge NextDartOnPoint(HalfEdge dart)
     {
-        return m_halfEdges[m_halfEdges[dart].Opposite].Next;
+        return dart.Opposite.Next;
     }
 
     // Calcul l'angle sur l'axe des Y : retourne l'angle en degré
     private float ComputeAngle(Vector3 from, Vector3 to)
     {
-        return Vector3.Angle(new Vector3(from.x, 0f, from.z), new Vector3(to.x, 0f, to.z));
+        float angle = Vector3.SignedAngle(new Vector3(from.x, 0f, from.z), new Vector3(to.x, 0f, to.z), Vector3.up);
+        return (360f + angle) % 360;
     }
 
-    // Calcul les angles par rapport à l'horizontal pour trouver entre quel et quel brin nous devons mettre le nouveau brin : retourne le futur suivant (de pos1 vers pos2)
-    private int ComputePreviousDart(int firstPrevious, int pos1, int pos2)
+    // Calcul les angles par rapport à l'horizontal pour trouver entre quel et quel brin nous devons mettre le nouveau brin : retourne le futur précédent (de pos1 vers pos2)
+    private HalfEdge ComputePreviousDart(HalfEdge firstPrevious, Vector3 pos1, Vector3 pos2)
     {
-        int previous = firstPrevious; // Index du brin qui précèdera le prin allant de pos1 à pos2
-        int maxAngleIndex = previous; // Index du brin formant l'angle maximum par rapport à l'horizontal
-        int currentIndex = previous; // Index étant en train d'être étudié
-        int firstIndex = previous; // premier index étudié
+        HalfEdge previous = firstPrevious; // Index du brin qui précèdera le prin allant de pos1 à pos2
+        HalfEdge currentIndex = previous; // Index étant en train d'être étudié
+        HalfEdge firstIndex = previous; // premier index étudié
 
         // On calcul l'angle du vecteur par rapport à l'horizontal pour pouvoir le classer par rapport aux autres brins issus du point pos1
-        float angle = ComputeAngle(m_positions[pos2] - m_positions[pos1], Vector3.forward);
-        float maxAngle = angle;
-        float minAngle = angle;
-
-        while(firstIndex != currentIndex)
+        float minAngle = 360;
+        Debug.Log("haallo");
+        do
         {
-            float currentAngle = ComputeAngle(m_positions[m_halfEdges[m_halfEdges[currentIndex].Opposite].Position] - m_positions[m_halfEdges[currentIndex].Position], Vector3.forward);
-            if (angle > currentAngle)
+            float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, pos2 - pos1);
+
+            if(minAngle > currentAngle)
             {
+                minAngle = currentAngle;
                 previous = currentIndex;
             }
 
-            if(maxAngle < currentAngle)
-            {
-                maxAngle = currentAngle;
-                maxAngleIndex = currentIndex;
-            }
+            currentIndex = NextDartOnPoint(currentIndex);
+        } while (firstIndex != currentIndex);
 
-            if (minAngle > currentAngle)
-            {
-                minAngle = currentAngle;
-            }
-        }
-
-        if (minAngle == angle)
-        {
-            previous = maxAngleIndex;
-        }
-
-        return m_halfEdges[previous].Previous;
+        //Debug.Log("Tronçon prefinal : " + previous.Position + " vers " + previous.Opposite.Position);
+        //Debug.Log("Tronçon Final : " + previous.Opposite.ToString());
+        return previous.Opposite;
     }
 
 
 
     // Relie un brin à deux autres
-    private void LinkDart(int previousA, int previousB, int A, int B)
+    private void AddEdge(HalfEdge previousA, HalfEdge previousB, Vector3 A, Vector3 B)
     {
-        int indexAB = m_halfEdges.Count;
-        int indexBA = m_halfEdges.Count + 1;
 
         // de A vers B
-        HalfEdge AB = new HalfEdge(m_halfEdges[previousB].Next, previousA, indexBA, A);
-        m_halfEdges.Add(AB);
+        HalfEdge AB = new HalfEdge(A);
 
         // De B vers A
-        HalfEdge BA = new HalfEdge(m_halfEdges[previousA].Next, previousB, indexAB, B);
+        HalfEdge BA = new HalfEdge(B);
+
+        AB.SetHalfEdge(previousB.Next, previousA, BA);
+        BA.SetHalfEdge(previousA.Next, previousB, AB);
+
+        m_halfEdges.Add(AB);
         m_halfEdges.Add(BA);
 
-        m_halfEdges[m_halfEdges[previousA].Next].Previous = indexBA;
-        m_halfEdges[m_halfEdges[previousB].Next].Previous = indexAB;
+        previousA.Next.Previous = BA;
+        previousB.Next.Previous = AB;
 
-        m_halfEdges[previousA].Next = indexAB;
-        m_halfEdges[previousB].Next = indexBA;        
+        previousA.Next = AB;
+        previousB.Next = BA;
     }
 
     // Relie une arête dégénérée à un brin non dégénéré
-    private void LinkDegeneratedDart(int previousDart, int indexDegenerated, int dart)
+    private void LinkDegeneratedDart(HalfEdge previousDart, HalfEdge dart)
     {
-        int indexOppositeDegenerated = m_halfEdges[indexDegenerated].Opposite;
-        
-        // On coud le brin allant du brin vers le brin dégénéré
-        m_halfEdges[indexDegenerated].Next = indexOppositeDegenerated;
-        m_halfEdges[indexDegenerated].Previous = previousDart;
-        m_halfEdges[indexDegenerated].Position = dart;
+        HalfEdge opposite = new HalfEdge(dart, previousDart, dart, previousDart.Next.Position);
+        m_halfEdges.Add(opposite);
 
-        // On coud le brin allant du brin dégénéré vers le brin
-        m_halfEdges[indexOppositeDegenerated].Next = m_halfEdges[previousDart].Next;
-        m_halfEdges[indexOppositeDegenerated].Previous = indexDegenerated;
+        dart.Previous = opposite;
+        dart.Opposite = opposite;
+        dart.Next = previousDart.Next;
 
-        // On découd et on recoud le brin précédent et suivant
-        m_halfEdges[m_halfEdges[previousDart].Next].Previous = indexOppositeDegenerated;
-        m_halfEdges[previousDart].Next = indexDegenerated;
-
+        previousDart.Next.Previous = dart;
+        previousDart.Next = opposite;
     }
 
-    // Relie un point à la carte
-    private void LinkPointToDart(int previousDart, int indexPoint)
-    {
-        int indexDart = m_halfEdges.Count;
-        int indexOppositeDart = m_halfEdges.Count + 1;
-
-        HalfEdge dart = new HalfEdge(indexOppositeDart, previousDart, indexOppositeDart, m_halfEdges[m_halfEdges[previousDart].Next].Position);
-        m_halfEdges.Add(dart);
-
-        HalfEdge oppositeDart = new HalfEdge(m_halfEdges[previousDart].Next, indexDart, indexDart, indexPoint);
-        m_halfEdges.Add(oppositeDart);
-
-        m_halfEdges[m_halfEdges[previousDart].Next].Previous = indexOppositeDart;
-        m_halfEdges[previousDart].Next = indexDart;
-    }
 
     // Relie de points pour former une arête
-    private void LinkTwoIsolatedPoints(int A, int B)
+    private void LinkTwoDegeneratedDarts(HalfEdge dart1, HalfEdge dart2)
     {
-        int indexDart = m_halfEdges.Count;
-        int indexOppositeDart = m_halfEdges.Count + 1;
-
-        HalfEdge dart = new HalfEdge(indexOppositeDart, indexOppositeDart, indexOppositeDart, A);
-        m_halfEdges.Add(dart);
-
-        HalfEdge oppositeDart = new HalfEdge(indexDart, indexDart, indexDart, B);
-        m_halfEdges.Add(oppositeDart);
+        dart1.SetHalfEdge(dart2, dart2, dart2);
+        dart2.SetHalfEdge(dart1, dart1, dart1);
     }
 
     // Relie deux points en prenant leurs position en paramètre
-    public void LinkTwoPoints(int A, int B)
+    public void LinkTwoPoints(Vector3 A, Vector3 B)
     {
-        int firstPreviousA = IndexOfDartByPoint(A);
-        int firstPreviousB = IndexOfDartByPoint(B);
-        Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
+        HalfEdge firstPreviousA = FirstDartByPoint(A);
+        HalfEdge firstPreviousB = FirstDartByPoint(B);
+        //Debug.Log("fpA, fpB : " + firstPreviousA + " " + firstPreviousB);
         
-        if(firstPreviousA >= 0 && firstPreviousB < 0) // si le point B n'a pas de brins
+       
+        if (!firstPreviousA.IsDegenerated() && !firstPreviousB.IsDegenerated()) // si aucuns des points ne sont dégénérés
         {
-            int previousA = ComputePreviousDart(firstPreviousA, A, B);
-            LinkPointToDart(previousA, B);
+            HalfEdge previousA = ComputePreviousDart(firstPreviousA, A, B);
+            HalfEdge previousB = ComputePreviousDart(firstPreviousB, B, A);
+
+            AddEdge(previousA, previousB, A, B);
         }
-        else if(firstPreviousA < 0 && firstPreviousB >= 0) // si le point A n'a pas de brins
+        else if (!firstPreviousA.IsDegenerated() && firstPreviousB.IsDegenerated()) // si le point B est dégénéré
         {
-            int previousB = ComputePreviousDart(firstPreviousB, B, A);
-            LinkPointToDart(previousB, A);
+            HalfEdge previousA = ComputePreviousDart(firstPreviousA, A, B);
+            LinkDegeneratedDart(previousA, firstPreviousB);
         }
-        else if(firstPreviousA < 0 && firstPreviousB < 0) // si les deux points n'ont pas de brins
+        else if (firstPreviousA.IsDegenerated() && !firstPreviousB.IsDegenerated()) // si le point A est dégénéré
         {
-            LinkTwoIsolatedPoints(A, B);
+            HalfEdge previousB = ComputePreviousDart(firstPreviousB, B, A);
+            LinkDegeneratedDart(previousB, firstPreviousA);
         }
         else
         {
-            if (!m_halfEdges[firstPreviousA].IsDegenerated(firstPreviousA) && !m_halfEdges[firstPreviousB].IsDegenerated(firstPreviousB)) // si aucuns des points ne sont dégénérés
-            {
-                int previousA = ComputePreviousDart(firstPreviousA, A, B);
-                int previousB = ComputePreviousDart(firstPreviousB, B, A);
-
-                LinkDart(previousA, previousB, A, B);
-            }
-            else if (!m_halfEdges[firstPreviousA].IsDegenerated(firstPreviousA) && m_halfEdges[firstPreviousB].IsDegenerated(firstPreviousB)) // si le point B est dégénéré
-            {
-                int previousA = ComputePreviousDart(firstPreviousA, A, B);
-                LinkDegeneratedDart(previousA, firstPreviousB, A);
-            }
-            else if (m_halfEdges[firstPreviousA].IsDegenerated(firstPreviousA) && !m_halfEdges[firstPreviousB].IsDegenerated(firstPreviousB)) // si le point A est dégénéré
-            {
-                int previousB = ComputePreviousDart(firstPreviousB, B, A);
-                LinkDegeneratedDart(previousB, firstPreviousA, B);
-            }
-            // TODO - faire la condition des deux points dégénérés
+            LinkTwoDegeneratedDarts(firstPreviousA, firstPreviousB);
         }
+            // TODO - faire la condition des deux points dégénérés
     }
-
-    // Extrude un point
-    private void ExtrudeEdge(int point, float height)
-    {
-        
-    }
-
-
-
-
-
-
-
 
 
     // Dessine une face à l'aide d'un Line renderer
-    private List<int> ComputePointsFace(int firstEdge, List<HalfEdge> halfEdges)
+    private List<Vector3> ComputePointsFace(HalfEdge firstEdge, List<HalfEdge> halfEdges)
     {
-        int currentIndex = firstEdge;
-        List<int> indexPoints = new List<int>();
+        HalfEdge currentIndex = firstEdge;
+        List<Vector3> points = new List<Vector3>();
 
-        indexPoints.Add(m_halfEdges[firstEdge].Position);
-
+        points.Add(firstEdge.Position);
+        string face = "Face : ";
         do
         {
-            currentIndex = m_halfEdges[currentIndex].Next;
-            indexPoints.Add(m_halfEdges[currentIndex].Position);
-            halfEdges.Remove(m_halfEdges[currentIndex]);
+            currentIndex = currentIndex.Next;
+            points.Add(currentIndex.Position);
+            halfEdges.Remove(currentIndex);
+            face += currentIndex.ToString() + " ";
         } while (currentIndex != firstEdge);
-
-        return indexPoints;
+        Debug.Log(face);
+        return points;
     }
-
-
 
     static void CreateLineMaterial()
     {
@@ -300,12 +213,14 @@ public class HalfEdgesMap : MonoBehaviour
         GL.MultMatrix(transform.localToWorldMatrix);
 
         List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
-        List<List<int>> facesList = new List<List<int>>(); // Liste des faces
+        List<List<Vector3>> facesList = new List<List<Vector3>>(); // Liste des faces
 
         while(copy.Count > 0)
         {
-            facesList.Add(ComputePointsFace(m_halfEdges.IndexOf(copy[0]), copy));
+            facesList.Add(ComputePointsFace(copy[0], copy));
         }
+
+        Debug.Log("NB Faces : " + facesList.Count);
 
         GL.Begin(GL.LINES);
 
@@ -313,8 +228,8 @@ public class HalfEdgesMap : MonoBehaviour
         {
             for(int j = 1; j < facesList[i].Count; j++)
             {
-                GL.Vertex3(m_positions[facesList[i][j - 1]].x, m_positions[facesList[i][j - 1]].y, m_positions[facesList[i][j - 1]].z);
-                GL.Vertex3(m_positions[facesList[i][j]].x, m_positions[facesList[i][j]].y, m_positions[facesList[i][j]].z);
+                GL.Vertex3(facesList[i][j - 1].x, facesList[i][j - 1].y, facesList[i][j - 1].z);
+                GL.Vertex3(facesList[i][j].x, facesList[i][j].y, facesList[i][j].z);
             }
         }
 
@@ -327,70 +242,44 @@ public class HalfEdgesMap : MonoBehaviour
     {
         Init();
 
-        m_positions.Add(new Vector3(0f, 3f, 0f));
-        m_positions.Add(new Vector3(0f, 7f, 10f));
-        m_positions.Add(new Vector3(10f, 0f, 5f));
-        m_positions.Add(new Vector3(20f, 0f, 0f));
-        m_positions.Add(new Vector3(20f, 4f, 10f));
-        m_positions.Add(new Vector3(15f, 0f, 10f));
-        m_positions.Add(new Vector3(5f, 0f, 10f));
-        m_positions.Add(new Vector3(10f, 9f, 10f));
-        
-
         // Face 1
-        HalfEdge dart0 = new HalfEdge(1, 3, 4, 0);
+        HalfEdge dart0 = new HalfEdge(new Vector3(0f, 0f, 0f));
         m_halfEdges.Add(dart0);
 
-        HalfEdge dart1 = new HalfEdge(2, 0, 5, 1);
+        HalfEdge dart1 = new HalfEdge(new Vector3(0f, 0f, 10f));
         m_halfEdges.Add(dart1);
 
-        HalfEdge dart2 = new HalfEdge(3, 1, 6, 2);
+        HalfEdge dart2 = new HalfEdge(new Vector3(10f, 0f, 0f));
         m_halfEdges.Add(dart2);
 
-        HalfEdge dart3 = new HalfEdge(0, 2, 7, 3);
+        HalfEdge dart3 = new HalfEdge(new Vector3(10f, 0f, 10f));
         m_halfEdges.Add(dart3);
 
-        HalfEdge dart4 = new HalfEdge(7, 5, 0, 1);
-        m_halfEdges.Add(dart4);
 
-        HalfEdge dart5 = new HalfEdge(4, 6, 1, 2);
-        m_halfEdges.Add(dart5);
 
-        HalfEdge dart6 = new HalfEdge(5, 7, 2, 3);
-        m_halfEdges.Add(dart6);
+        Debug.Log("1");
+        LinkTwoPoints(new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 10f));
+        Debug.Log("2");
+        LinkTwoPoints(new Vector3(0f, 0f, 10f), new Vector3(10f, 0f, 10f));
+        Debug.Log("3");
+        LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(10f, 0f, 0f));
+        Debug.Log("4");
+        LinkTwoPoints(new Vector3(10f, 0f, 0f), new Vector3(0f, 0f, 0f));
+        Debug.Log("5");
+        LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 0f));
 
-        HalfEdge dart7 = new HalfEdge(6, 4, 3, 0);
-        m_halfEdges.Add(dart7);
 
-        // dégénéré
-        HalfEdge dart8 = new HalfEdge(8, 8, 9, 5);
-        m_halfEdges.Add(dart8);
 
-        HalfEdge dart9 = new HalfEdge(9, 9, 8, 5);
-        m_halfEdges.Add(dart9);
-
-        Debug.Log("Avant LinkTwoPoints(2, 0); : " + m_halfEdges.Count);
-        LinkTwoPoints(2, 0);
-        Debug.Log("Apres LinkTwoPoints(2, 0); : " + m_halfEdges.Count);
-
-        Debug.Log("Avant LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
-        LinkTwoPoints(3, 4);
-        Debug.Log("Apres LinkTwoPoints(3, 4); : " + m_halfEdges.Count);
-
-        Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
+        /*Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         LinkTwoPoints(5, 2);
         Debug.Log("Apres LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
+        */
 
-        Debug.Log("Avant LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
-        LinkTwoPoints(6, 7);
-        Debug.Log("Apres LinkTwoPoints(6, 7); : " + m_halfEdges.Count);
-
-
-        //DrawMap();
     }
 
     private void Start()
     {
 
+        Demo();
     }
 }

@@ -1,9 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
-using System;
-using UnityEngine.AI;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 // Algorithme provenant de https://yahiko.developpez.com/tutoriels/triangulation-delaunay-incrementale/
 
@@ -46,6 +42,78 @@ public class DelaunayTriangulation
         return (detPAPB >= 0 && detPBPC >= 0 && detPCPA >= 0) || (detPAPB < 0 && detPBPC < 0 && detPCPA < 0);
     }
 
+    // Agrandit le triangle
+    private List<Vector3> ResizeTriangle(Triangle triangle, float k)
+    {
+        List<Vector3> trianglePoints = triangle.vertices;
+
+        trianglePoints[0] += new Vector3(-k, 0f, -k);
+        trianglePoints[1] += new Vector3(0f, 0f, k);
+        trianglePoints[2] += new Vector3(k, 0f, -k);
+
+        return trianglePoints;
+    }
+
+    // Construit le premier super triangle
+    private Triangle BuildFirtsSuperTriangle(List<Vector3> points)
+    {
+        float maxX = points[0].x;
+        float minX = points[0].x;
+
+        float maxZ = points[0].z;
+        float minZ = points[0].z;
+
+        foreach (Vector3 point in points)
+        {
+            maxX = (point.x > maxX) ? point.x : maxX;
+            minX = (point.x < minX) ? point.x : minX;
+
+            maxZ = (point.x > maxX) ? point.z : maxZ;
+            minZ = (point.x < minZ) ? point.z : minZ;
+        }
+
+        Triangle triangle = new Triangle();
+
+        triangle.vertices = new List<Vector3>();
+        triangle.vertices.Add(new Vector3(minX, 0f, minZ));
+        triangle.vertices.Add(new Vector3((maxX + minX) / 2, 0f, maxZ));
+        triangle.vertices.Add(new Vector3(maxX, 0f, minZ));
+
+        triangle.circumscribed = ComputeCircumscribed(triangle.vertices[0], triangle.vertices[1], triangle.vertices[2]);
+
+        return triangle;
+    }
+
+    // Construit le super triangle
+    private Triangle ComputeSuperTriangle(List<Vector3> points)
+    {
+        Triangle superTriangle = BuildFirtsSuperTriangle(points);
+
+        bool allPointsInTriangle = false;
+        List<Vector3> pointsIn = new List<Vector3>();
+
+        while (!allPointsInTriangle)
+        {
+            foreach (Vector3 point in points)
+            {
+                if (superTriangle.vertices.Contains(point) || !IsInTriangle(superTriangle, point))
+                {
+                    superTriangle.vertices = ResizeTriangle(superTriangle, 2f);
+                    superTriangle.circumscribed = ComputeCircumscribed(superTriangle.vertices[0], superTriangle.vertices[1], superTriangle.vertices[2]);
+                }
+                else
+                {
+                    if (!pointsIn.Contains(point))
+                        pointsIn.Add(point);
+                }
+            }
+
+            if (pointsIn.Count >= points.Count)
+                allPointsInTriangle = true;
+        }
+        Debug.Log("1 : " + superTriangle.vertices[0] + " 2 : " + superTriangle.vertices[1] + "3 : " + superTriangle.vertices[2]);
+        return superTriangle;
+    }
 
     // Calcul le cercle circonscrit du triangle A, B, C
     private Circle ComputeCircumscribed(Vector3 a, Vector3 b, Vector3 c)
@@ -73,17 +141,9 @@ public class DelaunayTriangulation
 
         tri.vertices = new List<Vector3> { a, b, c };
 
-
-        
         tri.circumscribed = ComputeCircumscribed(a, b, c);
 
         return tri;
-    }
-
-    // Créer le premier triangle pour lancer la triangulisation
-    private Triangle ComputeFirstTriangle(List<Vector3> points)
-    {
-        return BuildTriangle(new Vector3(-2.5f, 0f, -0.5f), new Vector3(0.5f, 0f, 2.5f), new Vector3(5f, 0f, -0.5f)); // 
     }
 
     // Retourne un tableau des segments du triangle
@@ -113,9 +173,9 @@ public class DelaunayTriangulation
             bool isTwice = false;
             for (int j = 0; j < S.Count; j++)
             {
-                if(i != j)
+                if (i != j)
                 {
-                    if((S[i].A == S[j].A && S[i].B == S[j].B) || (S[i].B == S[j].A && S[i].A == S[j].B))
+                    if ((S[i].A == S[j].A && S[i].B == S[j].B) || (S[i].B == S[j].A && S[i].A == S[j].B))
                     {
                         isTwice = true;
                         break;
@@ -135,9 +195,9 @@ public class DelaunayTriangulation
     {
         List<Segment> allSegments = new List<Segment>();
 
-        foreach(Triangle tri in triangles)
+        foreach (Triangle tri in triangles)
         {
-            foreach(Segment seg in GetTriangleSegments(tri))
+            foreach (Segment seg in GetTriangleSegments(tri))
             {
                 allSegments.Add(seg);
             }
@@ -151,9 +211,9 @@ public class DelaunayTriangulation
     {
         List<Triangle> triangleContainers = new List<Triangle>();
 
-        foreach(Triangle tri in triangles)
+        foreach (Triangle tri in triangles)
         {
-            if(Mathf.Pow(point.x - tri.circumscribed.center.x, 2) + Mathf.Pow(point.z - tri.circumscribed.center.z, 2) < Mathf.Pow(tri.circumscribed.radius, 2))
+            if (Mathf.Pow(point.x - tri.circumscribed.center.x, 2) + Mathf.Pow(point.z - tri.circumscribed.center.z, 2) < Mathf.Pow(tri.circumscribed.radius, 2))
             {
                 triangleContainers.Add(tri);
             }
@@ -168,8 +228,7 @@ public class DelaunayTriangulation
         // Suppression des triangles dont le cercle circonscrit contient p
         List<Triangle> trianglesContainers = FindTrianglesContainers(point, triangles);
 
-
-        foreach(Triangle tri in trianglesContainers)
+        foreach (Triangle tri in trianglesContainers)
         {
             triangles.Remove(tri);
         }
@@ -177,7 +236,7 @@ public class DelaunayTriangulation
         // Création de nouveaux triangles vérifiant la condition de Delaunay
         List<Segment> segList = GetBorder(trianglesContainers);
 
-        foreach(Segment seg in segList)
+        foreach (Segment seg in segList)
         {
             Triangle tri = BuildTriangle(seg.A, seg.B, point);
             triangles.Add(tri);
@@ -187,25 +246,25 @@ public class DelaunayTriangulation
 
     public List<Triangle> Triangulate(List<Vector3> points)
     {
-        Triangle initTriangle = ComputeFirstTriangle(points);
+        Triangle initTriangle = ComputeSuperTriangle(points);
 
         List<Triangle> triangles = new List<Triangle>();
         triangles.Add(initTriangle);
 
         // On insère chaque points
-        foreach(Vector3 point in points)
+        foreach (Vector3 point in points)
         {
             AddPoint(point, triangles);
         }
 
         List<Triangle> toRemoved = new List<Triangle>(triangles);
-        
-        // On retire les triangles qui ont un sommet en commum avec le super triangle 
-        foreach(Vector3 vertex in initTriangle.vertices)
+
+        // On retire les triangles qui ont un sommet en commum avec le super triangle
+        foreach (Vector3 vertex in initTriangle.vertices)
         {
-            foreach(Triangle tri in toRemoved)
+            foreach (Triangle tri in toRemoved)
             {
-                if(tri.vertices.Contains(vertex))
+                if (tri.vertices.Contains(vertex))
                 {
                     triangles.Remove(tri);
                 }

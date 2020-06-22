@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+﻿using UnityEditor;
 using UnityEngine;
-using UnityEditor;
 
 // Ajoute des fonctionnalités dans l'inspecteur pour le script de type IntersectionMaker
 [CustomEditor(typeof(IntersectionMaker))]
@@ -12,9 +9,10 @@ public class CustomIntersectionMakerEditor : Editor
     {
         // On dessine l'inspecteur standard
         DrawDefaultInspector();
-        // Recuperation des differents scripts 
+        // Recuperation des differents scripts
         PoissonSampling poissonScript = (PoissonSampling)GameObject.Find("GenManager").GetComponent<PoissonSampling>();
         Town townScript = (Town)GameObject.Find("GenManager").GetComponent<Town>();
+        HalfEdgesMap halfEdgesMap = (HalfEdgesMap)GameObject.Find("HalfEdge").GetComponent<HalfEdgesMap>();
         IntersectionMaker intersectionScript = (IntersectionMaker)target;
         // Chaque condition dessine un bouton execute le code mis en <then>
         if (GUILayout.Button("Generate Roads"))
@@ -28,7 +26,7 @@ public class CustomIntersectionMakerEditor : Editor
             //intersectionScript.ClearInstanciated();
         }
 
-        if(GUILayout.Button("Add Houses"))
+        if (GUILayout.Button("Add Houses"))
         {
             townScript.BuildTown();
         }

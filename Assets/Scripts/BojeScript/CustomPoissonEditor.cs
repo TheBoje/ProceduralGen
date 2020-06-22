@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEditor;
 using UnityEngine;
-using UnityEditor;
 
 // Ajoute des fonctionnalités dans l'inspecteur pour le script de type PoissonSampling
 [CustomEditor(typeof(PoissonSampling))]
@@ -11,7 +9,7 @@ public class CustomPoissonEditor : Editor
     {
         // On dessine l'inspecteur standard
         DrawDefaultInspector();
-        // Recuperation du script utilisé 
+        // Recuperation du script utilisé
         PoissonSampling poissonScript = (PoissonSampling)target;
         // Chaque condition dessine un bouton execute le code mis en <then>
 

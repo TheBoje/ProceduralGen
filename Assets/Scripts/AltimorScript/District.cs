@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class District : MonoBehaviour
 {
-
     private const int MAX_HOUSES = 3;
     private const int MIN_HOUSES = 3;
 
@@ -12,7 +10,7 @@ public class District : MonoBehaviour
 
     private List<GameObject> m_houses;
 
-    [SerializeField] GameObject m_house = null;
+    [SerializeField] private GameObject m_house = null;
 
     public void Awake()
     {
@@ -20,7 +18,6 @@ public class District : MonoBehaviour
         m_nbHouses = Random.Range(MIN_HOUSES, MAX_HOUSES);
         CreateDistrict();
     }
-
 
     // Calcule la distance à laquelle le centre de la deuxième maison doit être placé
     private Vector3 ComputeNewCenterOfHouse(GameObject house, GameObject addedHouse)

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /** A PLACER SUR UN GAMEOBJECT VIDE **/
@@ -21,9 +20,8 @@ public class House : MonoBehaviour
     private int m_maxFloors;
     [SerializeField] private int m_maxRooms; // nombre maximale de pièces dans la maison
 
-
     // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
         Debug.Log("Start");
 
@@ -94,7 +92,6 @@ public class House : MonoBehaviour
             {
                 Debug.Log("House.AddRoom - null addedRoom ");
             }
-
         }
     }
 
@@ -109,7 +106,7 @@ public class House : MonoBehaviour
         }
     }
 
-    //Calcul le terrain de la maison 
+    //Calcul le terrain de la maison
     public void ComputeField()
     {
         float max_x = 0f, min_x = 0f;
@@ -128,12 +125,10 @@ public class House : MonoBehaviour
             min_z = (min_z > (roomPos.z + (-0.5f * roomScale.z))) ? (roomPos.z + (-0.5f * roomScale.z)) : max_z;
         }
 
-
-
         //m_field.x = Mathf.Abs(max_x - min_x) + OFFSET_FIELD;
         //m_field.z = Mathf.Abs(max_z - min_z) + OFFSET_FIELD;
 
-        // calcul d'un terrain carré (pour simplifier) 
+        // calcul d'un terrain carré (pour simplifier)
         m_field.x = Mathf.Abs(max_x - min_x);
         m_field.y = transform.position.y;
         m_field.z = Mathf.Abs(max_z - min_z);
@@ -154,10 +149,7 @@ public class House : MonoBehaviour
         field.name = "House Field";
         field.GetComponent<MeshRenderer>().enabled = false;
 
-
         Debug.Log("M_FIELD " + gameObject.name + " : " + m_field);
-
-
     }
 
     // GETTER
