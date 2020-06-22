@@ -17,23 +17,34 @@ public class HalfEdgesMap : MonoBehaviour
     public Material mat;
 
 
-
+    /// <summary>
+    /// Initialise les paramètres de la carte
+    /// </summary>
     public void Init()
     {
         m_halfEdges = new List<HalfEdge>();
     }
 
+    /// <returns>Retourne le nombre de brins</returns>
     public int HalfEdgeCount()
     {
         return m_halfEdges.Count;
     }
 
+    /// <summary>
+    /// Ajoute un brin dégénéré à la carte
+    /// </summary>
+    /// <param name="position">Plongement correspondant à la position du brin</param>
     public void AddIsolatedDart(Vector3 position)
     {
         m_halfEdges.Add(new HalfEdge(position)); 
     }
 
-    // Retourne l'index d'un brin lié au point passé en paramètre
+    /// <summary>
+    /// Boucle jusqu'à trouver le brin correspondant à la position
+    /// </summary>
+    /// <param name="pointIndex">Position pour comparer avec les plongements des brins</param>
+    /// <returns>Retourne le premier brin de la liste ayant pour plongement la position passée en paramètre</returns>
     private HalfEdge FirstDartByPoint(Vector3 pointIndex)
     {
         for(int i = 0; i < m_halfEdges.Count; i++)
