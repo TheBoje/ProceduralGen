@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
@@ -15,6 +16,7 @@ public class HalfEdgesMap : MonoBehaviour
     private List<HalfEdge> m_halfEdges;
     static Material lineMaterial; // utilisé pour afficher le debug
     public Material mat;
+    public bool drawDarts = false;
 
 
     /// <summary>
@@ -250,22 +252,28 @@ public class HalfEdgesMap : MonoBehaviour
     }
 
     // Extrude en utilisant le probuilder mesh
-    public void Extrude(List<HalfEdge> face)
+    public void Extrude(List<HalfEdge> face, float height)
     {
         Vector3[] facePoints = PointsPositionInFaces(face, true);
         int[] triangles = Triangulate(face);
 
         WingedEdgeMap.PrintArray(triangles);
 
+        if (Vector3.Cross(facePoints[triangles[1]] - facePoints[triangles[0]], facePoints[triangles[2]] - facePoints[triangles[1]]).y <= 0f)
+            Array.Reverse(triangles);
+
+        WingedEdgeMap.PrintArray(triangles);
         ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) } );
 
-        poly.Extrude(poly.faces, ExtrudeMethod.FaceNormal, 4f);
+        
+
+        poly.Extrude(poly.faces, ExtrudeMethod.FaceNormal, height);
         poly.ToMesh();
         poly.GetComponent<MeshRenderer>().material = mat;
     }
 
     // Retourne la list de brins d'une face
-    private List<HalfEdge> ComputeFace(HalfEdge firstDart)
+    private List<HalfEdge> ComputeFace(HalfEdge firstDart, List<HalfEdge> dartsList)
     {
         List<HalfEdge> face = new List<HalfEdge>();
         HalfEdge current = firstDart;
@@ -273,11 +281,60 @@ public class HalfEdgesMap : MonoBehaviour
         do
         {
             face.Add(current);
+            dartsList.Remove(current);
             current = current.Next;
         } while (current != firstDart);
 
         return face;
     }
+
+    // Retourne la liste des faces
+    private List<List<HalfEdge>> ComputeFaces()
+    {
+        List<List<HalfEdge>> faces = new List<List<HalfEdge>>();
+        List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
+
+        while(copy.Count > 0)
+        {
+            faces.Add(ComputeFace(copy[0], copy));
+        }
+
+        int indexMaxLength = 0;
+        int maxLen = 0;
+
+        for(int i = 0; i < faces.Count; i++)
+        {
+            if(maxLen < faces[i].Count)
+            {
+                indexMaxLength = i;
+                maxLen = faces[i].Count;
+            }
+        }
+
+        faces.RemoveAt(indexMaxLength);
+
+        return faces;
+    }
+
+    // Extrude toutes les faces d'une hauteur compris entre les deux param
+    public void ExtrudeAllFaces(float minHeight, float maxHeight)
+    {
+        List<List<HalfEdge>> faces = ComputeFaces();
+
+        foreach(List<HalfEdge> face in faces)
+        {
+            Extrude(face, UnityEngine.Random.Range(minHeight, maxHeight)); 
+        }
+    }
+
+
+
+
+
+
+
+
+
 
 
     static void CreateLineMaterial()
@@ -302,35 +359,37 @@ public class HalfEdgesMap : MonoBehaviour
     // Dessine la carte
     private void OnRenderObject()
     {
-        CreateLineMaterial();
-        lineMaterial.SetPass(0);
-        GL.PushMatrix();
-        GL.MultMatrix(transform.localToWorldMatrix);
-
-        List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
-        List<List<Vector3>> facesList = new List<List<Vector3>>(); // Liste des faces
-
-        while(copy.Count > 0)
+        if(drawDarts)
         {
-            facesList.Add(ComputePointsFace(copy[0], copy));
-        }
+            CreateLineMaterial();
+            lineMaterial.SetPass(0);
+            GL.PushMatrix();
+            GL.MultMatrix(transform.localToWorldMatrix);
 
-        Debug.Log("NB Faces : " + facesList.Count);
+            List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
+            List<List<Vector3>> facesList = new List<List<Vector3>>(); // Liste des faces
 
-        GL.Begin(GL.LINES);
-
-        for(int i = 0; i < facesList.Count; i++)
-        {
-            for(int j = 1; j < facesList[i].Count; j++)
+            while (copy.Count > 0)
             {
-                GL.Vertex3(facesList[i][j - 1].x, facesList[i][j - 1].y, facesList[i][j - 1].z);
-                GL.Vertex3(facesList[i][j].x, facesList[i][j].y, facesList[i][j].z);
+                facesList.Add(ComputePointsFace(copy[0], copy));
             }
+
+            Debug.Log("NB Faces : " + facesList.Count);
+
+            GL.Begin(GL.LINES);
+
+            for (int i = 0; i < facesList.Count; i++)
+            {
+                for (int j = 1; j < facesList[i].Count; j++)
+                {
+                    GL.Vertex3(facesList[i][j - 1].x, facesList[i][j - 1].y, facesList[i][j - 1].z);
+                    GL.Vertex3(facesList[i][j].x, facesList[i][j].y, facesList[i][j].z);
+                }
+            }
+
+            GL.End();
+            GL.PopMatrix();
         }
-
-        GL.End();
-        GL.PopMatrix();
-
     }
 
     public void Demo()
@@ -362,8 +421,6 @@ public class HalfEdgesMap : MonoBehaviour
         LinkTwoPoints(new Vector3(10f, 0f, 0f), new Vector3(0f, 0f, 0f));
         Debug.Log("5");
         LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 0f));
-
-        Extrude(ComputeFace(m_halfEdges[8]));
 
         /*Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         LinkTwoPoints(5, 2);

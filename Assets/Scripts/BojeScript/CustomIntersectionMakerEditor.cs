@@ -28,7 +28,7 @@ public class CustomIntersectionMakerEditor : Editor
 
         if (GUILayout.Button("Add Houses"))
         {
-            townScript.BuildTown();
+            halfEdgesMap.ExtrudeAllFaces(50f, 200f);
         }
     }
 }
