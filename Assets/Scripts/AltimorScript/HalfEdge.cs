@@ -14,6 +14,7 @@ public class HalfEdge
     private HalfEdge m_previous;     // Index de la demi arête précédente
     private HalfEdge m_opposite;     // Index de la demi arête opposée
     private Vector3 m_position;     // Index du plongement correspondant à la position (Vector3)
+    private Vector3 m_vect;
     private TypeFace m_type;
 
     // Constructeurs
@@ -35,14 +36,22 @@ public class HalfEdge
         m_type = type;
     }
 
+    // Met à jour le vecteur directeur du brin
+    public void RefreshVect()
+    {
+        m_vect = m_next.Position - m_position;
+    }
 
 
     // Ecrase les attributs
-    public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite)
+    public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, bool updateVect = true)
     {
         m_next = next;
         m_previous = previous;
         m_opposite = opposite;
+
+        if (updateVect)
+            this.RefreshVect();
     }
 
     // Retourne vrai si le brin est dégénéré
@@ -84,5 +93,10 @@ public class HalfEdge
     {
         get { return m_type; }
         set { m_type = value; }
+    }
+
+    public Vector3 Vect
+    {
+        get { return m_vect; }
     }
 }

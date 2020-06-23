@@ -15,6 +15,9 @@ using UnityEngine.ProBuilder.MeshOperations;
 public class HalfEdgesMap : MonoBehaviour
 {
     private List<HalfEdge> m_halfEdges;
+    private const float MAGNITUDE_INTERSECTION = 4f;
+
+
     static Material lineMaterial; // utilisé pour afficher le debug
     public Material mat;
     public bool drawDarts = false;
@@ -212,11 +215,52 @@ public class HalfEdgesMap : MonoBehaviour
     // Calcul la nouvelle position du point de l'intersection
     private Vector3 ComputeNewIntersection(Vector3 from, Vector3 to, Vector3 intersection, float magnitude)
     {
-        float angle = ComputeAngle(intersection - from, intersection - to);
+        float angle = ComputeAngle(from * (-1f), to);
         angle /= 2f;
 
         return new Vector3(Mathf.Cos(angle) * magnitude, intersection.y, Mathf.Sin(angle) * magnitude);
     }
+
+    // Calcul les nouveaux points d'une intersection
+    private void ComputePointsOnIntersection(Vector3 intersection)
+    {
+        HalfEdge firsDart = FirstDartByPoint(intersection);
+        HalfEdge currentDart = firsDart;
+
+        do
+        {
+            Vector3 newPos = ComputeNewIntersection(currentDart.Opposite.Vect, currentDart.Opposite.Next.Vect, intersection, MAGNITUDE_INTERSECTION);
+            currentDart.Position = newPos;
+
+
+            if(currentDart.Next == currentDart.Previous)
+            {
+                currentDart.Previous = NextDartOnPoint(currentDart).Opposite;
+            }
+            else
+            {
+                currentDart.Opposite.Next = currentDart.Previous.Opposite;
+            }
+
+            currentDart = NextDartOnPoint(currentDart);
+        } while (currentDart != firsDart);
+    }
+
+    // Calcul des nouveaux points de toutes les intersections
+    public void ComputeAllIntersectionPoints(Vector3?[,] grid, int row, int col)
+    {
+        for(int i = 0; i < row; i++)
+        {
+            for(int j = 0; j < col; j++)
+            {
+                if(grid[i, j] != null)
+                {
+                    ComputePointsOnIntersection((Vector3)grid[i, j]);
+                }
+            }
+        }
+    }
+
 
 
     /** 
