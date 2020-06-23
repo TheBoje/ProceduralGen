@@ -188,17 +188,35 @@ public class HalfEdgesMap : MonoBehaviour
         newDart.SetHalfEdge(newDartOpposite, newDartOpposite, dart);
         newDartOpposite.SetHalfEdge(newDart, newDart, dart.Next);
 
-
+        m_halfEdges.Add(newDart);
+        m_halfEdges.Add(newDartOpposite);
 
         dart.Opposite.Opposite = newDartOpposite;
         dart.Opposite = newDart;
     }
 
-
     // Ajoute des faces pour les routes
+    public void FillEsdgesWithRoads()
+    {
+        List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
 
+        while (copy.Count > 0)
+        {
+            copy.Remove(copy[0].Opposite);
+            CreateFaceFromEdge(m_halfEdges[m_halfEdges.IndexOf(copy[0])]);
+            copy.Remove(copy[0]);
+        
+        }
+    }
 
+    // Calcul la nouvelle position du point de l'intersection
+    private Vector3 ComputeNewIntersection(Vector3 from, Vector3 to, Vector3 intersection, float magnitude)
+    {
+        float angle = ComputeAngle(intersection - from, intersection - to);
+        angle /= 2f;
 
+        return new Vector3(Mathf.Cos(angle) * magnitude, intersection.y, Mathf.Sin(angle) * magnitude);
+    }
 
 
     /** 
@@ -384,7 +402,6 @@ public class HalfEdgesMap : MonoBehaviour
                     Extrude(face, UnityEngine.Random.Range(minHeight, maxHeight));
                     break;
             }
-            
         }
     }
 
