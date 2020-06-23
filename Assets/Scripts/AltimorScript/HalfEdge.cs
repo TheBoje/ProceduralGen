@@ -42,7 +42,6 @@ public class HalfEdge
         m_vect = m_next.Position - m_position;
     }
 
-
     // Ecrase les attributs
     public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, bool updateVect = true)
     {
