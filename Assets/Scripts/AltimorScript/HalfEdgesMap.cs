@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -14,6 +15,9 @@ using UnityEngine.ProBuilder.MeshOperations;
 public class HalfEdgesMap : MonoBehaviour
 {
     private List<HalfEdge> m_halfEdges;
+    private const float MAGNITUDE_INTERSECTION = 4f;
+
+
     static Material lineMaterial; // utilisé pour afficher le debug
     public Material mat;
     public bool drawDarts = false;
@@ -178,6 +182,92 @@ public class HalfEdgesMap : MonoBehaviour
             // TODO - faire la condition des deux points dégénérés
     }
 
+    // Insère une face dans une arête
+    public void CreateFaceFromEdge(HalfEdge dart)
+    {
+        HalfEdge newDart = new HalfEdge(dart.Opposite.Position, HalfEdge.TypeFace.ROAD);
+        HalfEdge newDartOpposite = new HalfEdge(dart.Position, HalfEdge.TypeFace.ROAD);
+
+        newDart.SetHalfEdge(newDartOpposite, newDartOpposite, dart);
+        newDartOpposite.SetHalfEdge(newDart, newDart, dart.Next);
+
+        m_halfEdges.Add(newDart);
+        m_halfEdges.Add(newDartOpposite);
+
+        dart.Opposite.Opposite = newDartOpposite;
+        dart.Opposite = newDart;
+    }
+
+    // Ajoute des faces pour les routes
+    public void FillEsdgesWithRoads()
+    {
+        List<HalfEdge> copy = new List<HalfEdge>(m_halfEdges);
+
+        while (copy.Count > 0)
+        {
+            copy.Remove(copy[0].Opposite);
+            CreateFaceFromEdge(m_halfEdges[m_halfEdges.IndexOf(copy[0])]);
+            copy.Remove(copy[0]);
+        
+        }
+    }
+
+    // Calcul la nouvelle position du point de l'intersection
+    private Vector3 ComputeNewIntersection(Vector3 from, Vector3 to, Vector3 intersection, float magnitude)
+    {
+        float angle = ComputeAngle(from * (-1f), to);
+        angle /= 2f;
+
+        return new Vector3(Mathf.Cos(angle) * magnitude, intersection.y, Mathf.Sin(angle) * magnitude);
+    }
+
+    // Calcul les nouveaux points d'une intersection
+    private void ComputePointsOnIntersection(Vector3 intersection)
+    {
+        HalfEdge firsDart = FirstDartByPoint(intersection);
+        HalfEdge currentDart = firsDart;
+
+        do
+        {
+            Vector3 newPos = ComputeNewIntersection(currentDart.Opposite.Vect, currentDart.Opposite.Next.Vect, intersection, MAGNITUDE_INTERSECTION);
+            currentDart.Position = newPos;
+
+
+            if(currentDart.Next == currentDart.Previous)
+            {
+                currentDart.Previous = NextDartOnPoint(currentDart).Opposite;
+            }
+            else
+            {
+                currentDart.Opposite.Next = currentDart.Previous.Opposite;
+            }
+
+            currentDart = NextDartOnPoint(currentDart);
+        } while (currentDart != firsDart);
+    }
+
+    // Calcul des nouveaux points de toutes les intersections
+    public void ComputeAllIntersectionPoints(Vector3?[,] grid, int row, int col)
+    {
+        for(int i = 0; i < row; i++)
+        {
+            for(int j = 0; j < col; j++)
+            {
+                if(grid[i, j] != null)
+                {
+                    ComputePointsOnIntersection((Vector3)grid[i, j]);
+                }
+            }
+        }
+    }
+
+
+
+    /** 
+     * 
+     * Fonctions s'occupant de l'extrusion
+     *
+     **/
 
     // retourne la liste de points d'une face
     private List<Vector3> ComputePointsFace(HalfEdge firstEdge, List<HalfEdge> halfEdges)
@@ -239,14 +329,35 @@ public class HalfEdgesMap : MonoBehaviour
         return triangulation.ToArray();
     }
 
+    // Retourne la hauteur la plus petite
+    private float MinHeight(List<HalfEdge> darts)
+    {
+        float min = darts[0].Position.y;
+
+        foreach(HalfEdge dart in darts)
+        {
+            min = (dart.Position.y < min) ? dart.Position.y : min;
+        }
+
+        return min;
+    }
+
+
     // Retourne le tableau de position des points la face
-    private Vector3[] PointsPositionInFaces(List<HalfEdge> face, bool isHorizontal)
+    private Vector3[] PointsPositionInFaces(List<HalfEdge> face, bool isHorizontal = true)
     {
         Vector3[] points = new Vector3[face.Count];
-
+        
+        
         for(int i = 0; i < face.Count; i++)
             if(isHorizontal)
-                points[i] = new Vector3(face[i].Position.x, 0f, face[i].Position.z);
+            {
+                float minHeight = MinHeight(face);
+                points[i] = new Vector3(face[i].Position.x, minHeight, face[i].Position.z);
+            }
+                
+            else
+                points[i] = face[i].Position;
 
         return points;
     }
@@ -254,7 +365,7 @@ public class HalfEdgesMap : MonoBehaviour
     // Extrude en utilisant le probuilder mesh
     public void Extrude(List<HalfEdge> face, float height)
     {
-        Vector3[] facePoints = PointsPositionInFaces(face, true);
+        Vector3[] facePoints = PointsPositionInFaces(face);
         int[] triangles = Triangulate(face);
 
         WingedEdgeMap.PrintArray(triangles);
@@ -263,13 +374,16 @@ public class HalfEdgesMap : MonoBehaviour
             Array.Reverse(triangles);
 
         WingedEdgeMap.PrintArray(triangles);
-        ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) } );
+        ProBuilderMesh poly = ProBuilderMesh.Create(facePoints, new Face[] { new Face(triangles) });
 
-        
+
 
         poly.Extrude(poly.faces, ExtrudeMethod.FaceNormal, height);
         poly.ToMesh();
-        poly.GetComponent<MeshRenderer>().material = mat;
+        MeshRenderer mr = poly.GetComponent<MeshRenderer>();
+
+        mr.material = mat;
+        poly.Refresh();
     }
 
     // Retourne la list de brins d'une face
@@ -278,8 +392,11 @@ public class HalfEdgesMap : MonoBehaviour
         List<HalfEdge> face = new List<HalfEdge>();
         HalfEdge current = firstDart;
 
+        HalfEdge.TypeFace type = (HalfEdge.TypeFace)UnityEngine.Random.Range((int)HalfEdge.TypeFace.BUILDING, (int)HalfEdge.TypeFace.PARK + 1);
+
         do
         {
+            current.Type = type;
             face.Add(current);
             dartsList.Remove(current);
             current = current.Next;
@@ -323,7 +440,12 @@ public class HalfEdgesMap : MonoBehaviour
 
         foreach(List<HalfEdge> face in faces)
         {
-            Extrude(face, UnityEngine.Random.Range(minHeight, maxHeight)); 
+            switch(face[0].Type)
+            {
+                case HalfEdge.TypeFace.BUILDING :
+                    Extrude(face, UnityEngine.Random.Range(minHeight, maxHeight));
+                    break;
+            }
         }
     }
 

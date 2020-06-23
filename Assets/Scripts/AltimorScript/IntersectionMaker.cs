@@ -155,6 +155,9 @@ public class IntersectionMaker : MonoBehaviour
                 }
             }
         }
+
+        m_halfEdgeMap.FillEsdgesWithRoads();
+        //m_halfEdgeMap.ComputeAllIntersectionPoints(m_poissonScript.poissonGrid, m_poissonScript.getRowSize, m_poissonScript.getColSize);
     }
 
     public void ClearIntersections()
