@@ -28,12 +28,12 @@ public class PoissonSampling : MonoBehaviour
     private int dimension = 2;
 
     [SerializeField]
-    [Range(0f, 2000f)]
+    [Range(0f, 4096f)]
     [Tooltip("Taille sur X")]
     public int rangeX = 500;
 
     [SerializeField]
-    [Range(0f, 2000f)]
+    [Range(0f, 4096f)]
     [Tooltip("Taille sur Z")]
     public int rangeZ = 500;
 
@@ -68,19 +68,16 @@ public class PoissonSampling : MonoBehaviour
     [Header("Display Settings")]
 
     [SerializeField]
+    [Tooltip("Active la génération du terrain")]
+    private bool terrainGeneration = true;
+
+    [SerializeField]
     [Tooltip("Active l'instanciation")]
     private bool instanciateEnable = true;
 
     [SerializeField]
     [Tooltip("Objet instancié a chaque point calculé")]
     private GameObject objetInstance = null;
-
-    /*
-    * [Header("Activity Settings")]
-
-    * [SerializeField] private bool activityEnable = true;
-    * [SerializeField] private int activityConcentration;
-    */
 
     [Header("Debug Settings")]
 
@@ -97,9 +94,16 @@ public class PoissonSampling : MonoBehaviour
     private int rowsSize;
     private int colsSize;
     private int pointPoissonCount;
+    private TerrainGenerator terrainGeneratorScript;
+    private bool isDonePoisson;
+
+    private void Start()
+    {
+        terrainGeneratorScript = GameObject.Find("Terrain").GetComponent<TerrainGenerator>();
+    }
 
 
-    void Update()
+    private void Update()
     {
         /*  
             Permet d'activer ou désactiver le logging dans la console 
@@ -111,7 +115,7 @@ public class PoissonSampling : MonoBehaviour
         }
     }
 
-    /// <summary>Ajoute des points séparés de au moins 2*rayonPoisson dans grid[,]</summary>
+    /// <summary>Ajoute des points séparés d'au moins 2*rayonPoisson dans grid[,]</summary>
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
 
@@ -133,7 +137,6 @@ public class PoissonSampling : MonoBehaviour
         // Point représentant le milieu de la zone de Poisson, centre du cercle du domaine
         Vector3 middlePoint = new Vector3(rangeX / 2, 0, rangeZ / 2);
 
-
         // Initialisation du random (utilisé dans randomRangeFloatThreadSafe et randomRangeIntThreadSafe) utilisant la seed (modifiable dans l'inspecteur)
         randGiver = new System.Random(randomSeed);
 
@@ -141,6 +144,8 @@ public class PoissonSampling : MonoBehaviour
         float cellSize = (float)(rayonPoisson / Math.Sqrt(dimension));
         rowsSize = (int)Math.Ceiling((float)rangeX / (float)cellSize);
         colsSize = (int)Math.Ceiling((float)rangeZ / (float)cellSize);
+
+        isDonePoisson = false;
 
         // Initialisation de la grille 
         grid = new Vector3?[colsSize, rowsSize];
@@ -164,7 +169,7 @@ public class PoissonSampling : MonoBehaviour
         newPos = new Vector3(rangeX / 2, 0, rangeZ / 2);
         // On utilise la position par rapport a cellSize pour placer le point dans la grille
         Vector3Int newPosFloored = floorVector3(newPos, cellSize);
-        grid[newPosFloored.x, newPosFloored.z] = newPos;
+        grid[newPosFloored.x, newPosFloored.z] = newPos; //FIXME OutOfBounds error
         // On ajoute le point a la liste des points dont des cases adjascentes sont potentiellement libres
         active.Add(newPos);
 
@@ -243,14 +248,10 @@ public class PoissonSampling : MonoBehaviour
                 active.Remove(active[randomIndex]);
             }
         }
-        // Application d'un bruit de perlin
-        if (scaleYEnable)
-        {
-            computePointsHeight();
-        }
+       
         // Arret de la stopwatch
         stopwatchPoissonCompute.Stop();
-
+        isDonePoisson = true;
         UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
 
     }
@@ -267,19 +268,35 @@ public class PoissonSampling : MonoBehaviour
         threadComputePoints.Start();
         threadComputePoints.IsBackground = true;
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Starting");
-        // IEnumerator stuff: reprend la corroutine juste après le yield a chaque frame, nécessaire
+        // IEnumerator stuff: reprend la corroutine juste après le yield a chaque frame
         while (threadComputePoints.IsAlive)
         {
             yield return null;
         }
         // Affichage des points
+        if (isDonePoisson && terrainGeneration)
+        {
+            terrainGeneratorScript.generateTerrain();
+            yield return null;
+        }
+        if (terrainGeneratorScript.isDoneTerrain && scaleYEnable)
+        {
+            computePointsHeight();
+            yield return null;
+        }
         if (!threadComputePoints.IsAlive && instanciateEnable)
         {
             StartCoroutine(displayGrid());
+            yield return null;
         }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
 
+
+    public void startPoisson()
+    {
+        StartCoroutine(threadedComputePoints());
+    }
 
     /// <summary>Float random [a, b[</summary>
     // Remplace UnityEngine.Random.Range(a,b) car non accessible dans un thread alternatif
@@ -368,7 +385,8 @@ public class PoissonSampling : MonoBehaviour
                 {
                     Vector3 temp = (Vector3)grid[i, j];
                     // Récupération de la valeur dans le bruit de Perlin par rapport a sa position (*scaleY)
-                    temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale) * scaleY;
+                    // temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale, scaleY);
+                    temp.y = terrainGeneratorScript.getTerrainLocalHeight(temp);
                     // Remise dans la grid 
                     grid[i, j] = temp;
                 }
@@ -385,9 +403,22 @@ public class PoissonSampling : MonoBehaviour
     }
 
     /// <summary>Calcule la valeur du point (x,y) dans un plan de taille (width, height)*scale</summary>
-    private float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scale)
+    private float perlinNoiseGeneratePoint(float x, float y, float width, float height, float scalePerlin, float scaleY)
     {
-        return Mathf.PerlinNoise((float)((x / width) * scale), (float)((y / height) * scale));
+        return Mathf.PerlinNoise((float)((x / width) * scalePerlin), (float)((y / height) * scalePerlin)) * scaleY;
+    }
+
+    private float[,] perlinNoiseUpdateArray(int width, int height, float scalePerlin, float scaleY)
+    {
+        float[,] result = new float[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                result[x, y] = Mathf.PerlinNoise((float)(x / width) * scalePerlin, (float)(y / height) * scalePerlin) * scaleY;
+            }
+        }
+        return result;
     }
 
     /// <summary>Getter de la grid contenant tous les points de PoissonDiskSampling (calculée dans computePoints)</summary>
