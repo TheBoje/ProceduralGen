@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using System.Diagnostics;
+using System.Threading;
 using UnityEngine;
 
 public class PoissonSampling : MonoBehaviour
 {
     [Header("Basic Settings")]
-
     [SerializeField]
     [Tooltip("Seed de génération")]
     private int randomSeed = 1;
@@ -37,9 +36,7 @@ public class PoissonSampling : MonoBehaviour
     [Tooltip("Taille sur Z")]
     public int rangeZ = 500;
 
-
     [Header("Y Settings")]
-
     [SerializeField]
     [Tooltip("Active le positionnement sur Y")]
     private bool scaleYEnable = true;
@@ -55,7 +52,6 @@ public class PoissonSampling : MonoBehaviour
     public float perlinScale = 2f;
 
     [Header("Domaine Settings")]
-
     [SerializeField]
     [Tooltip("Active le domaine")]
     private bool domaineEnable = true;
@@ -64,9 +60,7 @@ public class PoissonSampling : MonoBehaviour
     [Tooltip("Rayon du cercle incluant les points")]
     private float domaineSize = 100f;
 
-
     [Header("Display Settings")]
-
     [SerializeField]
     [Tooltip("Active la génération du terrain")]
     private bool terrainGeneration = true;
@@ -80,14 +74,12 @@ public class PoissonSampling : MonoBehaviour
     private GameObject objetInstance = null;
 
     [Header("Debug Settings")]
-
     [SerializeField]
     [Tooltip("Active l'affichage des messages de debug dans la console")]
     private bool displayDebugLogs = true;
 
     // Creation du thread secondaire pour le calcul de poisson
-    Thread threadComputePoints;
-
+    private Thread threadComputePoints;
 
     private System.Random randGiver; // TODO Creer randomThread.cs car UnityEngine.Random.Range n'est pas autorisé dans un child thread - on utilise donc la bibliotheque C# directement
     private Vector3?[,] grid;
@@ -102,11 +94,10 @@ public class PoissonSampling : MonoBehaviour
         terrainGeneratorScript = GameObject.Find("Terrain").GetComponent<TerrainGenerator>();
     }
 
-
     private void Update()
     {
-        /*  
-            Permet d'activer ou désactiver le logging dans la console 
+        /*
+            Permet d'activer ou désactiver le logging dans la console
             Attention: a un effet global - quand val=False, rien n'est affiché dans la console
         */
         if (UnityEngine.Debug.unityLogger.logEnabled != displayDebugLogs)
@@ -118,8 +109,6 @@ public class PoissonSampling : MonoBehaviour
     /// <summary>Ajoute des points séparés d'au moins 2*rayonPoisson dans grid[,]</summary>
     public void computePoints() // TODO poissonManager() qui gere l'appel des fonctions en fonction des booléens
     {
-
-
         //==================================================//
         //      Initialisation of all local variables       //
         //==================================================//
@@ -127,7 +116,7 @@ public class PoissonSampling : MonoBehaviour
         // Contient la liste des points dont la proximité est potentiellement libre
         // Des qu'un point est crée, on le place dans cette liste pour pouvoir placer les points adjascents s'il y a assez de place
         List<Vector3> active = new List<Vector3>();
-        // WIP - Liste des points concernant des zones d'activité 
+        // WIP - Liste des points concernant des zones d'activité
         List<Vector3> activityPoints = new List<Vector3>();
 
         // Point temporaire aléatoire proche d'un point sélectionné dans activityPoints - représente aussi le premier point placé
@@ -147,7 +136,7 @@ public class PoissonSampling : MonoBehaviour
 
         isDonePoisson = false;
 
-        // Initialisation de la grille 
+        // Initialisation de la grille
         grid = new Vector3?[colsSize, rowsSize];
         for (int i = 0; i < colsSize; i++)
         {
@@ -160,7 +149,7 @@ public class PoissonSampling : MonoBehaviour
 
         // Initialisation du nombre de points calculés
         pointPoissonCount = 0;
-        // Initialisation de la stopwatch de la fonction 
+        // Initialisation de la stopwatch de la fonction
         Stopwatch stopwatchPoissonCompute = new Stopwatch();
         // true = premier passage, false = passages suivants
         bool firstRun = true;
@@ -173,14 +162,12 @@ public class PoissonSampling : MonoBehaviour
         // On ajoute le point a la liste des points dont des cases adjascentes sont potentiellement libres
         active.Add(newPos);
 
-
         //==================================================//
         //          Actual algorithm                        //
         //==================================================//
 
         // Depart de la stopwatch
         stopwatchPoissonCompute.Start();
-
 
         while (active.Count > 0 || firstRun)
         {
@@ -192,10 +179,10 @@ public class PoissonSampling : MonoBehaviour
             firstRun = false;
 
             int iterationCount = 0;
-            // Tentative de placement d'un point de position aléatoire (iterations-fois maximum) dans la proximitée de activePos 
+            // Tentative de placement d'un point de position aléatoire (iterations-fois maximum) dans la proximitée de activePos
             while (iterationCount < maxIteration)
             {
-                // Vecteur aléatoire déterminant une direction 
+                // Vecteur aléatoire déterminant une direction
                 newPos = new Vector3(randomRangeFloatThreadSafe(-1.0f, 1.0f), 0f, randomRangeFloatThreadSafe(-1.0f, 1.0f)).normalized;
 
                 float randomMagnitude = randomRangeFloatThreadSafe(0.0f, (float)(2 * rayonPoisson));
@@ -248,18 +235,16 @@ public class PoissonSampling : MonoBehaviour
                 active.Remove(active[randomIndex]);
             }
         }
-       
+
         // Arret de la stopwatch
         stopwatchPoissonCompute.Stop();
         isDonePoisson = true;
         UnityEngine.Debug.Log("PoissonSampling::computePoints - Computed " + pointPoissonCount + " points in " + stopwatchPoissonCompute.ElapsedMilliseconds + " ms | " + (float)stopwatchPoissonCompute.ElapsedMilliseconds / (float)pointPoissonCount + "ms / pt");
-
     }
 
     /// <summary>Lance la fonction computePoints() dans un thread different en mode background</summary>
     public IEnumerator threadedComputePoints()
     {
-
         // Supprime les points déjà instanciés (contenus dans la liste instanciatedPoints)
         StartCoroutine(deleteComputed());
         // Initialisation du nouveau thread et mise en mode arrière plan
@@ -291,7 +276,6 @@ public class PoissonSampling : MonoBehaviour
         }
         UnityEngine.Debug.Log("PoissonSampling::threadedComputePoints - Finished");
     }
-
 
     public void startPoisson()
     {
@@ -387,7 +371,7 @@ public class PoissonSampling : MonoBehaviour
                     // Récupération de la valeur dans le bruit de Perlin par rapport a sa position (*scaleY)
                     // temp.y = perlinNoiseGeneratePoint(temp.x, temp.z, rangeX, rangeZ, perlinScale, scaleY);
                     temp.y = terrainGeneratorScript.getTerrainLocalHeight(temp);
-                    // Remise dans la grid 
+                    // Remise dans la grid
                     grid[i, j] = temp;
                 }
             }
@@ -426,10 +410,12 @@ public class PoissonSampling : MonoBehaviour
     {
         get { return grid; }
     }
+
     public int getRowSize
     {
         get { return rowsSize; }
     }
+
     public int getColSize
     {
         get { return colsSize; }
