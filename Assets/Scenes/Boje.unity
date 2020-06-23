@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbc575388b980b64db145c2b521a2118, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  octaveCount: 4
+  octaveCount: 1
   frequency: 1.3
   amplitude: 0.6
   isDoneTerrain: 0
