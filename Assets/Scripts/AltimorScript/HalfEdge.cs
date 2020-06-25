@@ -10,21 +10,23 @@ public class HalfEdge
         NONE
     }
 
-    private HalfEdge m_next;         // Index de la demi arête suivante
-    private HalfEdge m_previous;     // Index de la demi arête précédente
-    private HalfEdge m_opposite;     // Index de la demi arête opposée
+    private HalfEdge m_next;        // Index de la demi arête suivante
+    private HalfEdge m_previous;    // Index de la demi arête précédente
+    private HalfEdge m_opposite;    // Index de la demi arête opposée
     private Vector3 m_position;     // Index du plongement correspondant à la position (Vector3)
-    private Vector3 m_vect;
-    private TypeFace m_type;
+    private Vector3 m_vect;         // Vecteur entre la position du brin et celle de son suivant
+    private TypeFace m_type;        // type de la face auquel le brin est relié
+    private int index;              // Index ne servant que au debug
 
     // Constructeurs
-    public HalfEdge(Vector3 position, TypeFace type = TypeFace.NONE)
+    public HalfEdge(int ind, Vector3 position, TypeFace type = TypeFace.NONE)
     {
         m_next = this;
         m_previous = this;
         m_opposite = this;
         m_position = position;
         m_type = type;
+        index = ind;
     }
 
     public HalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, Vector3 position, TypeFace type = TypeFace.NONE)
@@ -36,13 +38,22 @@ public class HalfEdge
         m_type = type;
     }
 
-    // Met à jour le vecteur directeur du brin
+    /// <summary>
+    /// Met à jour le vecteur du brin
+    /// </summary>
     public void RefreshVect()
     {
         m_vect = m_next.Position - m_position;
     }
 
-    // Ecrase les attributs
+
+    /// <summary>
+    /// Change les valeurs du brin
+    /// </summary>
+    /// <param name="next">Nouveau brin suivant</param>
+    /// <param name="previous">Nouveau brin précédent</param>
+    /// <param name="opposite">Nouveau brin opposé</param>
+    /// <param name="updateVect">Booléen mettant à jour le vecteur si celui est vrai et non sinon (vrai automatiquement si non précisé)</param>
     public void SetHalfEdge(HalfEdge next, HalfEdge previous, HalfEdge opposite, bool updateVect = true)
     {
         m_next = next;
@@ -53,7 +64,10 @@ public class HalfEdge
             this.RefreshVect();
     }
 
-    // Retourne vrai si le brin est dégénéré
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns>Retourne vrai si le brin est dégénéré</returns>
     public bool IsDegenerated()
     {
         return (m_next == this && this == m_previous);
@@ -61,8 +75,9 @@ public class HalfEdge
 
     public override string ToString()
     {
-        return "De " + m_position + " vers " + m_next.Position;
+        return "Index : " + index + " De " + m_position + " vers " + m_next.Position;
     }
+
 
     public HalfEdge Next
     {
