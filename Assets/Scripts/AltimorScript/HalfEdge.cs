@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Classe correspondant a un brin d'une carte
+/// </summary>
 public class HalfEdge
 {
+    // Type de face dans laquelle le brin se trouve
     public enum TypeFace
     {
         BUILDING,

@@ -62,20 +62,35 @@ public class HalfEdgesMap : MonoBehaviour
         return null;
     }
 
-    // Retourne le brin du point suivant
+    /// <summary>
+    /// Le suivant de l'opposé
+    /// </summary>
+    /// <param name="dart">Brin actuel</param>
+    /// <returns>Retourne le brin du point suivant</returns>
     public HalfEdge NextDartOnPoint(HalfEdge dart)
     {
         return dart.Opposite.Next;
     }
 
-    // Calcul l'angle sur l'axe des Y : retourne l'angle en degré
+    /// <summary>
+    /// Calcul l'angle orienté dans le sens trigonométrique sur l'axe des Y
+    /// </summary>
+    /// <param name="from">Vecteur de départ</param>
+    /// <param name="to">Vecteur d'arrivée</param>
+    /// <returns>Retourne l'angle entre les deux vecteur</returns>
     private float ComputeAngle(Vector3 from, Vector3 to)
     {
         float angle = Vector3.SignedAngle(new Vector3(from.x, 0f, from.z), new Vector3(to.x, 0f, to.z), Vector3.up);
         return (360f + angle) % 360;
     }
 
-    // Calcul les angles par rapport à l'horizontal pour trouver entre quel et quel brin nous devons mettre le nouveau brin : retourne le futur précédent (de pos1 vers pos2)
+    /// <summary>
+    /// Calcul le brin opposé du précédent en fonction de l'angle que les deux points passé en paramètre forment entre eux
+    /// </summary>
+    /// <param name="firstPrevious">Premier brin analysé du point</param>
+    /// <param name="pos1">Position du point de départ</param>
+    /// <param name="pos2">Position du point d'arrivée</param>
+    /// <returns>Retourne l'opposé du brin précédent trouvé</returns>
     private HalfEdge ComputePreviousDart(HalfEdge firstPrevious, Vector3 pos1, Vector3 pos2)
     {
         HalfEdge previous = firstPrevious; // Index du brin qui précèdera le prin allant de pos1 à pos2
@@ -84,7 +99,7 @@ public class HalfEdgesMap : MonoBehaviour
 
         // On calcul l'angle du vecteur par rapport à l'horizontal pour pouvoir le classer par rapport aux autres brins issus du point pos1
         float minAngle = 360;
-        Debug.Log("haallo");
+
         do
         {
             float currentAngle = ComputeAngle(currentIndex.Opposite.Position - currentIndex.Position, pos2 - pos1);
