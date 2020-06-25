@@ -43,7 +43,7 @@ public class HalfEdgesMap : MonoBehaviour
     /// <param name="position">Plongement correspondant à la position du brin</param>
     public void AddIsolatedDart(Vector3 position)
     {
-        m_halfEdges.Add(new HalfEdge(position)); 
+        m_halfEdges.Add(new HalfEdge(m_halfEdges.Count, position)); 
     }
 
     /// <summary>
@@ -110,10 +110,10 @@ public class HalfEdgesMap : MonoBehaviour
     {
 
         // de A vers B
-        HalfEdge AB = new HalfEdge(A);
+        HalfEdge AB = new HalfEdge(m_halfEdges.Count, A);
 
         // De B vers A
-        HalfEdge BA = new HalfEdge(B);
+        HalfEdge BA = new HalfEdge(m_halfEdges.Count + 1, B);
 
         AB.SetHalfEdge(previousB.Next, previousA, BA);
         BA.SetHalfEdge(previousA.Next, previousB, AB);
@@ -185,11 +185,11 @@ public class HalfEdgesMap : MonoBehaviour
     // Insère une face dans une arête
     public void CreateFaceFromEdge(HalfEdge dart)
     {
-        HalfEdge newDart = new HalfEdge(dart.Opposite.Position, HalfEdge.TypeFace.ROAD);
-        HalfEdge newDartOpposite = new HalfEdge(dart.Position, HalfEdge.TypeFace.ROAD);
+        HalfEdge newDart = new HalfEdge(m_halfEdges.Count, dart.Opposite.Position, HalfEdge.TypeFace.ROAD);
+        HalfEdge newDartOpposite = new HalfEdge(m_halfEdges.Count + 1, dart.Position, HalfEdge.TypeFace.ROAD);
 
         newDart.SetHalfEdge(newDartOpposite, newDartOpposite, dart);
-        newDartOpposite.SetHalfEdge(newDart, newDart, dart.Next);
+        newDartOpposite.SetHalfEdge(newDart, newDart, dart.Opposite);
 
         m_halfEdges.Add(newDart);
         m_halfEdges.Add(newDartOpposite);
@@ -215,7 +215,7 @@ public class HalfEdgesMap : MonoBehaviour
     // Calcul la nouvelle position du point de l'intersection
     private Vector3 ComputeNewIntersection(Vector3 from, Vector3 to, Vector3 intersection, float magnitude)
     {
-        float angle = ComputeAngle(from * (-1f), to);
+        float angle = ComputeAngle(from, to);
         angle /= 2f;
 
         return new Vector3(Mathf.Cos(angle) * magnitude, intersection.y, Mathf.Sin(angle) * magnitude);
@@ -229,17 +229,13 @@ public class HalfEdgesMap : MonoBehaviour
 
         do
         {
-            Vector3 newPos = ComputeNewIntersection(currentDart.Opposite.Vect, currentDart.Opposite.Next.Vect, intersection, MAGNITUDE_INTERSECTION);
-            currentDart.Position = newPos;
-
-
             if(currentDart.Next == currentDart.Previous)
             {
-                currentDart.Previous = NextDartOnPoint(currentDart).Opposite;
+                
             }
             else
             {
-                currentDart.Opposite.Next = currentDart.Previous.Opposite;
+
             }
 
             currentDart = NextDartOnPoint(currentDart);
@@ -260,6 +256,16 @@ public class HalfEdgesMap : MonoBehaviour
             }
         }
     }
+
+    public void ComputeAllIntersectionPoints(List<Vector3> points)
+    {
+        
+        foreach(Vector3 point in points)
+            ComputePointsOnIntersection(point);
+
+    }
+
+
 
 
 
@@ -516,33 +522,46 @@ public class HalfEdgesMap : MonoBehaviour
 
     public void Demo()
     {
+        Debug.Log("debut dmo");
+
         Init();
 
+        List<Vector3> points = new List<Vector3>();
+        points.Add(new Vector3(0f, 0f, 0f));
+        points.Add(new Vector3(0f, 0f, 10f));
+        points.Add(new Vector3(10f, 0f, 0f));
+        //points.Add(new Vector3(10f, 0f, 10f));
+
+
         // Face 1
-        HalfEdge dart0 = new HalfEdge(new Vector3(0f, 0f, 0f));
+        HalfEdge dart0 = new HalfEdge(m_halfEdges.Count, points[0]);
         m_halfEdges.Add(dart0);
 
-        HalfEdge dart1 = new HalfEdge(new Vector3(0f, 0f, 10f));
+        HalfEdge dart1 = new HalfEdge(m_halfEdges.Count, points[1]);
         m_halfEdges.Add(dart1);
 
-        HalfEdge dart2 = new HalfEdge(new Vector3(10f, 0f, 0f));
+        HalfEdge dart2 = new HalfEdge(m_halfEdges.Count, points[2]);
         m_halfEdges.Add(dart2);
 
-        HalfEdge dart3 = new HalfEdge(new Vector3(10f, 0f, 10f));
-        m_halfEdges.Add(dart3);
+        //HalfEdge dart3 = new HalfEdge(m_halfEdges.Count, points[3]);
+        //m_halfEdges.Add(dart3);
 
 
 
         Debug.Log("1");
         LinkTwoPoints(new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 10f));
         Debug.Log("2");
-        LinkTwoPoints(new Vector3(0f, 0f, 10f), new Vector3(10f, 0f, 10f));
+        LinkTwoPoints(new Vector3(0f, 0f, 10f), new Vector3(10f, 0f, 0f));
         Debug.Log("3");
-        LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(10f, 0f, 0f));
+        //LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(10f, 0f, 0f));
         Debug.Log("4");
         LinkTwoPoints(new Vector3(10f, 0f, 0f), new Vector3(0f, 0f, 0f));
-        Debug.Log("5");
-        LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 0f));
+        //Debug.Log("5");
+        //LinkTwoPoints(new Vector3(10f, 0f, 10f), new Vector3(0f, 0f, 0f));
+
+        FillEsdgesWithRoads();
+        ComputeAllIntersectionPoints(points);
+        Debug.Log("fin demo");
 
         /*Debug.Log("Avant LinkTwoPoints(5, 2); : " + m_halfEdges.Count);
         LinkTwoPoints(5, 2);
