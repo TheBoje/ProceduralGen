@@ -113,6 +113,8 @@ public class IntersectionMaker : MonoBehaviour
     // Calcul les routes en fonctions des voisins
     public void ComputeRoad(bool delTriangles)
     {
+        m_intersections = new List<Intersection>();
+
         m_halfEdgeMap = GameObject.Find("HalfEdge").GetComponent<HalfEdgesMap>();
         m_halfEdgeMap.Init();
 
@@ -167,12 +169,5 @@ public class IntersectionMaker : MonoBehaviour
         {
             Destroy(children.gameObject);
         }
-    }
-
-    private void Start()
-    {
-        m_intersections = new List<Intersection>();
-
-        //ComputeRoad();
     }
 }

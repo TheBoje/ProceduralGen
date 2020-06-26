@@ -26,6 +26,11 @@ public class CustomIntersectionMakerEditor : Editor
             //intersectionScript.ClearInstanciated();
         }
 
+        if (GUILayout.Button("Delete triangles"))
+        {
+            intersectionScript.ComputeRoad(true);
+        }
+
         if (GUILayout.Button("Add Houses"))
         {
             halfEdgesMap.ExtrudeAllFaces(50f, 200f);
