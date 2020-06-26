@@ -1,8 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor;
-using UnityEngine.Experimental.TerrainAPI;
-using System.Drawing;
-using System.Collections.Generic;
 
 public class TerrainGenerator : MonoBehaviour
 {
@@ -48,7 +44,7 @@ public class TerrainGenerator : MonoBehaviour
     private float[,] generateHeights()
     {
         float[,] points = new float[nextPowerOfTwo(terrainWidth) + 1, nextPowerOfTwo(terrainLength) + 1];
-        float init_freq= frequency;
+        float init_freq = frequency;
         float init_ampl = amplitude;
         for (int i = 0; i < nextPowerOfTwo(terrainWidth) + 1; i++)
         {

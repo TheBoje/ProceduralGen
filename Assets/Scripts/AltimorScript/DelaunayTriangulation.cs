@@ -289,6 +289,4 @@ public class DelaunayTriangulation
 
         return indexes.ToArray();
     }
-
-
 }

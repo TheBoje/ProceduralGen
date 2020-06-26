@@ -113,6 +113,8 @@ public class IntersectionMaker : MonoBehaviour
     // Calcul les routes en fonctions des voisins
     public void ComputeRoad(bool delTriangles)
     {
+        m_intersections = new List<Intersection>();
+
         m_halfEdgeMap = GameObject.Find("HalfEdge").GetComponent<HalfEdgesMap>();
         m_halfEdgeMap.Init();
 
@@ -157,7 +159,7 @@ public class IntersectionMaker : MonoBehaviour
         }
 
         m_halfEdgeMap.FillEsdgesWithRoads();
-        //m_halfEdgeMap.ComputeAllIntersectionPoints(m_poissonScript.poissonGrid, m_poissonScript.getRowSize, m_poissonScript.getColSize);
+        m_halfEdgeMap.ComputeAllIntersectionPoints(m_poissonScript.poissonGrid, m_poissonScript.getRowSize, m_poissonScript.getColSize);
     }
 
     public void ClearIntersections()
@@ -167,12 +169,5 @@ public class IntersectionMaker : MonoBehaviour
         {
             Destroy(children.gameObject);
         }
-    }
-
-    private void Start()
-    {
-        m_intersections = new List<Intersection>();
-
-        //ComputeRoad();
     }
 }
